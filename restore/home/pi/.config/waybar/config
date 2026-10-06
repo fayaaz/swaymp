@@ -14,9 +14,15 @@
         "custom/euphonica",
         "custom/power"
     ],
+    "fixed-center": false,
+    "expand-center": true,
     "sway/window": {
-        "format": " {} ",
-        "max-length": 12
+        "format": "{}",
+        "max-length": 100,
+        "expand": true,
+        "rewrite": {
+            "swayimg: cheatsheet\\.svg": "cheatsheet"
+        }
     },
     "tray": {
         "spacing": 10

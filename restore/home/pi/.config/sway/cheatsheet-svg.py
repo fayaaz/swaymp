@@ -56,6 +56,7 @@ KEYSYM = {
     "z": ("z", 0), "x": ("x", 0), "c": ("c", 0), "v": ("v", 0), "b": ("b", 0),
     "n": ("n", 0), "m": ("m", 0),
     "comma": ("b", 1), "period": ("n", 1), "space": ("space", 0), "dollar": ("dollar", 0),
+    "tab": ("tab", 0),
     "F1": ("capslock", 2), "F2": ("esc", 2), "F3": ("tab", 2),
 }
 
@@ -68,8 +69,9 @@ ICONS = {
     "volume -": "volminus", "volume +": "volplus", "mute": "mute",
     "wiremix peaks": "meter", "brightness": "sun",
     "notifications": "bell", "this cheatsheet": "help",
-    "back / close cheatsheet": "close", "launcher (fuzzel)": "launcher",
+    "back / close cheatsheet": "close",     "launcher (fuzzel)": "launcher",
     "euphonica": "headphone",
+    "terminal": "terminal",
 }
 
 # compact keycap captions (full labels stay in keys.json / cheatsheet.txt)
@@ -169,6 +171,10 @@ def icon(name, cx, cy, color, scale=1.0):
     elif name == "tab":
         path("M -12,0 L -3,0 M -3,-6 L 4,0 L -3,6 Z", fill=color)
         path("M 6,-10 L 6,10 M 11,-10 L 11,10")
+    elif name == "terminal":
+        path("M -11,-8 L -11,8 L 11,8 L 11,-8 Z")
+        path("M -8,-4 L -4,0 L -8,4")
+        path("M -1,4 L 5,4")
     else:
         path("M -6,0 A 6,6 0 1 0 6,0 A 6,6 0 1 0 -6,0", fill=color)
     return f'<g transform="translate({cx},{cy}) scale({scale})">{"".join(s)}</g>'

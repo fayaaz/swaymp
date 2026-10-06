@@ -8,7 +8,7 @@ PAYLOAD=${1:-/tmp/restore}
 # --- packages ---
 sudo rm -f /etc/apt/sources.list.d/mympd.list /etc/apt/trusted.gpg.d/mympd.asc
 sudo apt-get update >/dev/null
-sudo apt-get install -y sway waybar foot fuzzel swayimg syncthing pipewire pipewire-pulse wireplumber \
+sudo apt-get install -y sway waybar foot fuzzel swayimg imv syncthing pipewire pipewire-pulse wireplumber \
     fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep >/dev/null
 
 # myMPD from source (myMPD uses CMake; Debian has no package, GitHub has no deb assets).
@@ -108,6 +108,9 @@ sed -i 's/^    #bindsym \$mod+b splith/    bindsym $mod+b splith/' "$HOME/.confi
 sed -i 's/^    bindsym \$mod+v splitv/    #bindsym $mod+v splitv/' "$HOME/.config/sway/config"
 sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none/' "$HOME/.config/sway/config"
 sed -i 's/^for_window \[app_id="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none/' "$HOME/.config/sway/config"
+if ! grep -q '^for_window \[title="cheatsheet"\]' "$HOME/.config/sway/config"; then
+    echo 'for_window [title="cheatsheet"] floating enable, move position 10 100, border none' >> "$HOME/.config/sway/config"
+fi
 sed -i 's/^bindsym \$mod+r mode "resize"/bindsym \$mod+Shift+r mode "resize"/' "$HOME/.config/sway/config"
 if grep -q '^bindsym \$mod+Shift+r mode "default"' "$HOME/.config/sway/config"; then
     sed -i 's/^        bindsym \$mod+Shift+r mode "default"/        bindsym $mod+Shift+r mode "default"/' "$HOME/.config/sway/config"
@@ -127,6 +130,19 @@ sed -i "s/^bindsym \$mod+n exec foot -o font='monospace:size=[0-9]*' -e \/home\/
 sed -i 's/^bindsym F13 exec \/home\/pi\/.config\/sway\/cheatsheet.sh/#bindsym F13 exec \/home\/pi\/.config\/sway\/cheatsheet.sh/' "$HOME/.config/sway/config"
 sed -i 's/^    bindsym \$mod+space exec \$menu/    #bindsym $mod+space exec $menu/' "$HOME/.config/sway/config"
 sed -i 's/^bindsym \$mod+space exec \$menu/#bindsym $mod+space exec $menu/' "$HOME/.config/sway/config"
+
+# Terminal is bound from keys.json as $mod+tab; disable the stock terminal/Tab binds.
+sed -i 's/^    bindsym \$mod+return exec \$term/    #bindsym $mod+return exec $term/' "$HOME/.config/sway/config"
+sed -i 's/^bindsym \$mod+return exec \$term/#bindsym $mod+return exec $term/' "$HOME/.config/sway/config"
+sed -i 's/^    bindsym \$mod+Return exec \$term/    #bindsym $mod+Return exec $term/' "$HOME/.config/sway/config"
+sed -i 's/^bindsym \$mod+Return exec \$term/#bindsym $mod+Return exec $term/' "$HOME/.config/sway/config"
+sed -i 's/^    bindsym \$mod+Tab workspace next/    #bindsym $mod+Tab workspace next/' "$HOME/.config/sway/config"
+sed -i 's/^bindsym \$mod+Tab workspace next/#bindsym $mod+Tab workspace next/' "$HOME/.config/sway/config"
+
+# Floating centered terminal (foot background alpha is set in foot.ini).
+if ! grep -q '^for_window \[app_id="foot"\]' "$HOME/.config/sway/config"; then
+    echo 'for_window [app_id="foot"] floating enable, resize set 640 480, move position center, border none' >> "$HOME/.config/sway/config"
+fi
 
 # Start Euphonica when sway starts.
 if grep -q "exec flatpak --user run io.github.htkhiem.Euphonica" "$HOME/.config/sway/config"; then
