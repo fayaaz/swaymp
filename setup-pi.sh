@@ -8,7 +8,8 @@ PAYLOAD=${1:-/tmp/restore}
 # --- packages ---
 sudo rm -f /etc/apt/sources.list.d/mympd.list /etc/apt/trusted.gpg.d/mympd.asc
 sudo apt-get update >/dev/null
-sudo apt-get install -y mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep >/dev/null
+sudo apt-get install -y sway waybar foot fuzzel syncthing pipewire pipewire-pulse wireplumber \
+    fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep >/dev/null
 
 # myMPD from source (myMPD uses CMake; Debian has no package, GitHub has no deb assets).
 if ! command -v mympd >/dev/null; then
