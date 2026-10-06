@@ -1,5 +1,6 @@
 #!/bin/bash
-# Single source of truth: keys.json -> generated.conf (sway binds) + cheatsheet.txt (compact overlay)
+# Single source of truth: keys.json -> generated.conf (sway binds) + cheatsheet.txt (plain text)
+#                                      + cheatsheet.svg (keycap diagram shown by cheatsheet.sh)
 DIR="$(dirname "$0")"
 jq -r '.binds[] | "bindsym \(.key) \(.cmd)"' "$DIR/keys.json" > "$DIR/generated.conf"
 
@@ -10,3 +11,5 @@ jq -r '.binds[] | "\(.key)\t\(.label)"' "$DIR/keys.json" | awk -v c=$C '{
   if (length(key) > 12) key=substr(key,1,12)
   printf "%-12s %s\n", key, lab
 }' >> "$DIR/cheatsheet.txt"
+
+python3 "$DIR/cheatsheet-svg.py"

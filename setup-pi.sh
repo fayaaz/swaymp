@@ -8,7 +8,7 @@ PAYLOAD=${1:-/tmp/restore}
 # --- packages ---
 sudo rm -f /etc/apt/sources.list.d/mympd.list /etc/apt/trusted.gpg.d/mympd.asc
 sudo apt-get update >/dev/null
-sudo apt-get install -y sway waybar foot fuzzel syncthing pipewire pipewire-pulse wireplumber \
+sudo apt-get install -y sway waybar foot fuzzel swayimg syncthing pipewire pipewire-pulse wireplumber \
     fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep >/dev/null
 
 # myMPD from source (myMPD uses CMake; Debian has no package, GitHub has no deb assets).
@@ -64,7 +64,7 @@ default_border none
 default_floating_border none
 floating_minimum_size 420 x 240
 floating_maximum_size 720 x 700
-for_window [title="cheatsheet"] floating enable, border pixel 1
+for_window [app_id="cheatsheet"] floating enable, move position center, border pixel 1
 for_window [app_id="wiremix"] resize set height 320 px
 include $HOME/.config/sway/generated.conf
 EOF
@@ -88,6 +88,7 @@ sed -i 's/^    bindsym \$mod+\$up focus up/    #bindsym \$mod+$up focus up/' "$H
 sed -i 's/^    bindsym \$mod+s layout stacking/    #bindsym $mod+s layout stacking/' "$HOME/.config/sway/config"
 sed -i 's/^    #bindsym \$mod+b splith/    bindsym $mod+b splith/' "$HOME/.config/sway/config"
 sed -i 's/^    bindsym \$mod+v splitv/    #bindsym $mod+v splitv/' "$HOME/.config/sway/config"
+sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position center, border pixel 1/' "$HOME/.config/sway/config"
 sed -i 's/^bindsym \$mod+r mode "resize"/bindsym \$mod+Shift+r mode "resize"/' "$HOME/.config/sway/config"
 if grep -q '^bindsym \$mod+Shift+r mode "default"' "$HOME/.config/sway/config"; then
     sed -i 's/^        bindsym \$mod+Shift+r mode "default"/        bindsym $mod+Shift+r mode "default"/' "$HOME/.config/sway/config"
@@ -143,6 +144,7 @@ fi
 # --- user services ---
 chmod +x "$HOME/.config/sway/notifications.sh"
 chmod +x "$HOME/.config/sway/cheatsheet.sh"
+chmod +x "$HOME/.config/sway/cheatsheet-svg.py"
 chmod +x "$HOME/.config/sway/wiremix.sh"
 chmod +x "$HOME/.config/sway/brightness.py"
 systemctl --user disable --now dunst.service >/dev/null 2>&1 || true
