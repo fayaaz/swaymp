@@ -17,6 +17,19 @@ W = M * 2 + 10 * U + 9 * G
 TITLE_H, LEGEND_H = 38, 118
 H = M * 2 + TITLE_H + ROWS * U + (ROWS - 1) * G + LEGEND_H
 
+# Fuzzel/Dracula-ish palette with a near-black glass background.
+BG = "#000000"
+BG_OPACITY = 0.10
+FG = "#f8f8f2"
+PURPLE = "#bd93f9"
+CYAN = "#8be9fd"
+SELECTION = "#111111"
+COMMENT = "#6272a4"
+DARK = "#000000"
+CAP_OPACITY = 0.22
+BOUND_OPACITY = 0.34
+MOD_OPACITY = 0.36
+
 # (row, col, span) for every physical keycap; base label = Layer 0 legend.
 BOARD = [
     ("capslock", 0, 0, 2, "Caps"), ("lgui", 0, 2, 2, "MOD"), ("mouse1", 0, 4, 1, "LMB"),
@@ -179,10 +192,12 @@ def main():
 
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
            f'viewBox="0 0 {W} {H}">',
-           f'<rect width="{W}" height="{H}" fill="#14171c"/>',
-           f'<text x="{M}" y="{M+22}" font-size="20" font-weight="bold" fill="#e8eef7">'
+           f'<rect width="{W}" height="{H}" fill="{BG}" fill-opacity="{BG_OPACITY}"/>',
+           f'<rect x="1" y="1" width="{W-2}" height="{H-2}" rx="14" fill="none" '
+           f'stroke="{PURPLE}" stroke-opacity="0.45" stroke-width="1"/>',
+           f'<text x="{M}" y="{M+22}" font-size="20" font-weight="bold" fill="{FG}">'
            f'HACKPI KEYS</text>',
-           f'<text x="{W-M}" y="{M+22}" font-size="12" fill="#8b95a7" text-anchor="end">'
+           f'<text x="{W-M}" y="{M+22}" font-size="12" fill="{PURPLE}" text-anchor="end">'
            f'hold MOD (LGUI) + key</text>']
 
     board_y = M + TITLE_H
@@ -192,44 +207,48 @@ def main():
         w = span * U + (span - 1) * G
         bound = name in marks
         mod = name == "lgui"
-        fill = "#7a3b12" if mod else ("#1b4f7a" if bound else "#23272e")
-        stroke = "#e0a35c" if mod else ("#59a7e6" if bound else "#333842")
+        fill = PURPLE if mod else (SELECTION if bound else DARK)
+        stroke = PURPLE if mod else (PURPLE if bound else COMMENT)
+        fill_op = MOD_OPACITY if mod else (BOUND_OPACITY if bound else CAP_OPACITY)
+        stroke_op = 0.75 if mod or bound else 0.45
         out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{U}" rx="9" '
-                   f'fill="{fill}" stroke="{stroke}" stroke-width="1.5"/>')
+                   f'fill="{fill}" fill-opacity="{fill_op}" stroke="{stroke}" '
+                   f'stroke-opacity="{stroke_op}" stroke-width="1.5"/>')
         cx = x + w / 2
         marks_list = marks.get(name, [])
         base_size = 18 if len(base) <= 2 else 14
         if mod:
             out.append(f'<text x="{cx}" y="{y+U/2}" font-size="18" font-weight="bold" '
-                       f'fill="#ffe6c9" text-anchor="middle" dominant-baseline="central">MOD</text>')
+                       f'fill="{FG}" text-anchor="middle" dominant-baseline="central">MOD</text>')
         elif marks_list:
             for label, icon_name, layer in marks_list:
-                out.append(icon(icon_name, cx, y + 18, "#eaf3ff", scale=0.7))
+                out.append(icon(icon_name, cx, y + 18, CYAN, scale=0.7))
                 short = SHORT.get(label, label)
-                out.append(f'<text x="{cx}" y="{y+U-8}" font-size="9" fill="#cfe3f7" '
+                out.append(f'<text x="{cx}" y="{y+U-8}" font-size="9" fill="{FG}" '
                            f'text-anchor="middle">{short}</text>')
                 if layer:
                     bx, by = x + w - 13, y + 13
-                    out.append(f'<circle cx="{bx}" cy="{by}" r="9" fill="#0f1115" stroke="#59a7e6"/>')
+                    out.append(f'<circle cx="{bx}" cy="{by}" r="9" fill="{BG}" '
+                               f'fill-opacity="0.45" stroke="{PURPLE}" stroke-opacity="0.75"/>')
                     out.append(f'<text x="{bx}" y="{by}" font-size="11" font-weight="bold" '
-                               f'fill="#9ed1ff" text-anchor="middle" dominant-baseline="central">{layer}</text>')
+                               f'fill="{PURPLE}" text-anchor="middle" dominant-baseline="central">{layer}</text>')
             out.append(f'<text x="{cx}" y="{y+U/2+4}" font-size="{base_size}" font-weight="bold" '
-                       f'fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">{base}</text>')
+                       f'fill="{FG}" text-anchor="middle" dominant-baseline="central">{base}</text>')
         else:
             out.append(f'<text x="{cx}" y="{y+U/2}" font-size="{base_size}" font-weight="bold" '
-                       f'fill="#93a0b3" text-anchor="middle" dominant-baseline="central">{base}</text>')
+                       f'fill="{COMMENT}" text-anchor="middle" dominant-baseline="central">{base}</text>')
 
     ly = board_y + ROWS * U + (ROWS - 1) * G + 22
-    out.append(f'<text x="{M}" y="{ly}" font-size="13" font-weight="bold" fill="#e8eef7">'
+    out.append(f'<text x="{M}" y="{ly}" font-size="13" font-weight="bold" fill="{FG}">'
                f'OTHER KEYS</text>')
     col_x, row_y = M, ly + 26
     for i, (key, label) in enumerate(legend):
-        out.append(f'<text x="{col_x}" y="{row_y}" font-size="12" fill="#9ed1ff">{key}</text>')
-        out.append(f'<text x="{col_x+105}" y="{row_y}" font-size="12" fill="#c4cfdc">{label}</text>')
+        out.append(f'<text x="{col_x}" y="{row_y}" font-size="12" fill="{CYAN}">{key}</text>')
+        out.append(f'<text x="{col_x+105}" y="{row_y}" font-size="12" fill="{FG}">{label}</text>')
         col_x += 236
         if i % 3 == 2:
             col_x, row_y = M, row_y + 24
-    out.append(f'<text x="{W-M}" y="{H-M-4}" font-size="11" fill="#7d8798" text-anchor="end">'
+    out.append(f'<text x="{W-M}" y="{H-M-4}" font-size="11" fill="{COMMENT}" text-anchor="end">'
                f'1 = Layer 1 (hold the L1 key)</text>')
     out.append("</svg>")
 

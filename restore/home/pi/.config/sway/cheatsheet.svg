@@ -1,129 +1,130 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="722" height="528" viewBox="0 0 722 528">
-<rect width="722" height="528" fill="#14171c"/>
-<text x="14" y="36" font-size="20" font-weight="bold" fill="#e8eef7">HACKPI KEYS</text>
-<text x="708" y="36" font-size="12" fill="#8b95a7" text-anchor="end">hold MOD (LGUI) + key</text>
-<rect x="14" y="52" width="134" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="81.0" y="84.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Caps</text>
-<rect x="154" y="52" width="134" height="64" rx="9" fill="#7a3b12" stroke="#e0a35c" stroke-width="1.5"/>
-<text x="221.0" y="84.0" font-size="18" font-weight="bold" fill="#ffe6c9" text-anchor="middle" dominant-baseline="central">MOD</text>
-<rect x="294" y="52" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="326.0" y="84.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">LMB</text>
-<rect x="364" y="52" width="134" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="431.0" y="84.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Esc</text>
-<rect x="504" y="52" width="134" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="571.0" y="84.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Tab</text>
-<rect x="14" y="122" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="46.0" y="154.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Q</text>
-<rect x="84" y="122" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="116.0" y="154.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">W</text>
-<rect x="154" y="122" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="186.0" y="154.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">E</text>
-<rect x="224" y="122" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(256.0,140) scale(0.7)"><path d="M -11,-5 L 6,3" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 11,5 L 4.8,5.7 L 7.2,0.3 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -11,5 L 6,-3" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 11,-5 L 7.2,-0.3 L 4.8,-5.7 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="256.0" y="178" font-size="9" fill="#cfe3f7" text-anchor="middle">random</text>
-<text x="256.0" y="158.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">R</text>
-<rect x="294" y="122" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="326.0" y="154.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">T</text>
-<rect x="364" y="122" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="396.0" y="154.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Y</text>
-<rect x="434" y="122" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="466.0" y="154.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">U</text>
-<rect x="504" y="122" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(536.0,140) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,0 L 11,0" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="536.0" y="178" font-size="9" fill="#cfe3f7" text-anchor="middle">vol -</text>
-<text x="536.0" y="158.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">I</text>
-<rect x="574" y="122" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(606.0,140) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,0 L 11,0 M 7.5,-3.5 L 7.5,3.5" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="606.0" y="178" font-size="9" fill="#cfe3f7" text-anchor="middle">vol +</text>
-<text x="606.0" y="158.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">O</text>
-<rect x="644" y="122" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(676.0,140) scale(0.7)"><path d="M -11,-8 L -2,0 L -11,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,-8 L 4,8 M 10,-8 L 10,8" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="676.0" y="178" font-size="9" fill="#cfe3f7" text-anchor="middle">play/pause</text>
-<text x="676.0" y="158.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">P</text>
-<rect x="14" y="192" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="46.0" y="224.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">A</text>
-<rect x="84" y="192" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(116.0,210) scale(0.7)"><path d="M -8,-7 L -2,-7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 2,-7 L 4,-7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 8,-7 L 4,-11 L 4,-3 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 8,7 L 2,7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -2,7 L -4,7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -8,7 L -4,3 L -4,11 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><text x="0" y="0" font-size="17" font-weight="bold" fill="#eaf3ff" text-anchor="middle" dominant-baseline="central">1</text></g>
-<text x="116.0" y="248" font-size="9" fill="#cfe3f7" text-anchor="middle">single</text>
-<text x="116.0" y="228.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">S</text>
-<rect x="154" y="192" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(186.0,210) scale(0.7)"><path d="M -8,4 L -8,-2 A 8,8 0 0 1 8,-2 L 8,4 L 10,7 L -10,7 Z" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -3,10 A 3,3 0 0 0 3,10" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="186.0" y="248" font-size="9" fill="#cfe3f7" text-anchor="middle">notifications</text>
-<text x="186.0" y="228.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">D</text>
-<rect x="224" y="192" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="256.0" y="224.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">F</text>
-<rect x="294" y="192" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="326.0" y="224.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">G</text>
-<rect x="364" y="192" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="396.0" y="224.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">H</text>
-<rect x="434" y="192" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(466.0,210) scale(0.7)"><path d="M -2,-8 L -10,0 L -2,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 10,-8 L 2,0 L 10,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="466.0" y="248" font-size="9" fill="#cfe3f7" text-anchor="middle">seek -5</text>
-<text x="466.0" y="228.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">J</text>
-<rect x="504" y="192" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(536.0,210) scale(0.7)"><path d="M -10,-8 L -2,0 L -10,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 2,-8 L 10,0 L 2,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="536.0" y="248" font-size="9" fill="#cfe3f7" text-anchor="middle">seek +5</text>
-<text x="536.0" y="228.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">K</text>
-<rect x="574" y="192" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="606.0" y="224.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">L</text>
-<rect x="644" y="192" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="676.0" y="224.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Del</text>
-<rect x="14" y="262" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="46.0" y="294.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Shift</text>
-<rect x="84" y="262" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="116.0" y="294.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Z</text>
-<rect x="154" y="262" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="186.0" y="294.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">X</text>
-<rect x="224" y="262" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="256.0" y="294.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">C</text>
-<rect x="294" y="262" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(326.0,280) scale(0.7)"><path d="M -10,8 L -10,2" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -3,8 L -3,-4" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,8 L 4,0" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 11,8 L 11,-7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="326.0" y="318" font-size="9" fill="#cfe3f7" text-anchor="middle">wiremix</text>
-<text x="326.0" y="298.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">V</text>
-<rect x="364" y="262" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(396.0,280) scale(0.7)"><path d="M -12,-8 L -12,8" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -9,0 L -1,-8 L -1,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -1,0 L 7,-8 L 7,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="396.0" y="318" font-size="9" fill="#cfe3f7" text-anchor="middle">previous</text>
-<circle cx="415" cy="275" r="9" fill="#0f1115" stroke="#59a7e6"/>
-<text x="415" y="275" font-size="11" font-weight="bold" fill="#9ed1ff" text-anchor="middle" dominant-baseline="central">1</text>
-<text x="396.0" y="298.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">B</text>
-<rect x="434" y="262" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(466.0,280) scale(0.7)"><path d="M 12,-8 L 12,8" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 9,0 L 1,-8 L 1,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 1,0 L -7,-8 L -7,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="466.0" y="318" font-size="9" fill="#cfe3f7" text-anchor="middle">next</text>
-<circle cx="485" cy="275" r="9" fill="#0f1115" stroke="#59a7e6"/>
-<text x="485" y="275" font-size="11" font-weight="bold" fill="#9ed1ff" text-anchor="middle" dominant-baseline="central">1</text>
-<text x="466.0" y="298.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">N</text>
-<rect x="504" y="262" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(536.0,280) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,-5 L 11,2 M 11,-5 L 4,2" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="536.0" y="318" font-size="9" fill="#cfe3f7" text-anchor="middle">mute</text>
-<text x="536.0" y="298.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">M</text>
-<rect x="574" y="262" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(606.0,280) scale(0.7)"><path d="M -8,2 L -8,-1 A 8,8 0 0 1 8,-1 L 8,2" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -10,1 L -6,1 L -6,8 L -10,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 6,1 L 10,1 L 10,8 L 6,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="606.0" y="318" font-size="9" fill="#cfe3f7" text-anchor="middle">euphonica</text>
-<text x="606.0" y="298.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">$</text>
-<rect x="644" y="262" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="676.0" y="294.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Enter</text>
-<rect x="84" y="332" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="116.0" y="364.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Ctrl</text>
-<rect x="154" y="332" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="186.0" y="364.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Alt</text>
-<rect x="224" y="332" width="274" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(361.0,350) scale(0.7)"><path d="M -9,-9 L -1,-9 L -1,-1 L -9,-1 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 1,-9 L 9,-9 L 9,-1 L 1,-1 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -9,1 L -1,1 L -1,9 L -9,9 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 1,1 L 9,1 L 9,9 L 1,9 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="361.0" y="388" font-size="9" fill="#cfe3f7" text-anchor="middle">launcher</text>
-<text x="361.0" y="368.0" font-size="14" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">Space</text>
-<rect x="504" y="332" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="536.0" y="364.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">L1</text>
-<rect x="574" y="332" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="606.0" y="364.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">L2</text>
-<text x="14" y="418" font-size="13" font-weight="bold" fill="#e8eef7">OTHER KEYS</text>
-<text x="14" y="444" font-size="12" fill="#9ed1ff">XF86AudioPlay</text>
-<text x="119" y="444" font-size="12" fill="#c4cfdc">media play</text>
-<text x="250" y="444" font-size="12" fill="#9ed1ff">XF86AudioNext</text>
-<text x="355" y="444" font-size="12" fill="#c4cfdc">media next</text>
-<text x="486" y="444" font-size="12" fill="#9ed1ff">XF86AudioPrev</text>
-<text x="591" y="444" font-size="12" fill="#c4cfdc">media prev</text>
-<text x="14" y="468" font-size="12" fill="#9ed1ff">F13</text>
-<text x="119" y="468" font-size="12" fill="#c4cfdc">this cheatsheet</text>
-<text x="250" y="468" font-size="12" fill="#9ed1ff">F11</text>
-<text x="355" y="468" font-size="12" fill="#c4cfdc">back / close cheatsheet</text>
-<text x="708" y="510" font-size="11" fill="#7d8798" text-anchor="end">1 = Layer 1 (hold the L1 key)</text>
+<rect width="722" height="528" fill="#000000" fill-opacity="0.1"/>
+<rect x="1" y="1" width="720" height="526" rx="14" fill="none" stroke="#bd93f9" stroke-opacity="0.45" stroke-width="1"/>
+<text x="14" y="36" font-size="20" font-weight="bold" fill="#f8f8f2">HACKPI KEYS</text>
+<text x="708" y="36" font-size="12" fill="#bd93f9" text-anchor="end">hold MOD (LGUI) + key</text>
+<rect x="14" y="52" width="134" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="81.0" y="84.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Caps</text>
+<rect x="154" y="52" width="134" height="64" rx="9" fill="#bd93f9" fill-opacity="0.36" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<text x="221.0" y="84.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">MOD</text>
+<rect x="294" y="52" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="326.0" y="84.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">LMB</text>
+<rect x="364" y="52" width="134" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="431.0" y="84.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Esc</text>
+<rect x="504" y="52" width="134" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="571.0" y="84.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Tab</text>
+<rect x="14" y="122" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="46.0" y="154.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Q</text>
+<rect x="84" y="122" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="116.0" y="154.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">W</text>
+<rect x="154" y="122" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="186.0" y="154.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">E</text>
+<rect x="224" y="122" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(256.0,140) scale(0.7)"><path d="M -11,-5 L 6,3" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 11,5 L 4.8,5.7 L 7.2,0.3 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -11,5 L 6,-3" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 11,-5 L 7.2,-0.3 L 4.8,-5.7 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="256.0" y="178" font-size="9" fill="#f8f8f2" text-anchor="middle">random</text>
+<text x="256.0" y="158.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">R</text>
+<rect x="294" y="122" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="326.0" y="154.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">T</text>
+<rect x="364" y="122" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="396.0" y="154.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Y</text>
+<rect x="434" y="122" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="466.0" y="154.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">U</text>
+<rect x="504" y="122" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(536.0,140) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,0 L 11,0" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="536.0" y="178" font-size="9" fill="#f8f8f2" text-anchor="middle">vol -</text>
+<text x="536.0" y="158.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">I</text>
+<rect x="574" y="122" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(606.0,140) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,0 L 11,0 M 7.5,-3.5 L 7.5,3.5" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="606.0" y="178" font-size="9" fill="#f8f8f2" text-anchor="middle">vol +</text>
+<text x="606.0" y="158.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">O</text>
+<rect x="644" y="122" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(676.0,140) scale(0.7)"><path d="M -11,-8 L -2,0 L -11,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,-8 L 4,8 M 10,-8 L 10,8" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="676.0" y="178" font-size="9" fill="#f8f8f2" text-anchor="middle">play/pause</text>
+<text x="676.0" y="158.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">P</text>
+<rect x="14" y="192" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="46.0" y="224.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">A</text>
+<rect x="84" y="192" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(116.0,210) scale(0.7)"><path d="M -8,-7 L -2,-7" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 2,-7 L 4,-7" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 8,-7 L 4,-11 L 4,-3 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 8,7 L 2,7" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -2,7 L -4,7" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -8,7 L -4,3 L -4,11 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><text x="0" y="0" font-size="17" font-weight="bold" fill="#8be9fd" text-anchor="middle" dominant-baseline="central">1</text></g>
+<text x="116.0" y="248" font-size="9" fill="#f8f8f2" text-anchor="middle">single</text>
+<text x="116.0" y="228.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">S</text>
+<rect x="154" y="192" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(186.0,210) scale(0.7)"><path d="M -8,4 L -8,-2 A 8,8 0 0 1 8,-2 L 8,4 L 10,7 L -10,7 Z" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -3,10 A 3,3 0 0 0 3,10" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="186.0" y="248" font-size="9" fill="#f8f8f2" text-anchor="middle">notifications</text>
+<text x="186.0" y="228.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">D</text>
+<rect x="224" y="192" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="256.0" y="224.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">F</text>
+<rect x="294" y="192" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="326.0" y="224.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">G</text>
+<rect x="364" y="192" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="396.0" y="224.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">H</text>
+<rect x="434" y="192" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(466.0,210) scale(0.7)"><path d="M -2,-8 L -10,0 L -2,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 10,-8 L 2,0 L 10,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="466.0" y="248" font-size="9" fill="#f8f8f2" text-anchor="middle">seek -5</text>
+<text x="466.0" y="228.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">J</text>
+<rect x="504" y="192" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(536.0,210) scale(0.7)"><path d="M -10,-8 L -2,0 L -10,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 2,-8 L 10,0 L 2,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="536.0" y="248" font-size="9" fill="#f8f8f2" text-anchor="middle">seek +5</text>
+<text x="536.0" y="228.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">K</text>
+<rect x="574" y="192" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="606.0" y="224.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">L</text>
+<rect x="644" y="192" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="676.0" y="224.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Del</text>
+<rect x="14" y="262" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="46.0" y="294.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Shift</text>
+<rect x="84" y="262" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="116.0" y="294.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Z</text>
+<rect x="154" y="262" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="186.0" y="294.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">X</text>
+<rect x="224" y="262" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="256.0" y="294.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">C</text>
+<rect x="294" y="262" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(326.0,280) scale(0.7)"><path d="M -10,8 L -10,2" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -3,8 L -3,-4" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,8 L 4,0" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 11,8 L 11,-7" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="326.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">wiremix</text>
+<text x="326.0" y="298.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">V</text>
+<rect x="364" y="262" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(396.0,280) scale(0.7)"><path d="M -12,-8 L -12,8" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -9,0 L -1,-8 L -1,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -1,0 L 7,-8 L 7,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="396.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">previous</text>
+<circle cx="415" cy="275" r="9" fill="#000000" fill-opacity="0.45" stroke="#bd93f9" stroke-opacity="0.75"/>
+<text x="415" y="275" font-size="11" font-weight="bold" fill="#bd93f9" text-anchor="middle" dominant-baseline="central">1</text>
+<text x="396.0" y="298.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">B</text>
+<rect x="434" y="262" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(466.0,280) scale(0.7)"><path d="M 12,-8 L 12,8" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 9,0 L 1,-8 L 1,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 1,0 L -7,-8 L -7,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="466.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">next</text>
+<circle cx="485" cy="275" r="9" fill="#000000" fill-opacity="0.45" stroke="#bd93f9" stroke-opacity="0.75"/>
+<text x="485" y="275" font-size="11" font-weight="bold" fill="#bd93f9" text-anchor="middle" dominant-baseline="central">1</text>
+<text x="466.0" y="298.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">N</text>
+<rect x="504" y="262" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(536.0,280) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,-5 L 11,2 M 11,-5 L 4,2" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="536.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">mute</text>
+<text x="536.0" y="298.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">M</text>
+<rect x="574" y="262" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(606.0,280) scale(0.7)"><path d="M -8,2 L -8,-1 A 8,8 0 0 1 8,-1 L 8,2" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -10,1 L -6,1 L -6,8 L -10,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 6,1 L 10,1 L 10,8 L 6,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="606.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">euphonica</text>
+<text x="606.0" y="298.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">$</text>
+<rect x="644" y="262" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="676.0" y="294.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Enter</text>
+<rect x="84" y="332" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="116.0" y="364.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Ctrl</text>
+<rect x="154" y="332" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="186.0" y="364.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Alt</text>
+<rect x="224" y="332" width="274" height="64" rx="9" fill="#111111" fill-opacity="0.34" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(361.0,350) scale(0.7)"><path d="M -9,-9 L -1,-9 L -1,-1 L -9,-1 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 1,-9 L 9,-9 L 9,-1 L 1,-1 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -9,1 L -1,1 L -1,9 L -9,9 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 1,1 L 9,1 L 9,9 L 1,9 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="361.0" y="388" font-size="9" fill="#f8f8f2" text-anchor="middle">launcher</text>
+<text x="361.0" y="368.0" font-size="14" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">Space</text>
+<rect x="504" y="332" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="536.0" y="364.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">L1</text>
+<rect x="574" y="332" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.22" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
+<text x="606.0" y="364.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">L2</text>
+<text x="14" y="418" font-size="13" font-weight="bold" fill="#f8f8f2">OTHER KEYS</text>
+<text x="14" y="444" font-size="12" fill="#8be9fd">XF86AudioPlay</text>
+<text x="119" y="444" font-size="12" fill="#f8f8f2">media play</text>
+<text x="250" y="444" font-size="12" fill="#8be9fd">XF86AudioNext</text>
+<text x="355" y="444" font-size="12" fill="#f8f8f2">media next</text>
+<text x="486" y="444" font-size="12" fill="#8be9fd">XF86AudioPrev</text>
+<text x="591" y="444" font-size="12" fill="#f8f8f2">media prev</text>
+<text x="14" y="468" font-size="12" fill="#8be9fd">F13</text>
+<text x="119" y="468" font-size="12" fill="#f8f8f2">this cheatsheet</text>
+<text x="250" y="468" font-size="12" fill="#8be9fd">F11</text>
+<text x="355" y="468" font-size="12" fill="#f8f8f2">back / close cheatsheet</text>
+<text x="708" y="510" font-size="11" fill="#6272a4" text-anchor="end">1 = Layer 1 (hold the L1 key)</text>
 </svg>

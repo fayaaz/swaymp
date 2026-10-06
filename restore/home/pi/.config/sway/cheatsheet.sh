@@ -6,4 +6,8 @@ if swaymsg -s "$sock" -t get_tree | jq -e '.. | .app_id? | select(. == "cheatshe
     swaymsg -s "$sock" '[app_id="cheatsheet"] kill'
     exit 0
 fi
-swayimg -a cheatsheet -w 700,520 -s fit -c info.show=no "$DIR/cheatsheet.svg"
+swayimg -a cheatsheet -w 700,520 -s fit \
+    -c info.show=no \
+    -c viewer.window=#00000000 \
+    -c viewer.transparency=#00000000 \
+    "$DIR/cheatsheet.svg"

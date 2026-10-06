@@ -60,24 +60,42 @@ input "16962:3:ZitaoTech_HackberryPi9900" {
     repeat_delay 300
     repeat_rate 35
 }
-default_border none
-default_floating_border none
+default_border pixel 1
+default_floating_border pixel 1
 floating_minimum_size 420 x 240
 floating_maximum_size 720 x 700
-for_window [app_id="cheatsheet"] floating enable, move position center, border pixel 1
+for_window [app_id="cheatsheet"] floating enable, move position center, border none
 for_window [app_id="wiremix"] resize set height 320 px
+client.focused #bd93f9 #bd93f9 #282a36 #bd93f9 #bd93f9
+client.focused_inactive #6272a4 #6272a4 #f8f8f2 #6272a4 #6272a4
+client.unfocused #44475a #44475a #f8f8f2 #44475a #44475a
+client.urgent #ff5555 #ff5555 #f8f8f2 #ff5555 #ff5555
+client.placeholder #44475a #44475a #f8f8f2 #44475a #44475a
+client.background #282a36
 include $HOME/.config/sway/generated.conf
 EOF
 else
     bash "$HOME/.config/sway/generate-keys.sh"
-    if ! grep -q "^default_border none" "$HOME/.config/sway/config"; then
-        echo "default_border none" >> "$HOME/.config/sway/config"
+    sed -i 's/^default_border none$/default_border pixel 1/' "$HOME/.config/sway/config"
+    sed -i 's/^default_floating_border none$/default_floating_border pixel 1/' "$HOME/.config/sway/config"
+    if ! grep -q "^default_border pixel 1" "$HOME/.config/sway/config"; then
+        echo "default_border pixel 1" >> "$HOME/.config/sway/config"
     fi
-    if ! grep -q "^default_floating_border none" "$HOME/.config/sway/config"; then
-        echo "default_floating_border none" >> "$HOME/.config/sway/config"
+    if ! grep -q "^default_floating_border pixel 1" "$HOME/.config/sway/config"; then
+        echo "default_floating_border pixel 1" >> "$HOME/.config/sway/config"
     fi
     if ! grep -q 'for_window \[app_id="wiremix"\]' "$HOME/.config/sway/config"; then
         echo 'for_window [app_id="wiremix"] resize set height 320 px' >> "$HOME/.config/sway/config"
+    fi
+    if ! grep -q "^client.focused" "$HOME/.config/sway/config"; then
+        cat >> "$HOME/.config/sway/config" <<EOF
+client.focused #bd93f9 #bd93f9 #282a36 #bd93f9 #bd93f9
+client.focused_inactive #6272a4 #6272a4 #f8f8f2 #6272a4 #6272a4
+client.unfocused #44475a #44475a #f8f8f2 #44475a #44475a
+client.urgent #ff5555 #ff5555 #f8f8f2 #ff5555 #ff5555
+client.placeholder #44475a #44475a #f8f8f2 #44475a #44475a
+client.background #282a36
+EOF
     fi
 fi
 
@@ -88,7 +106,8 @@ sed -i 's/^    bindsym \$mod+\$up focus up/    #bindsym \$mod+$up focus up/' "$H
 sed -i 's/^    bindsym \$mod+s layout stacking/    #bindsym $mod+s layout stacking/' "$HOME/.config/sway/config"
 sed -i 's/^    #bindsym \$mod+b splith/    bindsym $mod+b splith/' "$HOME/.config/sway/config"
 sed -i 's/^    bindsym \$mod+v splitv/    #bindsym $mod+v splitv/' "$HOME/.config/sway/config"
-sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position center, border pixel 1/' "$HOME/.config/sway/config"
+sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position center, border none/' "$HOME/.config/sway/config"
+sed -i 's/^for_window \[app_id="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position center, border none/' "$HOME/.config/sway/config"
 sed -i 's/^bindsym \$mod+r mode "resize"/bindsym \$mod+Shift+r mode "resize"/' "$HOME/.config/sway/config"
 if grep -q '^bindsym \$mod+Shift+r mode "default"' "$HOME/.config/sway/config"; then
     sed -i 's/^        bindsym \$mod+Shift+r mode "default"/        bindsym $mod+Shift+r mode "default"/' "$HOME/.config/sway/config"
