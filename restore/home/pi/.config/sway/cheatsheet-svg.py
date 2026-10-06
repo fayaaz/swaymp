@@ -65,7 +65,7 @@ SHORT = {
     "random on/off": "random", "single on/off": "single",
     "volume -": "vol -", "volume +": "vol +", "mute": "mute",
     "wiremix peaks": "wiremix", "brightness": "brightness",
-    "notifications": "notify", "this cheatsheet": "cheatsheet",
+    "notifications": "notifications", "this cheatsheet": "cheatsheet",
     "back / close cheatsheet": "close",
     "media play": "media play", "media next": "media next", "media prev": "media prev",
 }
@@ -90,11 +90,14 @@ def icon(name, cx, cy, color, scale=1.0):
         path("M 12,-8 L 12,8")
         path("M 9,0 L 1,-8 L 1,8 Z", fill=color)
         path("M 1,0 L -7,-8 L -7,8 Z", fill=color)
-    elif name in ("seekback", "seekfwd"):
-        d = "M 8,-6 A 9,9 0 1 0 9,4" if name == "seekback" else "M -8,-6 A 9,9 0 1 1 -9,4"
-        path(d)
-        path("M 8,-11 L 8,-6 L 3,-6" if name == "seekback" else "M -8,-11 L -8,-6 L -3,-6")
-        text("5", 0, 1, 11)
+    elif name == "seekback":
+        path("M -6,-6 A 9,9 0 1 0 6,-6")
+        path("M -6,-6 L 0,-10 L 0,-2 Z", fill=color)
+        text("5", 0, 1, 14)
+    elif name == "seekfwd":
+        path("M 6,-6 A 9,9 0 1 1 -6,-6")
+        path("M 6,-6 L 0,-10 L 0,-2 Z", fill=color)
+        text("5", 0, 1, 14)
     elif name == "random":
         path("M -11,-5 L -3,-5 L 11,6 M 6,6 L 11,6 L 11,1")
         path("M -11,6 L -3,6 L 11,-5 M 6,-5 L 11,-5 L 11,-10")
@@ -185,7 +188,7 @@ def main():
                        f'fill="#ffe6c9" text-anchor="middle" dominant-baseline="central">MOD</text>')
         elif marks_list:
             for label, icon_name, layer in marks_list:
-                out.append(icon(icon_name, cx, y + 18, "#eaf3ff", scale=0.8))
+                out.append(icon(icon_name, cx, y + 18, "#eaf3ff", scale=0.7))
                 short = SHORT.get(label, label)
                 out.append(f'<text x="{cx}" y="{y+U-8}" font-size="9" fill="#cfe3f7" '
                            f'text-anchor="middle">{short}</text>')
