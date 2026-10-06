@@ -19,16 +19,16 @@ H = M * 2 + TITLE_H + ROWS * U + (ROWS - 1) * G + LEGEND_H
 
 # Fuzzel/Dracula-ish palette with a near-black glass background.
 BG = "#000000"
-BG_OPACITY = 0.10
+BG_OPACITY = 0.90
 FG = "#f8f8f2"
 PURPLE = "#bd93f9"
 CYAN = "#8be9fd"
 SELECTION = "#111111"
 COMMENT = "#6272a4"
 DARK = "#000000"
-CAP_OPACITY = 0.22
-BOUND_OPACITY = 0.34
-MOD_OPACITY = 0.36
+CAP_OPACITY = 0.95
+BOUND_OPACITY = 0.95
+MOD_OPACITY = 0.95
 
 # (row, col, span) for every physical keycap; base label = Layer 0 legend.
 BOARD = [
@@ -194,7 +194,7 @@ def main():
            f'viewBox="0 0 {W} {H}">',
            f'<rect width="{W}" height="{H}" fill="{BG}" fill-opacity="{BG_OPACITY}"/>',
            f'<rect x="1" y="1" width="{W-2}" height="{H-2}" rx="14" fill="none" '
-           f'stroke="{PURPLE}" stroke-opacity="0.45" stroke-width="1"/>',
+           f'stroke="{PURPLE}" stroke-opacity="0.70" stroke-width="1"/>',
            f'<text x="{M}" y="{M+22}" font-size="20" font-weight="bold" fill="{FG}">'
            f'HACKPI KEYS</text>',
            f'<text x="{W-M}" y="{M+22}" font-size="12" fill="{PURPLE}" text-anchor="end">'

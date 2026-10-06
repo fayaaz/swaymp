@@ -64,7 +64,7 @@ default_border pixel 1
 default_floating_border pixel 1
 floating_minimum_size 420 x 240
 floating_maximum_size 720 x 700
-for_window [app_id="cheatsheet"] floating enable, move position center, border none
+for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none
 for_window [app_id="wiremix"] resize set height 320 px
 client.focused #bd93f9 #bd93f9 #282a36 #bd93f9 #bd93f9
 client.focused_inactive #6272a4 #6272a4 #f8f8f2 #6272a4 #6272a4
@@ -106,8 +106,8 @@ sed -i 's/^    bindsym \$mod+\$up focus up/    #bindsym \$mod+$up focus up/' "$H
 sed -i 's/^    bindsym \$mod+s layout stacking/    #bindsym $mod+s layout stacking/' "$HOME/.config/sway/config"
 sed -i 's/^    #bindsym \$mod+b splith/    bindsym $mod+b splith/' "$HOME/.config/sway/config"
 sed -i 's/^    bindsym \$mod+v splitv/    #bindsym $mod+v splitv/' "$HOME/.config/sway/config"
-sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position center, border none/' "$HOME/.config/sway/config"
-sed -i 's/^for_window \[app_id="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position center, border none/' "$HOME/.config/sway/config"
+sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none/' "$HOME/.config/sway/config"
+sed -i 's/^for_window \[app_id="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none/' "$HOME/.config/sway/config"
 sed -i 's/^bindsym \$mod+r mode "resize"/bindsym \$mod+Shift+r mode "resize"/' "$HOME/.config/sway/config"
 if grep -q '^bindsym \$mod+Shift+r mode "default"' "$HOME/.config/sway/config"; then
     sed -i 's/^        bindsym \$mod+Shift+r mode "default"/        bindsym $mod+Shift+r mode "default"/' "$HOME/.config/sway/config"
