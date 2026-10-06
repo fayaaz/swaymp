@@ -1,0 +1,11 @@
+[Unit]
+Description=MPD (user)
+After=network.target pipewire.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/mpd --no-daemon
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

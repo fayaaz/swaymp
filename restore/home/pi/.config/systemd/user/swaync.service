@@ -1,0 +1,20 @@
+[Unit]
+Description=Swaync notification daemon
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=dbus
+BusName=org.freedesktop.Notifications
+ExecStart=/usr/bin/swaync
+ExecReload=/usr/bin/swaync-client --reload-config ; /usr/bin/swaync-client --reload-css
+Restart=on-failure
+RestartSec=5
+Environment=XDG_RUNTIME_DIR=%t
+Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=%t/bus
+Environment=XDG_SESSION_TYPE=wayland
+Environment=DISPLAY=:0
+Environment=WAYLAND_DISPLAY=wayland-1
+
+[Install]
+WantedBy=graphical-session.target

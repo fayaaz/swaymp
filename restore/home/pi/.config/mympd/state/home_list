@@ -1,0 +1,1 @@
+{"type":"icon","name":"Albums","ligature":"preview","bgcolor":"#28a745","color":"#f8f9fa","image":"","cmd":"appGoto","options":["Browse","Database","AlbumList","0","100","any","{\"tag\":\"AlbumArtist\",\"desc\":false}","Album",""]}

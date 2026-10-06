@@ -1,0 +1,18 @@
+{
+    "label" : "reboot",
+    "action" : "sudo shutdown -r now",
+    "text" : "Restart",
+    "keybind" : "r"
+}
+{
+    "label" : "logout",
+    "action" : "swaymsg exit",
+    "text" : "Logout",
+    "keybind" : "l"
+}
+{
+    "label" : "shutdown",
+    "action" : "sudo shutdown -h now",
+    "text" : "Power off",
+    "keybind" : "p"
+}

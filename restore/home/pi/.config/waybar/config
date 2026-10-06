@@ -1,0 +1,52 @@
+{
+    "layer": "top",
+    "modules-left": [
+        "sway/workspaces",
+        "custom/keyboard",
+        "custom/cheatsheet"
+    ],
+    "modules-center": [
+        "sway/window"
+    ],
+    "modules-right": [
+        "clock",
+        "tray",
+        "custom/euphonica",
+        "custom/power"
+    ],
+    "sway/window": {
+        "format": " {} ",
+        "max-length": 12
+    },
+    "tray": {
+        "spacing": 10
+    },
+    "clock": {
+        "format": "  {:%H:%M}",
+        "format-alt": "{:%a, %d. %b  %H:%M}"
+    },
+    "custom/keyboard": {
+        "format": "  ",
+        "tooltip-format": "Keyboard",
+        "on-click": "/bin/bash $HOME/.config/waybar/wvkeyboard.sh",
+        "spacing": 10
+    },
+    "custom/cheatsheet": {
+        "format": "  ",
+        "tooltip-format": "Cheatsheet",
+        "on-click": "/bin/bash $HOME/.config/sway/cheatsheet.sh",
+        "spacing": 10
+    },
+
+    "custom/euphonica": {
+        "format": " ♫ ",
+        "tooltip-format": "Euphonica",
+        "on-click": "/bin/bash $HOME/.config/waybar/euphonica.sh",
+        "spacing": 10
+    },
+    "custom/power": {
+        "format": "  ",
+        "tooltip": false,
+        "on-click": "wlogout -L 140 -R 140 -T 230 -B 230"
+    }
+}

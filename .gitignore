@@ -1,0 +1,23 @@
+# raw snapshots of the running Pi (reference only, never committed)
+hackpi-backup/
+hackpi-full-backup/
+hackpi-config-backup.tar.gz
+
+# prebuilt binaries (no source in this repo; fetch/build separately)
+restore/home/pi/.cargo/bin/
+
+# private keys / certificates (services regenerate these on a fresh deploy)
+*.pem
+*.key
+csrftokens.txt
+restore/home/pi/.config/mympd/ssl/
+restore/home/pi/.config/mympd/config/pin_hash
+
+# runtime state and caches (rebuilt by mpd/mympd/syncthing)
+restore/home/pi/.config/mpd/state
+restore/home/pi/.config/mpd/tag_cache
+restore/home/pi/.config/mpd/sticker.sql
+restore/home/pi/.config/mympd/tags/
+restore/home/pi/.config/mympd/state/default/last_played_list.mpack
+restore/home/pi/.config/syncthing/index-v0.14.0.db/
+restore/home/pi/.config/syncthing/syncthing.log

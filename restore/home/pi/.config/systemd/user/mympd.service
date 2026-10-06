@@ -1,0 +1,11 @@
+[Unit]
+Description=myMPD web interface (user)
+After=network.target mpd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/mympd -w %h/.config/mympd -a %h/.cache/mympd
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,21 @@
+{
+  "binds": [
+    {"key": "$mod+p", "label": "play / pause", "cmd": "exec mpc toggle", "group": "playback"},
+    {"key": "$mod+comma", "label": "previous", "cmd": "exec mpc prev", "group": "playback"},
+    {"key": "$mod+period", "label": "next", "cmd": "exec mpc next", "group": "playback"},
+    {"key": "$mod+j", "label": "seek -5s", "cmd": "exec mpc seek -5", "group": "playback"},
+    {"key": "$mod+k", "label": "seek +5s", "cmd": "exec mpc seek +5", "group": "playback"},
+    {"key": "$mod+r", "label": "random on/off", "cmd": "exec mpc random", "group": "playback"},
+    {"key": "$mod+s", "label": "single on/off", "cmd": "exec mpc single", "group": "playback"},
+    {"key": "XF86AudioPlay", "label": "media play", "cmd": "exec mpc toggle", "group": "media"},
+    {"key": "XF86AudioNext", "label": "media next", "cmd": "exec mpc next", "group": "media"},
+    {"key": "XF86AudioPrev", "label": "media prev", "cmd": "exec mpc prev", "group": "media"},
+    {"key": "$mod+i", "label": "volume -", "cmd": "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-", "group": "volume"},
+    {"key": "$mod+o", "label": "volume +", "cmd": "exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+", "group": "volume"},
+    {"key": "$mod+m", "label": "mute", "cmd": "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", "group": "volume"},
+    {"key": "$mod+v", "label": "wiremix peaks", "cmd": "exec /home/pi/.config/sway/wiremix.sh", "group": "tools"},
+    {"key": "$mod+d", "label": "notifications", "cmd": "exec /home/pi/.config/sway/notifications.sh", "group": "tools"},
+    {"key": "F13", "label": "this cheatsheet", "cmd": "exec /home/pi/.config/sway/cheatsheet.sh", "group": "tools"},
+    {"key": "F11", "label": "back / close cheatsheet", "cmd": "exec /home/pi/.config/sway/cheatsheet.sh", "group": "tools"}
+  ]
+}

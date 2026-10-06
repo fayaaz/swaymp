@@ -1,0 +1,41 @@
+* {
+    font-family: "JetBrains Mono", "FontAwesome", sans-serif;
+    font-size: 15px;
+    background-image: none;
+    box-shadow: none;
+}
+
+window {
+    background-color: rgba(43, 48, 59, 0.85);
+    padding: 60px 40px;
+}
+
+button {
+    margin: 12px;
+    padding: 20px;
+    border: 1px solid rgba(100, 114, 125, 0.45);
+    border-radius: 14px;
+    background-color: #2b303b;
+    background-repeat: no-repeat;
+    background-position: center 32%;
+    background-size: 24%;
+    color: #ffffff;
+}
+
+button:hover, button:focus, button:active {
+    border-color: rgba(0, 153, 153, 0.6);
+    background-color: #009999;
+    outline-style: none;
+}
+
+#shutdown {
+    background-image: image(url("/usr/share/wlogout/icons/shutdown.png"));
+}
+
+#reboot {
+    background-image: image(url("/usr/share/wlogout/icons/reboot.png"));
+}
+
+#logout {
+    background-image: image(url("/usr/share/wlogout/icons/logout.png"));
+}

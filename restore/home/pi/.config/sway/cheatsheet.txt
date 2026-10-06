@@ -1,0 +1,18 @@
+HACKPI MUSIC KEYS
+$mod+p       play / pause
+$mod+comma   previous
+$mod+period  next
+$mod+j       seek -5s
+$mod+k       seek +5s
+$mod+r       random on/off
+$mod+s       single on/off
+XF86AudioPla media play
+XF86AudioNex media next
+XF86AudioPre media prev
+$mod+i       volume -
+$mod+o       volume +
+$mod+m       mute
+$mod+v       wiremix peaks
+$mod+d       notifications
+F13          this cheatsheet
+F11          back / close cheatsheet
