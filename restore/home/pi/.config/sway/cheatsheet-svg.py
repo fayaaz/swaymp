@@ -71,13 +71,13 @@ SHORT = {
 }
 
 
-def icon(name, cx, cy, color):
+def icon(name, cx, cy, color, scale=1.0):
     s = []
     def path(d, fill="none"):
         s.append(f'<path d="{d}" fill="{fill}" stroke="{color}" '
                  f'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>')
     def text(t, dx=0, dy=0, size=13, weight="bold"):
-        s.append(f'<text x="{cx+dx}" y="{cy+dy}" font-size="{size}" font-weight="{weight}" '
+        s.append(f'<text x="{dx}" y="{dy}" font-size="{size}" font-weight="{weight}" '
                  f'fill="{color}" text-anchor="middle" dominant-baseline="central">{t}</text>')
     if name == "playpause":
         path("M -11,-8 L -2,0 L -11,8 Z", fill=color)
@@ -124,9 +124,22 @@ def icon(name, cx, cy, color):
         text("?", 0, 0, 20)
     elif name == "close":
         path("M -8,-8 L 8,8 M 8,-8 L -8,8")
+    elif name == "capslock":
+        path("M -8,0 L -8,9 L 8,9 L 8,0 Z", fill=color)
+        path("M -5,0 L -5,-5 A 5,5 0 0 1 5,-5 L 5,0")
+    elif name == "mouse1":
+        path("M -8,-11 L 8,-11 Q 11,-11 11,-8 L 11,8 Q 11,11 8,11 L -8,11 "
+             "Q -11,11 -11,8 L -11,-8 Q -11,-11 -8,-11 Z")
+        path("M -11,-4 L 11,-4 M 0,-11 L 0,-4")
+        path("M -11,-11 L 0,-11 L 0,-4 L -11,-4 Z", fill=color)
+    elif name == "esc":
+        path("M 10,-8 L 10,8 L -2,8 L -2,12 L -12,0 L -2,-12 L -2,-8 Z", fill=color)
+    elif name == "tab":
+        path("M -12,0 L -3,0 M -3,-6 L 4,0 L -3,6 Z", fill=color)
+        path("M 6,-10 L 6,10 M 11,-10 L 11,10")
     else:
         path("M -6,0 A 6,6 0 1 0 6,0 A 6,6 0 1 0 -6,0", fill=color)
-    return "".join(s)
+    return f'<g transform="translate({cx},{cy}) scale({scale})">{"".join(s)}</g>'
 
 
 def main():
@@ -164,21 +177,28 @@ def main():
         stroke = "#e0a35c" if mod else ("#59a7e6" if bound else "#333842")
         out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{U}" rx="9" '
                    f'fill="{fill}" stroke="{stroke}" stroke-width="1.5"/>')
-        out.append(f'<text x="{x+8}" y="{y+16}" font-size="11" fill="#93a0b3">{base}</text>')
-        cx, cy = x + w / 2, y + U / 2 + 3
+        cx = x + w / 2
+        marks_list = marks.get(name, [])
+        base_size = 18 if len(base) <= 2 else 14
         if mod:
-            out.append(f'<text x="{cx}" y="{cy}" font-size="15" font-weight="bold" '
+            out.append(f'<text x="{cx}" y="{y+U/2}" font-size="18" font-weight="bold" '
                        f'fill="#ffe6c9" text-anchor="middle" dominant-baseline="central">MOD</text>')
-        for label, icon_name, layer in marks.get(name, []):
-            out.append(icon(icon_name, cx, cy - 6, "#eaf3ff"))
-            short = SHORT.get(label, label)
-            out.append(f'<text x="{cx}" y="{y+U-8}" font-size="9" fill="#cfe3f7" '
-                       f'text-anchor="middle">{short}</text>')
-            if layer:
-                bx, by = x + w - 13, y + 13
-                out.append(f'<circle cx="{bx}" cy="{by}" r="9" fill="#0f1115" stroke="#59a7e6"/>')
-                out.append(f'<text x="{bx}" y="{by}" font-size="11" font-weight="bold" '
-                           f'fill="#9ed1ff" text-anchor="middle" dominant-baseline="central">{layer}</text>')
+        elif marks_list:
+            for label, icon_name, layer in marks_list:
+                out.append(icon(icon_name, cx, y + 18, "#eaf3ff", scale=0.8))
+                short = SHORT.get(label, label)
+                out.append(f'<text x="{cx}" y="{y+U-8}" font-size="9" fill="#cfe3f7" '
+                           f'text-anchor="middle">{short}</text>')
+                if layer:
+                    bx, by = x + w - 13, y + 13
+                    out.append(f'<circle cx="{bx}" cy="{by}" r="9" fill="#0f1115" stroke="#59a7e6"/>')
+                    out.append(f'<text x="{bx}" y="{by}" font-size="11" font-weight="bold" '
+                               f'fill="#9ed1ff" text-anchor="middle" dominant-baseline="central">{layer}</text>')
+            out.append(f'<text x="{cx}" y="{y+U/2+4}" font-size="{base_size}" font-weight="bold" '
+                       f'fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">{base}</text>')
+        else:
+            out.append(f'<text x="{cx}" y="{y+U/2}" font-size="{base_size}" font-weight="bold" '
+                       f'fill="#93a0b3" text-anchor="middle" dominant-baseline="central">{base}</text>')
 
     ly = board_y + ROWS * U + (ROWS - 1) * G + 22
     out.append(f'<text x="{M}" y="{ly}" font-size="13" font-weight="bold" fill="#e8eef7">'
