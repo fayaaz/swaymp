@@ -15,6 +15,8 @@
     {"key": "$mod+m", "label": "mute", "cmd": "exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle", "group": "volume"},
     {"key": "$mod+v", "label": "wiremix peaks", "cmd": "exec /home/pi/.config/sway/wiremix.sh", "group": "tools"},
     {"key": "$mod+d", "label": "notifications", "cmd": "exec /home/pi/.config/sway/notifications.sh", "group": "tools"},
+    {"key": "$mod+space", "label": "launcher (fuzzel)", "cmd": "exec fuzzel", "group": "tools"},
+    {"key": "$mod+dollar", "label": "euphonica", "cmd": "exec /bin/bash /home/pi/.config/waybar/euphonica.sh", "group": "tools"},
     {"key": "F13", "label": "this cheatsheet", "cmd": "exec /home/pi/.config/sway/cheatsheet.sh", "group": "tools"},
     {"key": "F11", "label": "back / close cheatsheet", "cmd": "exec /home/pi/.config/sway/cheatsheet.sh", "group": "tools"}
   ]

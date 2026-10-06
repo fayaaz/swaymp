@@ -57,11 +57,11 @@
 <rect x="364" y="192" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
 <text x="396.0" y="224.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">H</text>
 <rect x="434" y="192" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(466.0,210) scale(0.7)"><path d="M 8,-7 L 2,-7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -2,-7 L -4,-7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -8,-7 L -4,-11 L -4,-3 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -8,7 L -2,7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 2,7 L 4,7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 8,7 L 4,3 L 4,11 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><text x="0" y="0" font-size="17" font-weight="bold" fill="#eaf3ff" text-anchor="middle" dominant-baseline="central">5</text></g>
+<g transform="translate(466.0,210) scale(0.7)"><path d="M -2,-8 L -10,0 L -2,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 10,-8 L 2,0 L 10,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
 <text x="466.0" y="248" font-size="9" fill="#cfe3f7" text-anchor="middle">seek -5</text>
 <text x="466.0" y="228.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">J</text>
 <rect x="504" y="192" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
-<g transform="translate(536.0,210) scale(0.7)"><path d="M -8,-7 L -2,-7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 2,-7 L 4,-7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 8,-7 L 4,-11 L 4,-3 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 8,7 L 2,7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -2,7 L -4,7" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -8,7 L -4,3 L -4,11 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><text x="0" y="0" font-size="17" font-weight="bold" fill="#eaf3ff" text-anchor="middle" dominant-baseline="central">5</text></g>
+<g transform="translate(536.0,210) scale(0.7)"><path d="M -10,-8 L -2,0 L -10,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 2,-8 L 10,0 L 2,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
 <text x="536.0" y="248" font-size="9" fill="#cfe3f7" text-anchor="middle">seek +5</text>
 <text x="536.0" y="228.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">K</text>
 <rect x="574" y="192" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
@@ -96,16 +96,20 @@
 <g transform="translate(536.0,280) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,-5 L 11,2 M 11,-5 L 4,2" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
 <text x="536.0" y="318" font-size="9" fill="#cfe3f7" text-anchor="middle">mute</text>
 <text x="536.0" y="298.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">M</text>
-<rect x="574" y="262" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="606.0" y="294.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">$</text>
+<rect x="574" y="262" width="64" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
+<g transform="translate(606.0,280) scale(0.7)"><path d="M -8,2 L -8,-1 A 8,8 0 0 1 8,-1 L 8,2" fill="none" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -10,1 L -6,1 L -6,8 L -10,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 6,1 L 10,1 L 10,8 L 6,8 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="606.0" y="318" font-size="9" fill="#cfe3f7" text-anchor="middle">euphonica</text>
+<text x="606.0" y="298.0" font-size="18" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">$</text>
 <rect x="644" y="262" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
 <text x="676.0" y="294.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Enter</text>
 <rect x="84" y="332" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
 <text x="116.0" y="364.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Ctrl</text>
 <rect x="154" y="332" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
 <text x="186.0" y="364.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Alt</text>
-<rect x="224" y="332" width="274" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
-<text x="361.0" y="364.0" font-size="14" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">Space</text>
+<rect x="224" y="332" width="274" height="64" rx="9" fill="#1b4f7a" stroke="#59a7e6" stroke-width="1.5"/>
+<g transform="translate(361.0,350) scale(0.7)"><path d="M -9,-9 L -1,-9 L -1,-1 L -9,-1 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 1,-9 L 9,-9 L 9,-1 L 1,-1 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -9,1 L -1,1 L -1,9 L -9,9 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 1,1 L 9,1 L 9,9 L 1,9 Z" fill="#eaf3ff" stroke="#eaf3ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="361.0" y="388" font-size="9" fill="#cfe3f7" text-anchor="middle">launcher</text>
+<text x="361.0" y="368.0" font-size="14" font-weight="bold" fill="#cfe3f7" text-anchor="middle" dominant-baseline="central">Space</text>
 <rect x="504" y="332" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>
 <text x="536.0" y="364.0" font-size="18" font-weight="bold" fill="#93a0b3" text-anchor="middle" dominant-baseline="central">L1</text>
 <rect x="574" y="332" width="64" height="64" rx="9" fill="#23272e" stroke="#333842" stroke-width="1.5"/>

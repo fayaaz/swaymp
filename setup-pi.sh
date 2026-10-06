@@ -106,6 +106,8 @@ sed -i 's/^bindsym \$mod+m exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle/#bind
 sed -i "s/^    bindsym \$mod+n exec foot -o font='monospace:size=[0-9]*' -e \/home\/pi\/.cargo\/bin\/wiremix --peaks mono/    #bindsym \$mod+n exec foot -o font='monospace:size=18' -e \/home\/pi\/.cargo\/bin\/wiremix --peaks mono/" "$HOME/.config/sway/config"
 sed -i "s/^bindsym \$mod+n exec foot -o font='monospace:size=[0-9]*' -e \/home\/pi\/.cargo\/bin\/wiremix --peaks mono/#bindsym \$mod+n exec foot -o font='monospace:size=18' -e \/home\/pi\/.cargo\/bin\/wiremix --peaks mono/" "$HOME/.config/sway/config"
 sed -i 's/^bindsym F13 exec \/home\/pi\/.config\/sway\/cheatsheet.sh/#bindsym F13 exec \/home\/pi\/.config\/sway\/cheatsheet.sh/' "$HOME/.config/sway/config"
+sed -i 's/^    bindsym \$mod+space exec \$menu/    #bindsym $mod+space exec $menu/' "$HOME/.config/sway/config"
+sed -i 's/^bindsym \$mod+space exec \$menu/#bindsym $mod+space exec $menu/' "$HOME/.config/sway/config"
 
 # Start Euphonica when sway starts.
 if grep -q "exec flatpak --user run io.github.htkhiem.Euphonica" "$HOME/.config/sway/config"; then

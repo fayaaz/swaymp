@@ -14,5 +14,7 @@ $mod+o       volume +
 $mod+m       mute
 $mod+v       wiremix peaks
 $mod+d       notifications
+$mod+space   launcher (fuzzel)
+$mod+dollar  euphonica
 F13          this cheatsheet
 F11          back / close cheatsheet

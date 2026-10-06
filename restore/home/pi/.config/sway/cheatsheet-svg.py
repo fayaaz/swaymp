@@ -42,7 +42,7 @@ KEYSYM = {
     "h": ("h", 0), "j": ("j", 0), "k": ("k", 0), "l": ("l", 0),
     "z": ("z", 0), "x": ("x", 0), "c": ("c", 0), "v": ("v", 0), "b": ("b", 0),
     "n": ("n", 0), "m": ("m", 0),
-    "comma": ("b", 1), "period": ("n", 1), "space": ("space", 0),
+    "comma": ("b", 1), "period": ("n", 1), "space": ("space", 0), "dollar": ("dollar", 0),
     "F1": ("capslock", 2), "F2": ("esc", 2), "F3": ("tab", 2),
 }
 
@@ -55,7 +55,8 @@ ICONS = {
     "volume -": "volminus", "volume +": "volplus", "mute": "mute",
     "wiremix peaks": "meter", "brightness": "sun",
     "notifications": "bell", "this cheatsheet": "help",
-    "back / close cheatsheet": "close",
+    "back / close cheatsheet": "close", "launcher (fuzzel)": "launcher",
+    "euphonica": "headphone",
 }
 
 # compact keycap captions (full labels stay in keys.json / cheatsheet.txt)
@@ -66,7 +67,8 @@ SHORT = {
     "volume -": "vol -", "volume +": "vol +", "mute": "mute",
     "wiremix peaks": "wiremix", "brightness": "brightness",
     "notifications": "notifications", "this cheatsheet": "cheatsheet",
-    "back / close cheatsheet": "close",
+    "back / close cheatsheet": "close", "launcher (fuzzel)": "launcher",
+    "euphonica": "euphonica",
     "media play": "media play", "media next": "media next", "media prev": "media prev",
 }
 
@@ -91,21 +93,11 @@ def icon(name, cx, cy, color, scale=1.0):
         path("M 9,0 L 1,-8 L 1,8 Z", fill=color)
         path("M 1,0 L -7,-8 L -7,8 Z", fill=color)
     elif name == "seekback":
-        path("M 8,-7 L 2,-7")
-        path("M -2,-7 L -4,-7")
-        path("M -8,-7 L -4,-11 L -4,-3 Z", fill=color)
-        path("M -8,7 L -2,7")
-        path("M 2,7 L 4,7")
-        path("M 8,7 L 4,3 L 4,11 Z", fill=color)
-        text("5", 0, 0, 17)
+        path("M -2,-8 L -10,0 L -2,8 Z", fill=color)
+        path("M 10,-8 L 2,0 L 10,8 Z", fill=color)
     elif name == "seekfwd":
-        path("M -8,-7 L -2,-7")
-        path("M 2,-7 L 4,-7")
-        path("M 8,-7 L 4,-11 L 4,-3 Z", fill=color)
-        path("M 8,7 L 2,7")
-        path("M -2,7 L -4,7")
-        path("M -8,7 L -4,3 L -4,11 Z", fill=color)
-        text("5", 0, 0, 17)
+        path("M -10,-8 L -2,0 L -10,8 Z", fill=color)
+        path("M 2,-8 L 10,0 L 2,8 Z", fill=color)
     elif name == "random":
         path("M -11,-5 L 6,3")
         path("M 11,5 L 4.8,5.7 L 7.2,0.3 Z", fill=color)
@@ -142,6 +134,15 @@ def icon(name, cx, cy, color, scale=1.0):
         text("?", 0, 0, 20)
     elif name == "close":
         path("M -8,-8 L 8,8 M 8,-8 L -8,8")
+    elif name == "launcher":
+        path("M -9,-9 L -1,-9 L -1,-1 L -9,-1 Z", fill=color)
+        path("M 1,-9 L 9,-9 L 9,-1 L 1,-1 Z", fill=color)
+        path("M -9,1 L -1,1 L -1,9 L -9,9 Z", fill=color)
+        path("M 1,1 L 9,1 L 9,9 L 1,9 Z", fill=color)
+    elif name == "headphone":
+        path("M -8,2 L -8,-1 A 8,8 0 0 1 8,-1 L 8,2")
+        path("M -10,1 L -6,1 L -6,8 L -10,8 Z", fill=color)
+        path("M 6,1 L 10,1 L 10,8 L 6,8 Z", fill=color)
     elif name == "capslock":
         path("M -8,0 L -8,9 L 8,9 L 8,0 Z", fill=color)
         path("M -5,0 L -5,-5 A 5,5 0 0 1 5,-5 L 5,0")
