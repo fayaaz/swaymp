@@ -80,8 +80,25 @@ mfirstline() { mpc status 2>/dev/null | grep -E '^\[(playing|paused|stopped)\]' 
 mpos() { mfirstline | grep -oE '#[0-9]+/[0-9]+' | head -n1 | tr -d '#' | cut -d/ -f1; }
 mqueue_len() { mfirstline | grep -oE '#[0-9]+/[0-9]+' | head -n1 | tr -d '#' | cut -d/ -f2; }
 melapsed() { mfirstline | grep -oE '[0-9]+:[0-9]+/[0-9]+:[0-9]+' | head -n1 | cut -d/ -f1 | awk -F: '{print $1*60+$2}'; }
-nc_visible() { timeout 5 swaync-client -s 2>/dev/null | grep -q '"visible": *true'; }
-nc_count() { timeout 5 swaync-client -c -sw 2>/dev/null | grep -oE '[0-9]+' | head -n1; }
+# swaync 0.11 has no "visible" property: GetVisibility/NotificationCount are methods.
+# (swaync-client -s is a *subscription* that never exits, so it is not a status read.)
+nc_visible() {
+    if command -v busctl >/dev/null; then
+        busctl --user call org.erikreider.swaync.cc /org/erikreider/swaync/cc org.erikreider.swaync.cc GetVisibility 2>/dev/null | grep -q '\bb true\b'
+    else
+        dbus-send --print-reply --dest=org.erikreider.swaync.cc /org/erikreider/swaync/cc \
+            org.erikreider.swaync.cc.GetVisibility 2>/dev/null | grep -q 'boolean true'
+    fi
+}
+nc_count() {
+    if command -v busctl >/dev/null; then
+        busctl --user call org.erikreider.swaync.cc /org/erikreider/swaync/cc org.erikreider.swaync.cc NotificationCount 2>/dev/null | awk '/^u /{print $2}'
+    else
+        dbus-send --print-reply --dest=org.erikreider.swaync.cc /org/erikreider/swaync/cc \
+            org.erikreider.swaync.cc.NotificationCount 2>/dev/null | awk '/uint32/{print $NF}'
+    fi
+}
+nc_close() { swaync-client -cp >/dev/null 2>&1 || true; }
 vol() { wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '/Volume:/ {printf "%d", $2*100+0.5}'; }
 muted() { wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | grep -q MUTED && echo 1 || echo 0; }
 first_track() { mpc ls 2>/dev/null | head -n1; }
@@ -271,6 +288,7 @@ stage_devices() {
     pass "default output: ${title:-$before}"
     pass "$n PipeWire output(s) listed"
 
+    nc_close
     swaync-client -C >/dev/null 2>&1 || true
     sleep 0.5
     super "$KD"; sleep 1.5
@@ -293,6 +311,7 @@ stage_devices() {
 }
 
 stage_notifications() {
+    nc_close
     swaync-client -C >/dev/null 2>&1 || true
     sleep 0.5
     nc_visible && fail "swaync panel already open" || pass "swaync panel closed initially"
@@ -338,6 +357,7 @@ stage_miniplayer() {
     title=$(mpris_prop org.mpris.MediaPlayer2.Player Metadata | tr '\n' ' ' | grep -oE '"xesam:title"[[:space:]]+(variant[[:space:]]+)?(s|string)[[:space:]]*"[^"]*"' | head -n1 | grep -oE '"[^"]*"$' | tr -d '"')
     [ -n "$title" ] && pass "MPRIS metadata xesam:title=$title" || echo "NOTE no xesam:title in MPRIS metadata (empty MPD queue?)"
 
+    nc_close
     swaync-client -C >/dev/null 2>&1 || true
     sleep 0.5
     super "$KRET"; sleep 1.5
@@ -384,6 +404,7 @@ stage_euphonica() {
     super_shift "$K4"; sleep 1.5
     wait_vis "$EUPH" absent 10 && pass "Super+Shift+4 hid Euphonica to scratchpad" || fail "Euphonica did not hide"
     [ -n "$cur" ] && swaymsg "workspace $cur" >/dev/null 2>&1
+    return 0
 }
 
 stage_wiremix() {
@@ -432,6 +453,7 @@ stage_cleanup() {
     pkill -x fuzzel >/dev/null 2>&1 || true
     pkill -f cheatsheet-viewer >/dev/null 2>&1 || true
     swaync-client -C >/dev/null 2>&1 || true
+    nc_close
     if [ -f "$STATE" ]; then
         . "$STATE"
         [ -n "${SINK:-}" ] && wpctl set-default "$SINK" >/dev/null 2>&1
