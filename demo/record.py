@@ -8,7 +8,7 @@ import os
 
 URL = os.environ.get("KB_URL", "http://127.0.0.1:7171/")
 OUT = os.environ.get("KB_OUT", "kb_final.webm")
-DUR = float(os.environ.get("KB_DUR", "37"))
+DUR = float(os.environ.get("KB_DUR", "43"))
 
 new_tab(URL)
 wait_for_load()
@@ -43,15 +43,14 @@ print(js("(async () => { window.__rrec.stop(); await window.__rdone; vid.pause()
          "return 'bytes:'+window.__rblob.size+' chunks:'+window.__rchunks.length; })()"))
 
 n = int(js("window.__rblob.size"))
-STEP = 1500000
-parts = []
-for i in range(0, n, STEP):
-    j = min(i + STEP, n)
-    b64 = js(f"(async()=>{{const s=window.__rblob.slice({i},{j});"
-             "const b=await s.arrayBuffer();let u=new Uint8Array(b);let s2='';"
-             "for(let k=0;k<u.length;k+=8192){s2+=String.fromCharCode.apply(null,"
-             "u.subarray(k,k+8192));}return btoa(s2);})()")
-    parts.append(b64)
+STEP = 4000000
 with open(OUT, "wb") as f:
-    f.write(base64.b64decode("".join(parts)))
+    for i in range(0, n, STEP):
+        j = min(i + STEP, n)
+        b64 = js(f"(async()=>{{const s=window.__rblob.slice({i},{j});"
+                 "const b=await s.arrayBuffer();let u=new Uint8Array(b);let s2='';"
+                 "for(let k=0;k<u.length;k+=8192){s2+=String.fromCharCode.apply(null,"
+                 "u.subarray(k,k+8192));}return btoa(s2);})()")
+        f.write(base64.b64decode(b64))
+        print(f"chunk {j}/{n}", flush=True)
 print("saved", OUT, n)

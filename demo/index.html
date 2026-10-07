@@ -16,16 +16,34 @@ const W = 740, H = 1080;
 
 // shortcut timeline synced with hackpi-overlay.mp4
 const EVENTS = [
-  { t: 2.0,  dur: 2.2, keys: ["super", "P"] },
-  { t: 4.5,  dur: 2.2, keys: ["super", "P"] },
-  { t: 7.5,  dur: 2.2, keys: ["super", "K"] },
-  { t: 10.0, dur: 2.2, keys: ["super", "J"] },
-  { t: 13.0, dur: 2.2, keys: ["super", "O"] },
-  { t: 15.5, dur: 2.2, keys: ["super", "O"] },
-  { t: 18.0, dur: 2.2, keys: ["super", "I"] },
-  { t: 21.0, dur: 3.0, keys: ["super", "V"] },
-  { t: 25.0, dur: 3.0, keys: ["super", "D"] },
-  { t: 29.0, dur: 3.0, keys: ["super", "space"] },
+  { t: 2.07,  dur: 2.2, keys: ["super", "P"] },
+  { t: 4.62,  dur: 2.2, keys: ["super", "P"] },
+  { t: 7.67,  dur: 2.2, keys: ["super", "K"] },
+  { t: 10.24,  dur: 2.2, keys: ["super", "J"] },
+  // volume 100% -> 50% (Super+I x10, 5% per press)
+  { t: 13.30,  dur: 1.1, keys: ["super", "I"] },
+  { t: 13.78,  dur: 1.1, keys: ["super", "I"] },
+  { t: 14.25,  dur: 1.1, keys: ["super", "I"] },
+  { t: 14.73,  dur: 1.1, keys: ["super", "I"] },
+  { t: 15.21,  dur: 1.1, keys: ["super", "I"] },
+  { t: 15.69,  dur: 1.1, keys: ["super", "I"] },
+  { t: 16.17,  dur: 1.1, keys: ["super", "I"] },
+  { t: 16.65,  dur: 1.1, keys: ["super", "I"] },
+  { t: 17.13,  dur: 1.1, keys: ["super", "I"] },
+  { t: 17.61,  dur: 1.1, keys: ["super", "I"] },
+  // volume 50% -> 100% (Super+O x10)
+  { t: 20.03,  dur: 1.1, keys: ["super", "O"] },
+  { t: 20.52,  dur: 1.1, keys: ["super", "O"] },
+  { t: 21.00,  dur: 1.1, keys: ["super", "O"] },
+  { t: 21.48,  dur: 1.1, keys: ["super", "O"] },
+  { t: 21.96,  dur: 1.1, keys: ["super", "O"] },
+  { t: 22.43,  dur: 1.1, keys: ["super", "O"] },
+  { t: 22.92,  dur: 1.1, keys: ["super", "O"] },
+  { t: 23.39,  dur: 1.1, keys: ["super", "O"] },
+  { t: 23.86,  dur: 1.1, keys: ["super", "O"] },
+  { t: 24.34,  dur: 1.1, keys: ["super", "O"] },
+  // cheatsheet: pointer touch on the waybar button (no keycap)
+  { t: 37.20, dur: 3.0, keys: ["super", "space"] },
 ];
 
 // Hackberry Q10: official keymap + photo alt legends, BB-style uppercase glyphs
@@ -292,11 +310,22 @@ function orientAndBuild() {
   mtex.magFilter = THREE.LinearFilter;
   window.__frames = [];
   window.__FR = 8;
-  for (let i = 1; i <= 275; i++) {
-    const im = new Image();
-    im.src = "/frames/f_" + String(i).padStart(3, "0") + ".jpg";
-    window.__frames.push(im);
+  window.__framesLoaded = false;
+  function loadFrames(n) {
+    if (window.__framesLoaded) return;
+    window.__framesLoaded = true;
+    for (let i = 1; i <= n; i++) {
+      const im = new Image();
+      im.src = "/frames/f_" + String(i).padStart(3, "0") + ".jpg";
+      window.__frames.push(im);
+    }
   }
+  // frame count follows the source clip length, not a hardcoded constant
+  vid.addEventListener("loadedmetadata", () => {
+    const d = isFinite(vid.duration) && vid.duration > 1 ? vid.duration : 45;
+    loadFrames(Math.ceil(d * window.__FR));
+  }, { once: true });
+  setTimeout(() => loadFrames(400), 4000);
   const sy0 = bbw.min.y + chh * 0.385, sy1 = bbw.min.y + chh * 0.985;
   const sx0 = bbw.min.x + cw * 0.032, sx1 = bbw.max.x - cw * 0.032;
   // black bezel fills the opening; video plane smaller inside it
