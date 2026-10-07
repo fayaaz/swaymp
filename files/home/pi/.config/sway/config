@@ -205,6 +205,9 @@ for_window [app_id="wiremix"] resize set height 320 px
 for_window [app_id="foot"] floating enable, resize set 640 480, move position center, border none
 # bluetuith (TUI bluetooth manager) needs more room than a plain terminal.
 for_window [app_id="bluetooth"] floating enable, resize set 700 620, move position center, border none
+# nmtui (NetworkManager TUI, waybar network button / $mod+n): replaces the
+# nm-applet tray icon.
+for_window [app_id="network"] floating enable, resize set 600 600, move position center, border none
 
 # Workspace placement: music player + wiremix on 1:Music, browser on
 # 2:Browser. The terminal always opens floating on the current workspace.
@@ -221,7 +224,9 @@ exec --no-startup-id waybar
 # activates on this image, so an enabled unit alone leaves notifications dead.
 exec --no-startup-id systemctl --user start swaync.service
 exec --no-startup-id devmon
-exec --no-startup-id nm-applet --indicator &
+# nm-applet is intentionally NOT started: network management moved to the nmtui
+# TUI (waybar network button / $mod+n -> ~/.config/sway/network.sh). The package
+# stays installed (it is what pulls in nmtui), the tray icon is gone.
 exec swaymsg 'workspace "1:Music"; exec flatpak --user run --env=GSK_RENDERER=cairo io.github.htkhiem.Euphonica'
 
 ### Music / cheatsheet keys

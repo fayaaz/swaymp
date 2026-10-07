@@ -9,7 +9,7 @@
     ],
     "modules-right": [
         "clock",
-        "tray",
+        "custom/network",
         "custom/euphonica",
         "custom/power"
     ],
@@ -23,7 +23,10 @@
             "swayimg: cheatsheet\\.svg": "cheatsheet"
         }
     },
-    "tray": {
+    "custom/network": {
+        "format": " \uf1eb ",
+        "tooltip-format": "Network (nmtui)",
+        "on-click": "/bin/bash $HOME/.config/sway/network.sh",
         "spacing": 10
     },
     "clock": {

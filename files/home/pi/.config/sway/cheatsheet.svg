@@ -97,8 +97,10 @@
 <g transform="translate(396.0,280) scale(0.7)"><path d="M 0,-8 L 0,8" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 0,-8 L 7,-4 L 0,0 L 7,4 L 0,8" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
 <text x="396.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">bluetooth</text>
 <text x="396.0" y="298.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">B</text>
-<rect x="434" y="262" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.95" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
-<text x="466.0" y="294.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">N</text>
+<rect x="434" y="262" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.95" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(466.0,280) scale(0.7)"><path d="M -9,-1 A 12,12 0 0 1 9,-1" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -5,3 A 7,7 0 0 1 5,3" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -2,7 A 2,2 0 1 1 2,7 A 2,2 0 1 1 -2,7" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="466.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">network</text>
+<text x="466.0" y="298.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">N</text>
 <rect x="504" y="262" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.95" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
 <g transform="translate(536.0,280) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 4,-5 L 11,2 M 11,-5 L 4,2" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
 <text x="536.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">mute</text>

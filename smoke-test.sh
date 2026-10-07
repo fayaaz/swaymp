@@ -13,14 +13,14 @@
 # screenshots plus per-stage logs. Exit 0 only if every assertion passes.
 #
 # Stages: preflight input playback seek queue volume launcher terminal
-#         cheatsheet devices bluetooth notifications miniplayer browser euphonica wiremix mediakeys cleanup
+#         cheatsheet devices bluetooth network notifications miniplayer browser euphonica wiremix mediakeys cleanup
 # The Pi-side runner is embedded below and copied to /tmp/smoke/smoke-run.sh.
 set -u
 
 PI="${PI:-pi@raspberrypi.local}"
 OUT="${OUT:-/tmp/opencode/smoke-$(date +%Y%m%d-%H%M%S)}"
 REMOTE=/tmp/smoke
-STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices bluetooth notifications miniplayer browser euphonica wiremix mediakeys cleanup}"
+STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices bluetooth network notifications miniplayer browser euphonica wiremix mediakeys cleanup}"
 
 mkdir -p "$OUT"
 ssh_base() { ssh -o ConnectTimeout=8 -o BatchMode=yes "$PI" "$@"; }
@@ -57,7 +57,7 @@ QUEUE=$REMOTE/queue.txt
 mkdir -p "$SHOTDIR"
 
 # wtype key names (libxkbcommon keysym identifiers)
-KP=p KK=k KJ=j KI=i KO=o KM=m KD=d KG=g KV=v KB=b
+KP=p KK=k KJ=j KI=i KO=o KM=m KD=d KG=g KV=v KB=b KN=n
 KTAB=Tab KSPACE=space KH=h KL=l KESC=Escape K4=4 KRET=Return
 KF11=F11 MPLAY=XF86AudioPlay MNEXT=XF86AudioNext MPREV=XF86AudioPrev
 
@@ -381,6 +381,36 @@ stage_bluetooth() {
     wait_win bluetooth absent 8 && pass "Super+B toggled the bluetooth UI closed" || fail "bluetooth UI did not close"
 }
 
+stage_network() {
+    local cfg=$HOME/.config/sway wb=$HOME/.config/waybar/config
+    [ -x "$cfg/network.sh" ] && pass "network.sh present and executable" || fail "network.sh missing or not executable"
+    grep -qE '^[[:space:]]*exec.*nm-applet' "$cfg/config" \
+        && fail "sway config still autostarts nm-applet" \
+        || pass "sway config no longer autostarts nm-applet"
+    jq -e '."modules-right" | index("custom/network")' "$wb" >/dev/null 2>&1 \
+        && pass "waybar has the custom/network button" || fail "waybar has no custom/network button"
+    jq -e '."modules-right" | index("tray")' "$wb" >/dev/null 2>&1 \
+        && fail "waybar still has the tray module" || pass "waybar tray module removed"
+    jq -e '."custom/network"."on-click" | test("network\\.sh")' "$wb" >/dev/null 2>&1 \
+        && pass "waybar network button runs network.sh" || fail "waybar network button does not run network.sh"
+    command -v nmtui >/dev/null && pass "nmtui installed" || fail "nmtui not installed"
+
+    kill_app network
+    sleep 0.5
+    super "$KN"; sleep 2
+    [ "$(win_count network)" -ge 1 ] && pass "Super+N opened the network UI" || fail "Super+N did not open the network UI"
+    case "$(win_floating network)" in
+        user_on|auto_on) pass "network UI opened floating ($(win_floating network))" ;;
+        *) fail "network UI not floating ($(win_floating network))" ;;
+    esac
+    pgrep -f 'nmtui' >/dev/null 2>&1 \
+        && pass "nmtui is the network UI (pid $(pgrep -f nmtui | head -n1))" \
+        || fail "nmtui not running in the network UI"
+    shot 09c-network
+    super "$KN"
+    wait_win network absent 8 && pass "Super+N toggled the network UI closed" || fail "network UI did not close"
+}
+
 stage_notifications() {
     nc_close
     swaync-client -C >/dev/null 2>&1 || true
@@ -521,6 +551,7 @@ stage_cleanup() {
     kill_app firefox
     kill_app wiremix
     kill_app bluetooth
+    kill_app network
     pkill -x fuzzel >/dev/null 2>&1 || true
     pkill -f cheatsheet-viewer >/dev/null 2>&1 || true
     swaync-client -C >/dev/null 2>&1 || true
@@ -565,6 +596,7 @@ case "$STAGE" in
     cheatsheet) stage_cheatsheet ;;
     devices) stage_devices ;;
     bluetooth) stage_bluetooth ;;
+    network) stage_network ;;
     notifications) stage_notifications ;;
     miniplayer) stage_miniplayer ;;
     browser) stage_browser ;;

@@ -11,7 +11,7 @@ sudo rm -f /etc/apt/sources.list.d/mympd.list /etc/apt/trusted.gpg.d/mympd.asc
 sudo apt-get update >/dev/null
 sudo apt-get install -y sway waybar foot fuzzel swayimg imv syncthing pipewire pipewire-pulse wireplumber \
     fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep \
-    bluez-tools rfkill udevil network-manager-applet curl >/dev/null
+    bluez-tools rfkill udevil network-manager network-manager-applet curl >/dev/null
 # Cheatsheet overlay viewer (GTK3 transparent window).
 sudo apt-get install -y python3-gi gir1.2-gtk-3.0 >/dev/null
 
@@ -20,6 +20,11 @@ sudo apt-get install -y python3-gi gir1.2-gtk-3.0 >/dev/null
 sudo systemctl enable --now bluetooth.service >/dev/null 2>&1 || true
 sudo usermod -aG bluetooth "$USER" 2>/dev/null || true
 sudo rfkill unblock bluetooth >/dev/null 2>&1 || true
+
+# Network UI is the nmtui TUI (~/.config/sway/network.sh, waybar button / $mod+n).
+# network-manager-applet stays installed (it is what pulls in nmtui alongside
+# network-manager) but the sway config no longer autostarts the tray applet.
+sudo systemctl enable --now NetworkManager >/dev/null 2>&1 || true
 
 # bluetuith (TUI bluetooth manager, $mod+b): not packaged for Debian/Raspbian
 # and the repo keeps no binaries, so fetch the GitHub release tarball for this
@@ -123,6 +128,7 @@ chmod +x "$HOME/.config/sway/cheatsheet-viewer.py"
 chmod +x "$HOME/.config/sway/wiremix.sh"
 chmod +x "$HOME/.config/sway/browser.sh"
 chmod +x "$HOME/.config/sway/bluetooth.sh"
+chmod +x "$HOME/.config/sway/network.sh"
 chmod +x "$HOME/.config/sway/volume.sh"
 chmod +x "$HOME/.config/sway/volume-notify.sh"
 chmod +x "$HOME/.config/sway/brightness.py"

@@ -73,6 +73,7 @@ ICONS = {
     "notifications": "bell", "this cheatsheet": "help",
     "back / close cheatsheet": "close",     "launcher (fuzzel)": "launcher",
     "euphonica": "headphone", "browser": "globe", "bluetooth": "bluetooth",
+    "network (nmtui)": "wifi",
     "terminal": "terminal",
 }
 
@@ -86,6 +87,7 @@ SHORT = {
     "notifications": "notifications", "this cheatsheet": "cheatsheet",
     "back / close cheatsheet": "close", "launcher (fuzzel)": "launcher",
     "euphonica": "euphonica", "browser": "browser", "bluetooth": "bluetooth",
+    "network (nmtui)": "network",
     "media play": "media play", "media next": "media next", "media prev": "media prev",
 }
 
@@ -171,6 +173,10 @@ def icon(name, cx, cy, color, scale=1.0):
     elif name == "bluetooth":
         path("M 0,-8 L 0,8")
         path("M 0,-8 L 7,-4 L 0,0 L 7,4 L 0,8")
+    elif name == "wifi":
+        path("M -9,-1 A 12,12 0 0 1 9,-1")
+        path("M -5,3 A 7,7 0 0 1 5,3")
+        path("M -2,7 A 2,2 0 1 1 2,7 A 2,2 0 1 1 -2,7", fill=color)
     elif name == "capslock":
         path("M -8,0 L -8,9 L 8,9 L 8,0 Z", fill=color)
         path("M -5,0 L -5,-5 A 5,5 0 0 1 5,-5 L 5,0")
