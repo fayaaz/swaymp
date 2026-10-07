@@ -8,6 +8,17 @@ export SWAYSOCK=${SWAYSOCK:-$(find "$XDG_RUNTIME_DIR" -maxdepth 1 -name 'sway-ip
 
 APP_ID="io.github.htkhiem.Euphonica"
 
+# Debounce: collapse mash bursts (and firmware repeats) into one toggle.
+# A second press inside the window exits silently; deliberate presses are
+# seconds apart and pass through. (sway --no-repeat only stops holds.)
+LASTFILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/euphonica.last"
+now=$(date +%s%3N)
+last=$(cat "$LASTFILE" 2>/dev/null || echo 0)
+if [ "$((now - last))" -lt 1200 ]; then
+    exit 0
+fi
+echo "$now" > "$LASTFILE"
+
 if ! pgrep -x euphonica >/dev/null; then
     flatpak --user run --env=GSK_RENDERER=cairo io.github.htkhiem.Euphonica >/dev/null 2>&1 &
 fi

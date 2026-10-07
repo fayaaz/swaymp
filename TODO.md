@@ -9,3 +9,4 @@
 - [x] cheatsheet button pressed rapidly reports errors even though it works
 - [x] euphonica shortcut never opens it when closed (waybar button works)
 - [x] holding a shortcut repeats it and thrashes toggles (needs --no-repeat)
+- [x] euphonica shortcut stolen by stock workspace-4 bind (dollar key sends Shift+4)

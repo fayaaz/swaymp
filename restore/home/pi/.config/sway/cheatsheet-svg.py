@@ -56,6 +56,7 @@ KEYSYM = {
     "z": ("z", 0), "x": ("x", 0), "c": ("c", 0), "v": ("v", 0), "b": ("b", 0),
     "n": ("n", 0), "m": ("m", 0),
     "comma": ("b", 1), "period": ("n", 1), "space": ("space", 0), "dollar": ("dollar", 0),
+    "Shift+4": ("dollar", 0),
     "tab": ("tab", 0),
     "F1": ("capslock", 2), "F2": ("esc", 2), "F3": ("tab", 2),
 }
