@@ -15,7 +15,7 @@ $mod+m       mute
 $mod+v       wiremix peaks
 $mod+d       notifications
 $mod+space   launcher (fuzzel)
-$mod+Shift+4 euphonica
+$mod+dollar  euphonica
 $mod+g       browser
 $mod+u       bluetooth
 $mod+tab     terminal
