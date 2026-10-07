@@ -6,3 +6,5 @@
 - [x] cheatsheet is no longer center of the screen
 - [x] cheatsheet no longer works at all. This is a regression
 - [x] Pressing the euphonica shortcut from the browser should take you to music
+- [x] cheatsheet button pressed rapidly reports errors even though it works
+- [ ] euphonica shortcut never opens it when closed (waybar button works)

@@ -11,6 +11,8 @@ sudo apt-get update >/dev/null
 sudo apt-get install -y sway waybar foot fuzzel swayimg imv syncthing pipewire pipewire-pulse wireplumber \
     fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep \
     bluez-tools rfkill >/dev/null
+# Cheatsheet overlay viewer (GTK3 transparent window).
+sudo apt-get install -y python3-gi gir1.2-gtk-3.0 >/dev/null
 
 # Bluetooth audio (PipeWire plays through paired devices): daemon on,
 # user in the bluetooth group (re-login to take effect).
@@ -133,9 +135,8 @@ sed -i 's/^    #bindsym \$mod+b splith/    bindsym $mod+b splith/' "$HOME/.confi
 sed -i 's/^    bindsym \$mod+v splitv/    #bindsym $mod+v splitv/' "$HOME/.config/sway/config"
 # Cheatsheet overlay geometry: for_window move is relative to the workspace
 # content origin (below waybar, y=43), so 10,57 lands at absolute 10,100.
-# cheatsheet.sh runs swayimg with SWAYSOCK unset so its Sway-mode parent
-# lookup (which segfaults with no active window) never runs; the rule
-# below does all sizing and placement.
+# cheatsheet-viewer.py is a transparent GTK window with app_id cheatsheet;
+# the rule below does all sizing and placement.
 sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, resize set 700 520, move position 10 57, border none/' "$HOME/.config/sway/config"
 sed -i 's/^for_window \[app_id="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, resize set 700 520, move position 10 57, border none/' "$HOME/.config/sway/config"
 sed -i 's/^for_window \[app_id="imv"\].*/for_window [app_id="imv"] floating enable, resize set 700 520, move position 10 100, border none/' "$HOME/.config/sway/config"
@@ -229,6 +230,7 @@ fi
 chmod +x "$HOME/.config/sway/notifications.sh"
 chmod +x "$HOME/.config/sway/cheatsheet.sh"
 chmod +x "$HOME/.config/sway/cheatsheet-svg.py"
+chmod +x "$HOME/.config/sway/cheatsheet-viewer.py"
 chmod +x "$HOME/.config/sway/wiremix.sh"
 chmod +x "$HOME/.config/sway/browser.sh"
 chmod +x "$HOME/.config/sway/bluetooth.sh"
