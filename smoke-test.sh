@@ -13,14 +13,14 @@
 # screenshots plus per-stage logs. Exit 0 only if every assertion passes.
 #
 # Stages: preflight input playback seek queue volume launcher terminal
-#         cheatsheet notifications browser euphonica wiremix mediakeys cleanup
+#         cheatsheet devices notifications browser euphonica wiremix mediakeys cleanup
 # The Pi-side runner is embedded below and copied to /tmp/smoke/smoke-run.sh.
 set -u
 
 PI="${PI:-pi@raspberrypi.local}"
 OUT="${OUT:-/tmp/opencode/smoke-$(date +%Y%m%d-%H%M%S)}"
 REMOTE=/tmp/smoke
-STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet notifications browser euphonica wiremix mediakeys cleanup}"
+STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices notifications browser euphonica wiremix mediakeys cleanup}"
 
 mkdir -p "$OUT"
 ssh_base() { ssh -o ConnectTimeout=8 -o BatchMode=yes "$PI" "$@"; }
@@ -58,7 +58,7 @@ mkdir -p "$SHOTDIR"
 
 # wtype key names (libxkbcommon keysym identifiers)
 KP=p KK=k KJ=j KI=i KO=o KM=m KD=d KG=g KV=v
-KTAB=Tab KSPACE=space KCOMMA=comma KDOT=period KESC=Escape K4=4
+KTAB=Tab KSPACE=space KCOMMA=comma KDOT=period KESC=Escape K4=4 KRET=Return
 KF11=F11 MPLAY=XF86AudioPlay MNEXT=XF86AudioNext MPREV=XF86AudioPrev
 
 pass() { echo "PASS $*"; }
@@ -81,9 +81,15 @@ mpos() { mfirstline | grep -oE '#[0-9]+/[0-9]+' | head -n1 | tr -d '#' | cut -d/
 mqueue_len() { mfirstline | grep -oE '#[0-9]+/[0-9]+' | head -n1 | tr -d '#' | cut -d/ -f2; }
 melapsed() { mfirstline | grep -oE '[0-9]+:[0-9]+/[0-9]+:[0-9]+' | head -n1 | cut -d/ -f1 | awk -F: '{print $1*60+$2}'; }
 nc_visible() { timeout 5 swaync-client -s 2>/dev/null | grep -q '"visible": *true'; }
+nc_count() { timeout 5 swaync-client -c -sw 2>/dev/null | grep -oE '[0-9]+' | head -n1; }
 vol() { wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '/Volume:/ {printf "%d", $2*100+0.5}'; }
 muted() { wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | grep -q MUTED && echo 1 || echo 0; }
 first_track() { mpc ls 2>/dev/null | head -n1; }
+# PipeWire sinks come from the payload switcher itself (device.sh list -> id<TAB>default<TAB>title)
+sink_rows() { [ -f "$HOME/.config/sway/device.sh" ] && bash "$HOME/.config/sway/device.sh" list 2>/dev/null; }
+sink_count() { sink_rows | grep -c .; }
+default_sink() { sink_rows | awk -F'\t' '$2 == 1 { print $1; exit }'; }
+sink_title() { sink_rows | awk -F'\t' -v id="$1" '$1 == id { print $3; exit }'; }
 
 ensure_daemon() { :; }
 
@@ -128,6 +134,7 @@ stage_playback() {
         echo "SGL=$(printf '%s' "$st" | grep -o 'single: [a-z]*' | cut -d' ' -f2)"
         echo "CSM=$(printf '%s' "$st" | grep -o 'consume: [a-z]*' | cut -d' ' -f2)"
         echo "PSTATE=$(mstate)"
+        echo "SINK=$(default_sink)"
     } >"$STATE"
     mpc playlist >"$QUEUE" 2>/dev/null
 
@@ -232,14 +239,51 @@ stage_cheatsheet() {
     wait_win cheatsheet absent 8 && pass "F11 closed cheatsheet" || fail "F11 did not close cheatsheet"
 }
 
+stage_devices() {
+    local dev=$HOME/.config/sway/device.sh before after n title count
+    [ -f "$dev" ] && pass "device.sh present" || fail "device.sh missing"
+    n=$(sink_count)
+    before=$(default_sink)
+    if [ -z "$before" ]; then
+        fail "no PipeWire sink found"
+        shot 09-devices
+        return
+    fi
+    title=$(sink_title "$before")
+    pass "default output: ${title:-$before}"
+    pass "$n PipeWire output(s) listed"
+
+    swaync-client -C >/dev/null 2>&1 || true
+    sleep 0.5
+    super "$KD"; sleep 1.5
+    after=$(default_sink)
+    if [ "$n" -ge 2 ]; then
+        [ "$after" != "$before" ] \
+            && pass "Super+D switched output (${title} -> $(sink_title "$after"))" \
+            || fail "Super+D did not switch output (still ${title})"
+        super "$KD"; sleep 1.5
+        [ "$(default_sink)" = "$before" ] \
+            && pass "Super+D cycled back to ${title}" \
+            || echo "NOTE cycle landed on $(sink_title "$(default_sink)"), expected ${title}"
+    else
+        [ "$after" = "$before" ] && pass "single output: Super+D kept ${title}" || fail "Super+D moved the only output"
+    fi
+    count=$(nc_count)
+    [ "${count:-0}" -ge 1 ] && pass "Super+D posted a notification" || fail "Super+D posted no notification"
+    shot 09-devices
+    swaync-client -C >/dev/null 2>&1 || true
+}
+
 stage_notifications() {
     swaync-client -C >/dev/null 2>&1 || true
     sleep 0.5
     nc_visible && fail "swaync panel already open" || pass "swaync panel closed initially"
     super "$KD"; sleep 1.5
-    nc_visible && pass "Super+D opened notification center" || fail "Super+D did not open notification center"
-    shot 09-notifications
-    super "$KD"; sleep 1
+    nc_visible && fail "Super+D still opens the panel (should be Super+Return)" || pass "Super+D is the output switcher, not the panel"
+    super "$KRET"; sleep 1.5
+    nc_visible && pass "Super+Return opened notification center" || fail "Super+Return did not open notification center"
+    shot 10-notifications
+    super "$KRET"; sleep 1
     nc_visible && fail "notification center did not close" || pass "notification center closed"
 }
 
@@ -254,7 +298,7 @@ stage_browser() {
         2:Browser) pass "firefox assigned to 2:Browser" ;;
         *) fail "firefox on workspace '${ws:-none}', expected 2:Browser" ;;
     esac
-    shot 10-browser
+    shot 12-browser
     kill_app firefox
     wait_win firefox absent 15 && pass "firefox killed" || fail "firefox did not close"
 }
@@ -276,7 +320,7 @@ stage_euphonica() {
         1:Music) pass "Euphonica on 1:Music" ;;
         *) fail "Euphonica on workspace '${ws:-none}', expected 1:Music" ;;
     esac
-    shot 11-euphonica
+    shot 13-euphonica
     super_shift "$K4"; sleep 1.5
     wait_vis "$EUPH" absent 10 && pass "Super+Shift+4 hid Euphonica to scratchpad" || fail "Euphonica did not hide"
     [ -n "$cur" ] && swaymsg "workspace $cur" >/dev/null 2>&1
@@ -285,14 +329,14 @@ stage_euphonica() {
 stage_wiremix() {
     if [ ! -x "$HOME/.cargo/bin/wiremix" ]; then
         echo "SKIP wiremix binary not present"
-        shot 12-wiremix
+        shot 14-wiremix
         return
     fi
     kill_app wiremix
     sleep 1
     super "$KV"; sleep 2
     wait_win wiremix present 8 && pass "Super+V opened wiremix" || fail "Super+V did not open wiremix"
-    shot 12-wiremix
+    shot 14-wiremix
     super "$KV"
     wait_win wiremix absent 8 && pass "Super+V toggled wiremix closed" || fail "wiremix did not close"
 }
@@ -316,7 +360,7 @@ stage_mediakeys() {
     else
         echo "SKIP media next/prev: queue has <2 tracks"
     fi
-    shot 13-mediakeys
+    shot 15-mediakeys
 }
 
 stage_cleanup() {
@@ -330,6 +374,7 @@ stage_cleanup() {
     swaync-client -C >/dev/null 2>&1 || true
     if [ -f "$STATE" ]; then
         . "$STATE"
+        [ -n "${SINK:-}" ] && wpctl set-default "$SINK" >/dev/null 2>&1
         if [ "${MUTED:-0}" = 1 ]; then wpctl set-mute @DEFAULT_AUDIO_SINK@ 1 >/dev/null 2>&1; else wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 >/dev/null 2>&1; fi
         [ -n "${VOL:-}" ] && wpctl set-volume @DEFAULT_AUDIO_SINK@ "${VOL}" >/dev/null 2>&1
         mpc clear >/dev/null 2>&1
@@ -344,11 +389,11 @@ stage_cleanup() {
             paused) mpc play >/dev/null 2>&1; mpc pause >/dev/null 2>&1 ;;
             *) mpc stop >/dev/null 2>&1 ;;
         esac
-        pass "restored volume/mute/queue/random/single/consume/playback state"
+        pass "restored output/volume/mute/queue/random/single/consume/playback state"
     else
         echo "SKIP no saved state to restore"
     fi
-    shot 14-cleanup
+    shot 16-cleanup
 }
 
 if [ "$STAGE" != preflight ] && ! command -v wtype >/dev/null; then
@@ -365,6 +410,7 @@ case "$STAGE" in
     launcher) stage_launcher ;;
     terminal) stage_terminal ;;
     cheatsheet) stage_cheatsheet ;;
+    devices) stage_devices ;;
     notifications) stage_notifications ;;
     browser) stage_browser ;;
     euphonica) stage_euphonica ;;

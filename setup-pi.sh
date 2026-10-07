@@ -88,6 +88,7 @@ done
 
 # --- user services ---
 chmod +x "$HOME/.config/sway/notifications.sh"
+chmod +x "$HOME/.config/sway/device.sh"
 chmod +x "$HOME/.config/sway/cheatsheet.sh"
 chmod +x "$HOME/.config/sway/cheatsheet-svg.py"
 chmod +x "$HOME/.config/sway/cheatsheet-viewer.py"

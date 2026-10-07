@@ -52,8 +52,8 @@
 <text x="116.0" y="248" font-size="9" fill="#f8f8f2" text-anchor="middle">single</text>
 <text x="116.0" y="228.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">S</text>
 <rect x="154" y="192" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.95" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
-<g transform="translate(186.0,210) scale(0.7)"><path d="M -8,4 L -8,-2 A 8,8 0 0 1 8,-2 L 8,4 L 10,7 L -10,7 Z" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -3,10 A 3,3 0 0 0 3,10" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-<text x="186.0" y="248" font-size="9" fill="#f8f8f2" text-anchor="middle">notifications</text>
+<g transform="translate(186.0,210) scale(0.7)"><path d="M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 3,-5 L 11,-5 L 8,-8 M 11,-5 L 8,-2" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 11,5 L 3,5 L 6,2 M 3,5 L 6,8" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="186.0" y="248" font-size="9" fill="#f8f8f2" text-anchor="middle">output</text>
 <text x="186.0" y="228.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">D</text>
 <rect x="224" y="192" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.95" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
 <text x="256.0" y="224.0" font-size="18" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">F</text>
@@ -107,8 +107,10 @@
 <g transform="translate(606.0,280) scale(0.7)"><path d="M -8,2 L -8,-1 A 8,8 0 0 1 8,-1 L 8,2" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -10,1 L -6,1 L -6,8 L -10,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M 6,1 L 10,1 L 10,8 L 6,8 Z" fill="#8be9fd" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
 <text x="606.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">euphonica</text>
 <text x="606.0" y="298.0" font-size="18" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">$</text>
-<rect x="644" y="262" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.95" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
-<text x="676.0" y="294.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Enter</text>
+<rect x="644" y="262" width="64" height="64" rx="9" fill="#111111" fill-opacity="0.95" stroke="#bd93f9" stroke-opacity="0.75" stroke-width="1.5"/>
+<g transform="translate(676.0,280) scale(0.7)"><path d="M -8,4 L -8,-2 A 8,8 0 0 1 8,-2 L 8,4 L 10,7 L -10,7 Z" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M -3,10 A 3,3 0 0 0 3,10" fill="none" stroke="#8be9fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="676.0" y="318" font-size="9" fill="#f8f8f2" text-anchor="middle">notifications</text>
+<text x="676.0" y="298.0" font-size="14" font-weight="bold" fill="#f8f8f2" text-anchor="middle" dominant-baseline="central">Enter</text>
 <rect x="84" y="332" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.95" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>
 <text x="116.0" y="364.0" font-size="14" font-weight="bold" fill="#6272a4" text-anchor="middle" dominant-baseline="central">Ctrl</text>
 <rect x="154" y="332" width="64" height="64" rx="9" fill="#000000" fill-opacity="0.95" stroke="#6272a4" stroke-opacity="0.45" stroke-width="1.5"/>

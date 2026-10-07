@@ -57,7 +57,7 @@ KEYSYM = {
     "n": ("n", 0), "m": ("m", 0),
     "comma": ("b", 1), "period": ("n", 1), "space": ("space", 0), "dollar": ("dollar", 0),
     "Shift+4": ("dollar", 0),
-    "tab": ("tab", 0),
+    "tab": ("tab", 0), "Return": ("enter", 0),
     "F1": ("capslock", 2), "F2": ("esc", 2), "F3": ("tab", 2),
 }
 
@@ -68,7 +68,7 @@ ICONS = {
     "seek -5s": "seekback", "seek +5s": "seekfwd",
     "random on/off": "random", "single on/off": "single",
     "volume -": "volminus", "volume +": "volplus", "mute": "mute",
-    "wiremix peaks": "meter", "brightness": "sun",
+    "wiremix peaks": "meter", "brightness": "sun", "audio output": "output",
     "notifications": "bell", "this cheatsheet": "help",
     "back / close cheatsheet": "close",     "launcher (fuzzel)": "launcher",
     "euphonica": "headphone", "browser": "globe", "bluetooth": "bluetooth",
@@ -81,7 +81,7 @@ SHORT = {
     "seek -5s": "seek -5", "seek +5s": "seek +5",
     "random on/off": "random", "single on/off": "single",
     "volume -": "vol -", "volume +": "vol +", "mute": "mute",
-    "wiremix peaks": "wiremix", "brightness": "brightness",
+    "wiremix peaks": "wiremix", "brightness": "brightness", "audio output": "output",
     "notifications": "notifications", "this cheatsheet": "cheatsheet",
     "back / close cheatsheet": "close", "launcher (fuzzel)": "launcher",
     "euphonica": "euphonica", "browser": "browser", "bluetooth": "bluetooth",
@@ -139,6 +139,10 @@ def icon(name, cx, cy, color, scale=1.0):
         for i, h in enumerate((6, 12, 8, 15)):
             x = -10 + i * 7
             path(f"M {x},8 L {x},{8-h}")
+    elif name == "output":
+        path("M -11,-4 L -7,-4 L -1,-9 L -1,9 L -7,4 L -11,4 Z", fill=color)
+        path("M 3,-5 L 11,-5 L 8,-8 M 11,-5 L 8,-2")
+        path("M 11,5 L 3,5 L 6,2 M 3,5 L 6,8")
     elif name == "sun":
         path("M 0,-4 A 4,4 0 1 0 0,4 A 4,4 0 1 0 0,-4")
         path("M 0,-10 L 0,-7 M 0,7 L 0,10 M -10,0 L -7,0 M 7,0 L 10,0 "

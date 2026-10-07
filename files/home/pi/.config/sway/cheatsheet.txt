@@ -13,7 +13,8 @@ $mod+i       volume -
 $mod+o       volume +
 $mod+m       mute
 $mod+v       wiremix peaks
-$mod+d       notifications
+$mod+d       audio output
+$mod+Return  notifications
 $mod+space   launcher (fuzzel)
 $mod+Shift+4 euphonica
 $mod+g       browser

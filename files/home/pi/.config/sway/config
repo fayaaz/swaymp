@@ -69,8 +69,8 @@ client.background #282a36
 # Stock base, trimmed for the Hackberry: every bind that collides with a
 # keys.json key is simply absent here (no unbindsym needed, because this file
 # does not include /etc/sway/config). Collisions handled:
-#   $mod+Return  terminal  -> keys.json $mod+tab (foot, floating)
-#   $mod+d       launcher  -> keys.json $mod+d (notifications); $mod+space is fuzzel
+#   $mod+Return  terminal  -> keys.json $mod+Return (notification center); terminal is $mod+tab
+#   $mod+d       launcher  -> keys.json $mod+d (PipeWire output switcher); $mod+space is fuzzel
 #   $mod+j/$mod+k focus    -> keys.json $mod+j/$mod+k (mpc seek)
 #   $mod+s layout          -> keys.json $mod+s (mpc single)
 #   $mod+v splitv          -> keys.json $mod+v (wiremix)
