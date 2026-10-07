@@ -2,7 +2,7 @@
 # Single source of truth: keys.json -> generated.conf (sway binds) + cheatsheet.txt (plain text)
 #                                      + cheatsheet.svg (keycap diagram shown by cheatsheet.sh)
 DIR="$(dirname "$0")"
-jq -r '.binds[] | "bindsym \(.key) \(.cmd)"' "$DIR/keys.json" > "$DIR/generated.conf"
+jq -r '.binds[] | "bindsym \(if .norepeat then "--no-repeat " else "" end)\(.key) \(.cmd)"' "$DIR/keys.json" > "$DIR/generated.conf"
 
 C=28
 printf 'HACKPI MUSIC KEYS\n' > "$DIR/cheatsheet.txt"

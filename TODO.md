@@ -8,3 +8,4 @@
 - [x] Pressing the euphonica shortcut from the browser should take you to music
 - [x] cheatsheet button pressed rapidly reports errors even though it works
 - [x] euphonica shortcut never opens it when closed (waybar button works)
+- [x] holding a shortcut repeats it and thrashes toggles (needs --no-repeat)
