@@ -170,6 +170,17 @@ elif ! grep -q "--env=GSK_RENDERER=cairo io.github.htkhiem.Euphonica" "$HOME/.co
     echo "exec swaymsg 'workspace \"1:Music\"; exec flatpak --user run --env=GSK_RENDERER=cairo io.github.htkhiem.Euphonica'" >> "$HOME/.config/sway/config"
 fi
 
+# Workspace placement: music player + wiremix on 1:Music, browser on
+# 2:Browser. The terminal always opens floating on the current workspace.
+# The launcher helpers (*.sh) switch to the right workspace before launching.
+for _rule in \
+    'assign [app_id="io.github.htkhiem.Euphonica"] "1:Music"' \
+    'assign [app_id="wiremix"] "1:Music"' \
+    'assign [app_id="firefox"] "2:Browser"'; do
+    grep -Fq "$_rule" "$HOME/.config/sway/config" || echo "$_rule" >> "$HOME/.config/sway/config"
+done
+unset _rule
+
 # Ensure waybar is the only bar and title bars are hidden.
 if ! grep -q "^set \$mod" "$HOME/.config/sway/config"; then
     echo "set \$mod Mod4" >> "$HOME/.config/sway/config"
