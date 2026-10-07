@@ -3,4 +3,4 @@
 - [ ] Add a shortcut to open the default browser
 - [ ] Music,wiremix should always go to workspace 1. Browser workspace 2. Everything else workspace 3. Buttons and interactions should take you to the right workspace
 - [ ] bluetooth packages missing. A tui bluetooth interface would be ideal
-- [ ] cheatsheet is no longer center of the screen
+- [x] cheatsheet is no longer center of the screen

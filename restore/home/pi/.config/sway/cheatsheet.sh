@@ -9,7 +9,9 @@ if swaymsg -s "$sock" -t get_tree | jq -e '.. | objects | select(.app_id? == "ch
     swaymsg -s "$sock" '[title="cheatsheet"] kill' >/dev/null 2>&1 || true
     exit 0
 fi
-swayimg -a cheatsheet -w 700,520 -s fit \
+# swayimg -p is relative to the workspace content origin (below waybar, y=43),
+# so 10,57 lands the 700x520 window at absolute 10,100 like the for_window rule.
+swayimg -a cheatsheet -w 700,520 -p 10,57 -s fit \
     -c "viewer.window=#00000000" \
     -c "viewer.transparency=#00000000" \
     -c "info.show=no" \
