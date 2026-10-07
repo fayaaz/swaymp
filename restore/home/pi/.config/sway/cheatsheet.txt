@@ -16,6 +16,7 @@ $mod+v       wiremix peaks
 $mod+d       notifications
 $mod+space   launcher (fuzzel)
 $mod+dollar  euphonica
+$mod+g       browser
 $mod+tab     terminal
 F13          this cheatsheet
 F11          back / close cheatsheet

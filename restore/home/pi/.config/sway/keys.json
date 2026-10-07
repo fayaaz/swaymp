@@ -17,6 +17,7 @@
     {"key": "$mod+d", "label": "notifications", "cmd": "exec ~/.config/sway/notifications.sh", "group": "tools"},
     {"key": "$mod+space", "label": "launcher (fuzzel)", "cmd": "exec fuzzel", "group": "tools"},
     {"key": "$mod+dollar", "label": "euphonica", "cmd": "exec /bin/bash ~/.config/waybar/euphonica.sh", "group": "tools"},
+    {"key": "$mod+g", "label": "browser", "cmd": "exec ~/.config/sway/browser.sh", "group": "tools"},
     {"key": "$mod+tab", "label": "terminal", "cmd": "exec foot", "group": "tools"},
     {"key": "F13", "label": "this cheatsheet", "cmd": "exec ~/.config/sway/cheatsheet.sh", "group": "tools"},
     {"key": "F11", "label": "back / close cheatsheet", "cmd": "exec ~/.config/sway/cheatsheet.sh", "group": "tools"}
