@@ -15,7 +15,7 @@ $mod+Return  notifications
 $mod+space   launcher (fuzzel)
 $mod+Shift+4 euphonica
 $mod+g       browser
-$mod+u       bluetooth
+$mod+b       bluetooth
 $mod+tab     terminal
 F13          this cheatsheet
 F11          back / close cheatsheet

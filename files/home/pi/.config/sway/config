@@ -74,6 +74,7 @@ client.background #282a36
 #   $mod+h/$mod+l focus    -> keys.json $mod+h/$mod+l (mpc prev/next)
 #   $mod+j/$mod+k focus    -> keys.json $mod+j/$mod+k (mpc seek)
 #   $mod+s layout          -> keys.json $mod+s (mpc single)
+#   $mod+b splith          -> keys.json $mod+b (bluetooth / bluetuith)
 #   $mod+v splitv          -> keys.json $mod+v (wiremix)
 #   $mod+r resize mode     -> keys.json $mod+r (mpc random); resize moved to $mod+Shift+r
 #   $mod+space mode_toggle -> remapped to $mod+t (space is fuzzel)
@@ -135,8 +136,7 @@ client.background #282a36
 #
 # Layout stuff:
 #
-    # Horizontal split ($mod+v is wiremix, so no splitv bind).
-    bindsym $mod+b splith
+    # ($mod+b is bluetooth, $mod+v is wiremix — no splitv/splith binds)
 
     # Make the current focus fullscreen
     bindsym $mod+f fullscreen
@@ -203,7 +203,8 @@ for_window [app_id="cheatsheet"] floating enable, resize set 700 520, move posit
 for_window [app_id="imv"] floating enable, resize set 700 520, move position 10 100, border none
 for_window [app_id="wiremix"] resize set height 320 px
 for_window [app_id="foot"] floating enable, resize set 640 480, move position center, border none
-for_window [app_id="bluetooth"] floating enable, resize set 640 480, move position center, border none
+# bluetuith (TUI bluetooth manager) needs more room than a plain terminal.
+for_window [app_id="bluetooth"] floating enable, resize set 700 620, move position center, border none
 
 # Workspace placement: music player + wiremix on 1:Music, browser on
 # 2:Browser. The terminal always opens floating on the current workspace.

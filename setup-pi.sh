@@ -11,7 +11,7 @@ sudo rm -f /etc/apt/sources.list.d/mympd.list /etc/apt/trusted.gpg.d/mympd.asc
 sudo apt-get update >/dev/null
 sudo apt-get install -y sway waybar foot fuzzel swayimg imv syncthing pipewire pipewire-pulse wireplumber \
     fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep \
-    bluez-tools rfkill udevil network-manager-applet >/dev/null
+    bluez-tools rfkill udevil network-manager-applet curl >/dev/null
 # Cheatsheet overlay viewer (GTK3 transparent window).
 sudo apt-get install -y python3-gi gir1.2-gtk-3.0 >/dev/null
 
@@ -20,6 +20,34 @@ sudo apt-get install -y python3-gi gir1.2-gtk-3.0 >/dev/null
 sudo systemctl enable --now bluetooth.service >/dev/null 2>&1 || true
 sudo usermod -aG bluetooth "$USER" 2>/dev/null || true
 sudo rfkill unblock bluetooth >/dev/null 2>&1 || true
+
+# bluetuith (TUI bluetooth manager, $mod+b): not packaged for Debian/Raspbian
+# and the repo keeps no binaries, so fetch the GitHub release tarball for this
+# architecture and verify it against the release checksums. Falls back to
+# bluetoothctl in ~/.config/sway/bluetooth.sh when this step fails.
+btver=0.2.7
+if ! command -v bluetuith >/dev/null && [ ! -x "$HOME/.local/bin/bluetuith" ]; then
+    case "$(uname -m)" in
+        aarch64|arm64) btarch=arm64 ;;
+        armv7l|armhf)  btarch=armv7 ;;
+        x86_64)        btarch=x86_64 ;;
+        *)             btarch="" ;;
+    esac
+    if [ -n "$btarch" ]; then
+        btname=bluetuith_${btver}_Linux_${btarch}.tar.gz
+        btbase=https://github.com/bluetuith-org/bluetuith/releases/download/v${btver}
+        mkdir -p "$HOME/.local/bin"
+        if curl -fsSL -o "/tmp/$btname" "$btbase/$btname" \
+            && curl -fsSL "$btbase/checksums.txt" | grep " ${btname}\$" | (cd /tmp && sha256sum -c) \
+            && tar -C /tmp -xzf "/tmp/$btname" \
+            && install -m 755 /tmp/bluetuith "$HOME/.local/bin/bluetuith"; then
+            echo "installed bluetuith $btver ($btarch) -> ~/.local/bin/bluetuith"
+        else
+            echo "WARNING: bluetuith install failed; the bluetooth UI falls back to bluetoothctl" >&2
+        fi
+        rm -f "/tmp/$btname" /tmp/bluetuith
+    fi
+fi
 
 # myMPD from source (myMPD uses CMake; Debian has no package, GitHub has no deb assets).
 if ! command -v mympd >/dev/null; then
@@ -34,7 +62,7 @@ fi
 if [ -f /tmp/setup.tar.gz ]; then
     tar -C "$HOME" --strip-components=2 -xzf /tmp/setup.tar.gz
 else
-    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot; do
+    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot bluetuith; do
         cp -a "$PAYLOAD/home/pi/.config/$d" "$HOME/.config/"
     done
     cp -a "$PAYLOAD/home/pi/.config/systemd/user" "$HOME/.config/systemd/"

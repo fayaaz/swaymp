@@ -13,14 +13,14 @@
 # screenshots plus per-stage logs. Exit 0 only if every assertion passes.
 #
 # Stages: preflight input playback seek queue volume launcher terminal
-#         cheatsheet devices notifications miniplayer browser euphonica wiremix mediakeys cleanup
+#         cheatsheet devices bluetooth notifications miniplayer browser euphonica wiremix mediakeys cleanup
 # The Pi-side runner is embedded below and copied to /tmp/smoke/smoke-run.sh.
 set -u
 
 PI="${PI:-pi@raspberrypi.local}"
 OUT="${OUT:-/tmp/opencode/smoke-$(date +%Y%m%d-%H%M%S)}"
 REMOTE=/tmp/smoke
-STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices notifications miniplayer browser euphonica wiremix mediakeys cleanup}"
+STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices bluetooth notifications miniplayer browser euphonica wiremix mediakeys cleanup}"
 
 mkdir -p "$OUT"
 ssh_base() { ssh -o ConnectTimeout=8 -o BatchMode=yes "$PI" "$@"; }
@@ -57,7 +57,7 @@ QUEUE=$REMOTE/queue.txt
 mkdir -p "$SHOTDIR"
 
 # wtype key names (libxkbcommon keysym identifiers)
-KP=p KK=k KJ=j KI=i KO=o KM=m KD=d KG=g KV=v
+KP=p KK=k KJ=j KI=i KO=o KM=m KD=d KG=g KV=v KB=b
 KTAB=Tab KSPACE=space KH=h KL=l KESC=Escape K4=4 KRET=Return
 KF11=F11 MPLAY=XF86AudioPlay MNEXT=XF86AudioNext MPREV=XF86AudioPrev
 
@@ -344,6 +344,42 @@ stage_devices() {
     swaync-client -C >/dev/null 2>&1 || true
 }
 
+stage_bluetooth() {
+    kill_app bluetooth
+    sleep 0.5
+    super "$KB"; sleep 3
+    [ "$(win_count bluetooth)" -ge 1 ] && pass "Super+B opened the bluetooth UI" || fail "Super+B did not open the bluetooth UI"
+    case "$(win_floating bluetooth)" in
+        user_on|auto_on) pass "bluetooth UI opened floating ($(win_floating bluetooth))" ;;
+        *) fail "bluetooth UI not floating ($(win_floating bluetooth))" ;;
+    esac
+    if pgrep -f bluetuith >/dev/null 2>&1; then
+        pass "bluetuith is the bluetooth UI (pid $(pgrep -f bluetuith | head -n1))"
+    else
+        echo "SKIP bluetuith not running: bluetoothctl fallback in use"
+    fi
+    shot 09b-bluetooth
+    # 's' toggles adapter discovery: assert BlueZ actually flipped, both ways.
+    local i disc=0
+    tap s; sleep 2
+    for i in 1 2 3 4 5; do
+        bluetoothctl show 2>/dev/null | grep -q 'Discovering: yes' && { disc=1; break; }
+        sleep 1
+    done
+    if [ "$disc" = 1 ]; then
+        pass "bluetuith 's' started adapter discovery"
+        tap s; sleep 2
+        for i in 1 2 3 4 5; do
+            bluetoothctl show 2>/dev/null | grep -q 'Discovering: no' && { disc=0; break; }
+            sleep 1
+        done
+        [ "$disc" = 0 ] && pass "bluetuith 's' stopped adapter discovery" || fail "adapter discovery stayed on"
+    else
+        fail "bluetuith 's' did not start adapter discovery"
+    fi
+    super "$KB"
+    wait_win bluetooth absent 8 && pass "Super+B toggled the bluetooth UI closed" || fail "bluetooth UI did not close"
+}
 
 stage_notifications() {
     nc_close
@@ -528,6 +564,7 @@ case "$STAGE" in
     terminal) stage_terminal ;;
     cheatsheet) stage_cheatsheet ;;
     devices) stage_devices ;;
+    bluetooth) stage_bluetooth ;;
     notifications) stage_notifications ;;
     miniplayer) stage_miniplayer ;;
     browser) stage_browser ;;
