@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="722" height="528" viewBox="0 0 722 528">
-<rect width="722" height="528" fill="#000000" fill-opacity="0.9"/>
+<rect width="722" height="528" rx="14" fill="#000000" fill-opacity="0.9"/>
 <rect x="1" y="1" width="720" height="526" rx="14" fill="none" stroke="#bd93f9" stroke-opacity="0.70" stroke-width="1"/>
 <text x="14" y="36" font-size="20" font-weight="bold" fill="#f8f8f2">HACKPI KEYS</text>
 <text x="708" y="36" font-size="12" fill="#bd93f9" text-anchor="end">hold MOD (LGUI) + key</text>

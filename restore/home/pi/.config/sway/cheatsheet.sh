@@ -1,5 +1,6 @@
 #!/bin/bash
-# Toggle the keycap cheatsheet overlay (imv-wayland renders cheatsheet.svg from keys.json).
+# Toggle the keycap cheatsheet overlay (swayimg renders cheatsheet.svg from keys.json).
+# The window is fully transparent so the card's rounded corners show through.
 DIR="$(dirname "$0")"
 runtime=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
 sock=$(ls -1 "$runtime"/sway-ipc.*.sock | head -n1)
@@ -8,4 +9,8 @@ if swaymsg -s "$sock" -t get_tree | jq -e '.. | objects | select(.app_id? == "ch
     swaymsg -s "$sock" '[title="cheatsheet"] kill' >/dev/null 2>&1 || true
     exit 0
 fi
-imv-wayland -w cheatsheet -W 700 -H 520 -s full -b '#000000' "$DIR/cheatsheet.svg"
+swayimg -a cheatsheet -w 700,520 -s fit \
+    -c "viewer.window=#00000000" \
+    -c "viewer.transparency=#00000000" \
+    -c "info.show=no" \
+    "$DIR/cheatsheet.svg" >/dev/null 2>&1 &

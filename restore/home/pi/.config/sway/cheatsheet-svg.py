@@ -198,7 +198,7 @@ def main():
 
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
            f'viewBox="0 0 {W} {H}">',
-           f'<rect width="{W}" height="{H}" fill="{BG}" fill-opacity="{BG_OPACITY}"/>',
+                       f'<rect width="{W}" height="{H}" rx="14" fill="{BG}" fill-opacity="{BG_OPACITY}"/>',
            f'<rect x="1" y="1" width="{W-2}" height="{H-2}" rx="14" fill="none" '
            f'stroke="{PURPLE}" stroke-opacity="0.70" stroke-width="1"/>',
            f'<text x="{M}" y="{M+22}" font-size="20" font-weight="bold" fill="{FG}">'

@@ -7,6 +7,7 @@ This repo is not an app codebase. It is the restore payload + repeatable setup s
 - `setup-hyperpixel.sh` is the **display** entrypoint and must run on the Pi **before** `setup-pi.sh`: it appends an `[all]` block with `dtoverlay=vc4-kms-dpi-hyperpixel4sq` to `/boot/firmware/config.txt` (backing the file up to `config.txt.hackpi.bak`), refuses to run on non-Pi hardware, is idempotent, and needs a reboot to take effect. `OVERLAY=vc4-kms-dpi-hyperpixel4` selects the rectangular panel; `OVERLAY_PARAMS` passes the overlay's own params (`rotate=90`, `touchscreen-swapped-x-y=1`, `disable-touch=1`).
 - `restore/home/pi/` is the authoritative **template payload**. Keep new files under `home/pi/` for the tar layout, but do not bake `/home/pi` or `/run/user/1000` into file contents. Use `~`, `$HOME`, `${XDG_RUNTIME_DIR:-/run/user/$(id -u)}`, systemd `%h`/`%t`, or service-relative paths so the payload works for any target user. `hackpi-backup/` and `hackpi-full-backup/` are raw snapshots of the running Pi for reference; do not treat them as the deploy source.
 - `wiremix` in `restore/home/pi/.cargo/bin` is a prebuilt aarch64 binary — there is no source in this repo; don't attempt to rebuild it here. It is **gitignored** (repo keeps no binaries), so a fresh deploy needs the binary supplied separately.
+- `demo/` is the promo-video pipeline (Pi screen capture → 3D keyboard render), not part of the deployed payload. See "Generating the demo video" for how a clip is recorded, re-timed, and rendered.
 - `.gitignore` keeps raw Pi snapshots (`hackpi-backup/`, `hackpi-full-backup/`, `*.tar.gz`), runtime caches (`mpd/tag_cache`, `mympd/tags`, `syncthing/index-*.db`), and all private keys/certs (`*.pem`, `*.key`, `mympd/ssl`, `pin_hash`) out of the repo. `restore/home/pi/.config/syncthing/config.xml` is a sanitized folder template only: it uses `~/Sync`, `~/Music`, `~/Mixes`, and contains no device IDs, API keys, passwords, or TLS material. Consequence: a redeploy regenerates syncthing/mympd certs, so the syncthing device ID changes and pairing must be redone.
 - Template rules: MPD config paths use `~`; sway key commands use `exec ~/.config/...`; shell helpers use `${XDG_RUNTIME_DIR:-/run/user/$(id -u)}`; systemd user units use `%h`/`%t`; myMPD state connects to `127.0.0.1` with port `6600`; Syncthing folder paths use `~`. Do not reintroduce `/home/pi` or `/run/user/1000` into payload files.
 
@@ -46,7 +47,7 @@ Gaps that block a clean first-boot conversion:
 ## Quirks an agent will miss
 - **Keybinds**: `restore/home/pi/.config/sway/keys.json` is the single source of truth. Edit `keys.json`, then run `generate-keys.sh` (requires `jq` and `python3`) to regenerate `generated.conf` + `cheatsheet.txt` + `cheatsheet.svg`; never hand-edit `generated.conf`. `setup-pi.sh` comments out conflicting binds in the base sway config, so music keys live only in `keys.json`.
 - `keys.json` commands use `~/.config/...`, and helper scripts use `${XDG_RUNTIME_DIR:-/run/user/$(id -u)}` for sway IPC/runtime files. Verified on the live Pi: sway `exec` expands `~`, MPD expands `~` in config paths, and Syncthing expands `~` in folder paths.
-- **F13 is bound on the keyboard MCU** (custom VIAL layout on the Hackberry keyboard). Re-flashing firmware loses it; snapshot the `.vil` file first. F13 triggers `cheatsheet.sh` (toggles a floating `imv-wayland` overlay rendering `cheatsheet.svg`; the sway rule matches `app_id="imv"`).
+- **F13 is bound on the keyboard MCU** (custom VIAL layout on the Hackberry keyboard). Re-flashing firmware loses it; snapshot the `.vil` file first. F13 triggers `cheatsheet.sh` (toggles a floating `swayimg` overlay rendering `cheatsheet.svg` with `viewer.window`/`viewer.transparency` transparent and `info.show=no`, so the card's rounded SVG corners show through; the sway rule matches `app_id="cheatsheet"`).
 - **PipeWire**: the stock Pi image masks pipewire/pulseaudio user units in BOTH `~/.config/systemd/user` and `/etc/systemd/user`. Unmask both or MPD audio (pipewire output) and snapclient break.
 - **myMPD**: no Debian package — must be built from source with CMake (handled in `setup-pi.sh`); installed to `/usr`, runs as a user service against user MPD.
 - **Euphonica** is a user-scope flatpak (`flatpak --user run io.github.htkhiem.Euphonica`); it must be installed with `--user`, and sway autostarts it on workspace `1:Music`.
@@ -98,3 +99,24 @@ Gaps that block a clean first-boot conversion:
 - Use `-r 15` for a small, inspectable frame rate. Use `-g x,y WxH` only when a cropped region is needed; full screen is `720x720`.
 - Stop `wf-recorder` with `kill -INT`, not `kill -9`, so the MP4 is finalized cleanly.
 - For stills, use `grim /tmp/screenshot.png`, then pull it to `/tmp/opencode/`.
+
+## Generating the demo video
+`demo/` is the promo-video pipeline, separate from the Pi payload. It has two stages: record the real Pi screen, then render the 3D Hackberry keyboard with that recording as its screen texture.
+
+Stage 1 — record on the Pi (`demo/overlay_demo.sh`):
+- Copy both files first: `scp demo/overlay_demo.sh demo/hackpi-touch.c pi@hackpi.local:/tmp/`, then `ssh pi@hackpi.local 'bash /tmp/overlay_demo.sh'`. It plays `ENOENT/Sinbiotic EP/enoent_hopscotch_16bitwav_master.wav` from `START_AT=40`, fires timed `Super+P/K/J`, sweeps volume with 10 `Super+I` then 10 `Super+O` (`volume.sh` steps 5%, so 10 presses = 50 points), touches the waybar `custom/cheatsheet` button, then opens `fuzzel` with `Super+Space`.
+- Output: `/tmp/hackpi-overlay.mp4` (wf-recorder + PipeWire audio) and `/tmp/hackpi-overlay.marks`. **The `.marks` file is the source of truth for `EVENTS` in `index.html`** — copy the timings, don't guess them.
+- Needs `wf-recorder`, `wtype`, `notify-send`, `mpc`, `wpctl`, `swaymsg`, `gcc`, and passwordless sudo: `demo/hackpi-touch.c` is a uinput pointer injector (compiled to `/tmp/hackpi-touch`, run via `sudo`) used because the cheatsheet beat is a *pointer* click on the waybar button (~`(82, 20)` on the 720x720 panel), not a keypress. Sway pointer accel is set `flat 0` for the touch and restored to `adaptive 0` after, otherwise the injected pointer drifts.
+- There is **no F13 keycap in the 3D model**, so cheatsheet beats must be shown on the Pi screen only — do not add a keycap event for them.
+
+Stage 2 — render on the workstation (`demo/make.sh`):
+- `extract_frames.sh` → `demo/frames/` (8fps, 480x480 JPEGs; committed, they are the screen texture). This Chromium decodes `<video>` to black pixels for WebGL/canvas, so the page uses pre-decoded JPEGs instead of a `VideoTexture`.
+- serves `demo/` on `127.0.0.1:7171`, runs `record.py` through `browser-harness` (attaches to Chromium CDP at `BU_CDP_URL`, default `http://127.0.0.1:9333`, auto-launching a browser if none is running) to capture the three.js canvas via the page's own `MediaRecorder` → `kb_final.webm`.
+- `mux.sh` maps the canvas video with the **source clip's audio** → `kb_final.mp4`. Both start at t=0, so audio stays in sync; `-shortest` trims the capture tail.
+
+Coupling rules (the failure modes):
+- `index.html` `EVENTS` must match the `.marks` timings, and `record.py`'s `KB_DUR` must be **≥ the source clip duration** or the final video is truncated.
+- `index.html` sizes the frame preload from `vid.duration` (no hardcoded frame count) with a 400-frame fallback after 4s.
+- `extract_frames.sh` **skips when `frames/f_001.jpg` exists** — delete `demo/frames/` whenever the source clip changes, or the render keeps the old screen.
+- `kb_final.webm` / `kb_final.mp4` are build outputs; do not commit videos. `demo/hackpi-overlay.mp4` is tracked as the source clip, so replacing it is a deliberate change.
+- If `make.sh` is interrupted, the `http.server` on 7171 and the harness Chromium can be left running; the blob download streams in 4MB chunks, so a long clip legitimately takes several minutes.
