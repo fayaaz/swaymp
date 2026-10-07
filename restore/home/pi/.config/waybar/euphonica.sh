@@ -10,11 +10,11 @@ APP_ID="io.github.htkhiem.Euphonica"
 
 # Debounce: collapse mash bursts (and firmware repeats) into one toggle.
 # A second press inside the window exits silently; deliberate presses are
-# seconds apart and pass through. (sway --no-repeat only stops holds.)
+# slower and pass through. (sway --no-repeat only stops holds.)
 LASTFILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/euphonica.last"
 now=$(date +%s%3N)
 last=$(cat "$LASTFILE" 2>/dev/null || echo 0)
-if [ "$((now - last))" -lt 1200 ]; then
+if [ "$((now - last))" -lt 600 ]; then
     exit 0
 fi
 echo "$now" > "$LASTFILE"

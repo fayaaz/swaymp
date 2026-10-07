@@ -133,11 +133,11 @@ sed -i 's/^    bindsym \$mod+\$up focus up/    #bindsym \$mod+$up focus up/' "$H
 sed -i 's/^    bindsym \$mod+s layout stacking/    #bindsym $mod+s layout stacking/' "$HOME/.config/sway/config"
 sed -i 's/^    #bindsym \$mod+b splith/    bindsym $mod+b splith/' "$HOME/.config/sway/config"
 sed -i 's/^    bindsym \$mod+v splitv/    #bindsym $mod+v splitv/' "$HOME/.config/sway/config"
-# The Hackberry dollar key sends Shift+4, which collides with the stock
-# move-to-workspace-4 bind; euphonica owns that combo now (viewing ws4
-# via $mod+4 still works, only the move is sacrificed, like $mod+v).
-sed -i 's/^    bindsym \$mod+Shift+4 move container to workspace number 4/    #bindsym $mod+Shift+4 move container to workspace number 4/' "$HOME/.config/sway/config"
-sed -i 's/^bindsym \$mod+Shift+4 move container to workspace number 4/#bindsym $mod+Shift+4 move container to workspace number 4/' "$HOME/.config/sway/config"
+# The Hackberry dollar key sends Shift+4, and shifted numbers are a trap
+# on this keyboard generally, so all stock move-to-workspace binds go.
+# Viewing workspaces via $mod+w/e/3..0 still works; only the moves are
+# sacrificed (like $mod+v). Euphonica owns $mod+Shift+4 now.
+sed -i 's/^\([[:space:]]*\)\(bindsym \$mod+Shift+[0-9] move container to workspace number\)/\1#\2/' "$HOME/.config/sway/config"
 
 # Cheatsheet overlay geometry: for_window move is relative to the workspace
 # content origin (below waybar, y=43), so 10,57 lands at absolute 10,100.
