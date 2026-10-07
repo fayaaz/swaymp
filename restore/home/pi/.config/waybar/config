@@ -1,7 +1,6 @@
 {
     "layer": "top",
     "modules-left": [
-        "sway/workspaces",
         "custom/keyboard",
         "custom/cheatsheet"
     ],
@@ -38,14 +37,14 @@
         "spacing": 10
     },
     "custom/cheatsheet": {
-        "format": "  ",
+        "format": " ? ",
         "tooltip-format": "Cheatsheet",
         "on-click": "/bin/bash $HOME/.config/sway/cheatsheet.sh",
         "spacing": 10
     },
 
     "custom/euphonica": {
-        "format": " ♫ ",
+        "format": " \uf025 ",
         "tooltip-format": "Euphonica",
         "on-click": "/bin/bash $HOME/.config/waybar/euphonica.sh",
         "spacing": 10

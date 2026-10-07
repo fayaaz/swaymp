@@ -108,8 +108,9 @@ sed -i 's/^    #bindsym \$mod+b splith/    bindsym $mod+b splith/' "$HOME/.confi
 sed -i 's/^    bindsym \$mod+v splitv/    #bindsym $mod+v splitv/' "$HOME/.config/sway/config"
 sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none/' "$HOME/.config/sway/config"
 sed -i 's/^for_window \[app_id="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none/' "$HOME/.config/sway/config"
-if ! grep -q '^for_window \[title="cheatsheet"\]' "$HOME/.config/sway/config"; then
-    echo 'for_window [title="cheatsheet"] floating enable, move position 10 100, border none' >> "$HOME/.config/sway/config"
+sed -i 's/^for_window \[app_id="imv"\].*/for_window [app_id="imv"] floating enable, resize set 700 520, move position 10 100, border none/' "$HOME/.config/sway/config"
+if ! grep -q '^for_window \[app_id="imv"\]' "$HOME/.config/sway/config"; then
+    echo 'for_window [app_id="imv"] floating enable, resize set 700 520, move position 10 100, border none' >> "$HOME/.config/sway/config"
 fi
 sed -i 's/^bindsym \$mod+r mode "resize"/bindsym \$mod+Shift+r mode "resize"/' "$HOME/.config/sway/config"
 if grep -q '^bindsym \$mod+Shift+r mode "default"' "$HOME/.config/sway/config"; then
@@ -183,6 +184,8 @@ chmod +x "$HOME/.config/sway/notifications.sh"
 chmod +x "$HOME/.config/sway/cheatsheet.sh"
 chmod +x "$HOME/.config/sway/cheatsheet-svg.py"
 chmod +x "$HOME/.config/sway/wiremix.sh"
+chmod +x "$HOME/.config/sway/volume.sh"
+chmod +x "$HOME/.config/sway/volume-notify.sh"
 chmod +x "$HOME/.config/sway/brightness.py"
 systemctl --user disable --now dunst.service >/dev/null 2>&1 || true
 rm -f "$HOME/.config/systemd/user/dunst.service"
@@ -192,10 +195,11 @@ rm -f "$HOME/.config/waybar/mpd-notify.sh"
 systemctl --user daemon-reload
 systemctl --user enable mpd.service mympd.service syncthing.service snapclient.service \
     pipewire.service pipewire-pulse.service wireplumber.service \
-    swaync.service >/dev/null
+    swaync.service volume-notify.service >/dev/null
 systemctl --user restart swaync.service
 systemctl --user start pipewire.service pipewire-pulse.service wireplumber.service \
     mpd.service mympd.service syncthing.service snapclient.service
+systemctl --user restart volume-notify.service
 
 # VIAL keymap note: the custom Hackberry layout lives on the keyboard MCU.
 # Snapshot it to a .vil file in this repo before reflashing firmware; F13 is a
