@@ -71,6 +71,7 @@ client.background #282a36
 # does not include /etc/sway/config). Collisions handled:
 #   $mod+Return  terminal  -> keys.json $mod+Return (notification center); terminal is $mod+tab
 #   $mod+d       launcher  -> keys.json $mod+d (PipeWire output switcher); $mod+space is fuzzel
+#   $mod+h/$mod+l focus    -> keys.json $mod+h/$mod+l (mpc prev/next)
 #   $mod+j/$mod+k focus    -> keys.json $mod+j/$mod+k (mpc seek)
 #   $mod+s layout          -> keys.json $mod+s (mpc single)
 #   $mod+v splitv          -> keys.json $mod+v (wiremix)
@@ -99,10 +100,8 @@ client.background #282a36
 #
 # Moving around:
 #
-    # Move your focus around (h/l only; j/k belong to mpc seek)
-    bindsym $mod+$left focus left
-    bindsym $mod+$right focus right
-    # Or use $mod+[up|down|left|right]
+    # Move your focus around (h/l/j/k belong to mpc prev/next/seek)
+    # Use $mod+[up|down|left|right]
     bindsym $mod+Left focus left
     bindsym $mod+Down focus down
     bindsym $mod+Up focus up

@@ -1,14 +1,11 @@
 HACKPI MUSIC KEYS
 $mod+p       play / pause
-$mod+comma   previous
-$mod+period  next
+$mod+h       previous
+$mod+l       next
 $mod+j       seek -5s
 $mod+k       seek +5s
 $mod+r       random on/off
 $mod+s       single on/off
-XF86AudioPla media play
-XF86AudioNex media next
-XF86AudioPre media prev
 $mod+i       volume -
 $mod+o       volume +
 $mod+m       mute

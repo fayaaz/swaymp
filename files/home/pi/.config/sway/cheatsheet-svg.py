@@ -32,8 +32,8 @@ MOD_OPACITY = 0.95
 
 # (row, col, span) for every physical keycap; base label = Layer 0 legend.
 BOARD = [
-    ("capslock", 0, 0, 2, "Caps"), ("lgui", 0, 2, 2, "MOD"), ("mouse1", 0, 4, 1, "LMB"),
-    ("esc", 0, 5, 2, "Esc"), ("tab", 0, 7, 2, "Tab"),
+    ("capslock", 0, 0, 2, "Caps"), ("lgui", 0, 2, 2, "MOD"), ("mouse1", 0, 4, 2, "LMB"),
+    ("esc", 0, 6, 2, "Esc"), ("tab", 0, 8, 2, "Tab"),
     ("q", 1, 0, 1, "Q"), ("w", 1, 1, 1, "W"), ("e", 1, 2, 1, "E"), ("r", 1, 3, 1, "R"),
     ("t", 1, 4, 1, "T"), ("y", 1, 5, 1, "Y"), ("u", 1, 6, 1, "U"), ("i", 1, 7, 1, "I"),
     ("o", 1, 8, 1, "O"), ("p", 1, 9, 1, "P"),
@@ -47,7 +47,8 @@ BOARD = [
     ("layer1", 4, 7, 1, "L1"), ("layer2", 4, 8, 1, "L2"),
 ]
 
-# keysym -> physical keycap + layer badge (comma/period live on Layer 1)
+# keysym -> physical keycap + layer badge (the keyboard MCU sends F13 for
+# L2+Esc, which is the cheatsheet toggle)
 KEYSYM = {
     "q": ("q", 0), "w": ("w", 0), "e": ("e", 0), "r": ("r", 0), "t": ("t", 0),
     "y": ("y", 0), "u": ("u", 0), "i": ("i", 0), "o": ("o", 0), "p": ("p", 0),
@@ -55,10 +56,10 @@ KEYSYM = {
     "h": ("h", 0), "j": ("j", 0), "k": ("k", 0), "l": ("l", 0),
     "z": ("z", 0), "x": ("x", 0), "c": ("c", 0), "v": ("v", 0), "b": ("b", 0),
     "n": ("n", 0), "m": ("m", 0),
-    "comma": ("b", 1), "period": ("n", 1), "space": ("space", 0), "dollar": ("dollar", 0),
+    "space": ("space", 0), "dollar": ("dollar", 0),
     "Shift+4": ("dollar", 0),
     "tab": ("tab", 0), "Return": ("enter", 0),
-    "F1": ("capslock", 2), "F2": ("esc", 2), "F3": ("tab", 2),
+    "F13": ("esc", 2),
 }
 
 ICONS = {
@@ -196,20 +197,19 @@ def main():
     binds = json.load(open(KEYS))["binds"]
     marks, legend = {}, []
     for b in binds:
+        if b.get("hide"):
+            continue
         key, label = b["key"], b["label"]
         icon_name = b.get("icon") or ICONS.get(label, "dot")
-        if key.startswith("$mod+"):
-            keysym = key.split("+", 1)[1]
-            if keysym in KEYSYM:
-                cap, layer = KEYSYM[keysym]
-                marks.setdefault(cap, []).append((label, icon_name, layer))
-            else:
-                legend.append((key, label))
+        keysym = key.split("+", 1)[1] if key.startswith("$mod+") else key
+        if keysym in KEYSYM:
+            cap, layer = KEYSYM[keysym]
+            marks.setdefault(cap, []).append((label, icon_name, layer))
         else:
             legend.append((key, label))
 
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
-           f'viewBox="0 0 {W} {H}">',
+           f'viewBox="0 0 {W} {H}" font-family="JetBrains Mono, monospace">',
                        f'<rect width="{W}" height="{H}" rx="14" fill="{BG}" fill-opacity="{BG_OPACITY}"/>',
            f'<rect x="1" y="1" width="{W-2}" height="{H-2}" rx="14" fill="none" '
            f'stroke="{PURPLE}" stroke-opacity="0.70" stroke-width="1"/>',
@@ -241,15 +241,16 @@ def main():
         elif marks_list:
             for label, icon_name, layer in marks_list:
                 out.append(icon(icon_name, cx, y + 18, CYAN, scale=0.7))
-                short = SHORT.get(label, label)
-                out.append(f'<text x="{cx}" y="{y+U-8}" font-size="9" fill="{FG}" '
+                short = SHORT.get(label) or label
+                fs = min(9, (w - 8) // (0.6 * len(short)))
+                out.append(f'<text x="{cx}" y="{y+U-8}" font-size="{fs}" fill="{FG}" '
                            f'text-anchor="middle">{short}</text>')
                 if layer:
                     bx, by = x + w - 13, y + 13
                     out.append(f'<circle cx="{bx}" cy="{by}" r="9" fill="{BG}" '
                                f'fill-opacity="0.45" stroke="{PURPLE}" stroke-opacity="0.75"/>')
-                    out.append(f'<text x="{bx}" y="{by}" font-size="11" font-weight="bold" '
-                               f'fill="{PURPLE}" text-anchor="middle" dominant-baseline="central">{layer}</text>')
+                    out.append(f'<text x="{bx}" y="{by}" font-size="10" font-weight="bold" '
+                               f'fill="{PURPLE}" text-anchor="middle" dominant-baseline="central">L{layer}</text>')
             out.append(f'<text x="{cx}" y="{y+U/2+4}" font-size="{base_size}" font-weight="bold" '
                        f'fill="{FG}" text-anchor="middle" dominant-baseline="central">{base}</text>')
         else:
@@ -266,8 +267,6 @@ def main():
         col_x += 236
         if i % 3 == 2:
             col_x, row_y = M, row_y + 24
-    out.append(f'<text x="{W-M}" y="{H-M-4}" font-size="11" fill="{COMMENT}" text-anchor="end">'
-               f'1 = Layer 1 (hold the L1 key)</text>')
     out.append("</svg>")
 
     with open(OUT, "w") as fh:

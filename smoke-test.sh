@@ -58,7 +58,7 @@ mkdir -p "$SHOTDIR"
 
 # wtype key names (libxkbcommon keysym identifiers)
 KP=p KK=k KJ=j KI=i KO=o KM=m KD=d KG=g KV=v
-KTAB=Tab KSPACE=space KCOMMA=comma KDOT=period KESC=Escape K4=4 KRET=Return
+KTAB=Tab KSPACE=space KH=h KL=l KESC=Escape K4=4 KRET=Return
 KF11=F11 MPLAY=XF86AudioPlay MNEXT=XF86AudioNext MPREV=XF86AudioPrev
 
 pass() { echo "PASS $*"; }
@@ -137,6 +137,13 @@ stage_preflight() {
     swaymsg -t get_outputs 2>/dev/null | jq -e 'any(.[]; .name == "DPI-1")' >/dev/null \
         && pass "DPI-1 output active" || fail "DPI-1 output missing"
     pgrep -x waybar >/dev/null && pass "waybar running" || fail "waybar not running"
+    # headless sway -C does NOT surface "Overwriting binding" warnings; only the
+    # live session shows them as a swaynag banner. Catch config collisions here.
+    if pgrep -x swaynag >/dev/null || swaymsg -t get_tree 2>/dev/null | grep -q '"app_id":"swaynag"'; then
+        fail "swaynag present (config errors/overwriting-binding banner)"
+    else
+        pass "no swaynag config-error banner"
+    fi
     for s in mpd mympd pipewire pipewire-pulse wireplumber syncthing snapclient volume-notify; do
         systemctl --user is-active --quiet "$s" && pass "service $s active" || fail "service $s not active"
     done
@@ -213,11 +220,11 @@ stage_queue() {
     mpc play >/dev/null 2>&1
     sleep 1
     [ "$(mpos)" = 1 ] && pass "queue seeded at position 1" || fail "queue position $(mpos), expected 1"
-    super "$KDOT"; sleep 1
-    [ "$(mpos)" = 2 ] && pass "Super+. advanced to position 2" || fail "Super+.: position $(mpos), expected 2"
+    super "$KL"; sleep 1
+    [ "$(mpos)" = 2 ] && pass "Super+L advanced to position 2" || fail "Super+L: position $(mpos), expected 2"
     shot 04-queue-next
-    super "$KCOMMA"; sleep 1
-    [ "$(mpos)" = 1 ] && pass "Super+, went back to position 1" || fail "Super+,: position $(mpos), expected 1"
+    super "$KH"; sleep 1
+    [ "$(mpos)" = 1 ] && pass "Super+H went back to position 1" || fail "Super+H: position $(mpos), expected 1"
 }
 
 stage_volume() {
@@ -272,6 +279,33 @@ stage_cheatsheet() {
     shot 08-cheatsheet
     tap "$KF11"
     wait_win cheatsheet absent 8 && pass "F11 closed cheatsheet" || fail "F11 did not close cheatsheet"
+
+    local cfg=$HOME/.config/sway fs
+    grep -q 'bindsym.*XF86Audio' "$cfg/generated.conf" \
+        && pass "XF86 media binds still installed (external keyboards)" \
+        || fail "XF86 media binds missing from generated.conf"
+    grep -q 'XF86\|media play\|media next\|media prev' "$cfg/cheatsheet.txt" \
+        && fail "cheatsheet.txt still lists XF86 media keys" \
+        || pass "cheatsheet.txt hides XF86 media keys"
+    grep -q 'media play\|media next\|media prev' "$cfg/cheatsheet.svg" \
+        && fail "cheatsheet.svg still lists media keys" \
+        || pass "cheatsheet.svg hides media keys"
+    grep -q 'font-family="JetBrains Mono' "$cfg/cheatsheet.svg" \
+        && pass "cheatsheet uses JetBrains Mono" \
+        || fail "cheatsheet font is not JetBrains Mono"
+    grep -q 'hold the L1 key' "$cfg/cheatsheet.svg" \
+        && fail "old layer-1 legend still present in cheatsheet" \
+        || pass "old layer-1 legend removed"
+    grep -q '>cheatsheet<' "$cfg/cheatsheet.svg" \
+        && pass "cheatsheet caption on Esc keycap (F13/L2)" \
+        || fail "no cheatsheet caption on Esc keycap"
+    # caption-fit regression: JetBrains Mono advance ~0.6em; 1U keycap usable ~56px
+    fs=$(grep -o 'font-size="[0-9.]*"[^>]*>notifications<' "$cfg/cheatsheet.svg" | head -n1 | grep -oE 'font-size="[0-9.]+"' | grep -oE '[0-9.]+')
+    if [ -n "$fs" ] && awk -v fs="$fs" 'BEGIN { exit !(fs * 0.6 * 13 <= 56) }'; then
+        pass "notifications caption fits its keycap (font-size $fs)"
+    else
+        fail "notifications caption too big for its keycap (font-size ${fs:-missing})"
+    fi
 }
 
 stage_devices() {
@@ -309,6 +343,7 @@ stage_devices() {
     shot 09-devices
     swaync-client -C >/dev/null 2>&1 || true
 }
+
 
 stage_notifications() {
     nc_close

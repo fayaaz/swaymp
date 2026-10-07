@@ -12,3 +12,7 @@
 - [x] euphonica shortcut stolen by stock workspace-4 bind (dollar key sends Shift+4)
 - [x] Remove all the mod+shift+number move binds
 - [x] euphonica debounce window 1200ms -> 600ms
+- [x] The layer 1 legend in the bottom right is not needed and is wrong.
+- [x] L2 + Esc is actually the shortcut for the cheatsheet
+- [x] Cheatsheet should use monospace font like everything else
+- [x] XF86Audio buttons don't exist on hackberry - remove from cheatsheet.
