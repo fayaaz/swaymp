@@ -10,15 +10,15 @@
     {"key": "XF86AudioPlay", "label": "media play", "cmd": "exec mpc toggle", "group": "media"},
     {"key": "XF86AudioNext", "label": "media next", "cmd": "exec mpc next", "group": "media"},
     {"key": "XF86AudioPrev", "label": "media prev", "cmd": "exec mpc prev", "group": "media"},
-    {"key": "$mod+i", "label": "volume -", "cmd": "exec /home/pi/.config/sway/volume.sh down", "group": "volume"},
-    {"key": "$mod+o", "label": "volume +", "cmd": "exec /home/pi/.config/sway/volume.sh up", "group": "volume"},
-    {"key": "$mod+m", "label": "mute", "cmd": "exec /home/pi/.config/sway/volume.sh mute", "group": "volume"},
-    {"key": "$mod+v", "label": "wiremix peaks", "cmd": "exec /home/pi/.config/sway/wiremix.sh", "group": "tools"},
-    {"key": "$mod+d", "label": "notifications", "cmd": "exec /home/pi/.config/sway/notifications.sh", "group": "tools"},
+    {"key": "$mod+i", "label": "volume -", "cmd": "exec ~/.config/sway/volume.sh down", "group": "volume"},
+    {"key": "$mod+o", "label": "volume +", "cmd": "exec ~/.config/sway/volume.sh up", "group": "volume"},
+    {"key": "$mod+m", "label": "mute", "cmd": "exec ~/.config/sway/volume.sh mute", "group": "volume"},
+    {"key": "$mod+v", "label": "wiremix peaks", "cmd": "exec ~/.config/sway/wiremix.sh", "group": "tools"},
+    {"key": "$mod+d", "label": "notifications", "cmd": "exec ~/.config/sway/notifications.sh", "group": "tools"},
     {"key": "$mod+space", "label": "launcher (fuzzel)", "cmd": "exec fuzzel", "group": "tools"},
-    {"key": "$mod+dollar", "label": "euphonica", "cmd": "exec /bin/bash /home/pi/.config/waybar/euphonica.sh", "group": "tools"},
+    {"key": "$mod+dollar", "label": "euphonica", "cmd": "exec /bin/bash ~/.config/waybar/euphonica.sh", "group": "tools"},
     {"key": "$mod+tab", "label": "terminal", "cmd": "exec foot", "group": "tools"},
-    {"key": "F13", "label": "this cheatsheet", "cmd": "exec /home/pi/.config/sway/cheatsheet.sh", "group": "tools"},
-    {"key": "F11", "label": "back / close cheatsheet", "cmd": "exec /home/pi/.config/sway/cheatsheet.sh", "group": "tools"}
+    {"key": "F13", "label": "this cheatsheet", "cmd": "exec ~/.config/sway/cheatsheet.sh", "group": "tools"},
+    {"key": "F11", "label": "back / close cheatsheet", "cmd": "exec ~/.config/sway/cheatsheet.sh", "group": "tools"}
   ]
 }

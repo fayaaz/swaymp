@@ -1,5 +1,5 @@
 #!/bin/bash
-# Repeatable Pi5 music player setup (run as pi on the Pi).
+# Repeatable Pi5 music player setup (run as the target non-root user on the Pi).
 # Payload = restore/ tree in this repo, scp'd to the Pi as /tmp/restore.tar.gz.
 # Idempotent: re-running is safe.
 set -u
@@ -20,7 +20,7 @@ if ! command -v mympd >/dev/null; then
     sudo cmake --install "$HOME/src/myMPD/build"
 fi
 
-# --- configs from backup/payload (paths already rewritten to $HOME) ---
+# --- configs from payload (template payload; no path rewriting) ---
 if [ -f /tmp/restore.tar.gz ]; then
     tar -C "$HOME" --strip-components=2 -xzf /tmp/restore.tar.gz
 else
@@ -31,6 +31,24 @@ else
     cp -a "$PAYLOAD/home/pi/.cargo" "$HOME/"
 fi
 mkdir -p "$HOME/Music" "$HOME/Mixes" "$HOME/playlists"
+
+# The payload is a template, not a /home/pi snapshot. Text configs use ~, $HOME,
+# systemd %h/%t, or $XDG_RUNTIME_DIR so they work for whichever non-root user runs
+# this script. Run setup-pi.sh as the target user: configs and user services are per-user.
+
+# Seed the stock sway config if the payload does not provide one. sway's user config
+# overrides /etc/sway/config, so without this the hackpi block would be the whole config.
+mkdir -p "$HOME/.config/sway"
+if [ ! -f "$HOME/.config/sway/config" ]; then
+    if [ -f /etc/sway/config ]; then
+        cp /etc/sway/config "$HOME/.config/sway/config"
+    else
+        cat > "$HOME/.config/sway/config" <<'EOF'
+set $mod Mod4
+font pango:monospace 1
+EOF
+    fi
+fi
 
 # Keep the original image sway font.
 sed -i 's/^font pango:monospace .*/font pango:monospace 1/' "$HOME/.config/sway/config"

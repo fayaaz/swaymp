@@ -3,30 +3,66 @@
 This repo is not an app codebase. It is the restore payload + repeatable setup script for a Hackberry Pi music player (MPD + myMPD + sway + waybar + PipeWire + snapclient + Euphonica flatpak).
 
 ## Layout & source of truth
-- `setup-pi.sh` is the deploy entrypoint. Run **on the Pi as user `pi`** with the `restore/` tree tarred to `/tmp/restore.tar.gz` on the Pi (payload extracted with `tar --strip-components-2` into `$HOME`). It is idempotent.
-- `restore/home/pi/` is the authoritative payload (paths assume `/home/pi`, so keep new files under `home/pi/`). `hackpi-backup/` and `hackpi-full-backup/` are raw snapshots of the running Pi for reference; do not treat them as the deploy source.
+- `setup-pi.sh` is the deploy entrypoint. Run **on the Pi as the target non-root user** with the payload tarred to `/tmp/restore.tar.gz` — tar from **inside** `restore/` so members are `home/pi/...`, because the script extracts with `tar -C "$HOME" --strip-components=2` (stripping the template prefix `home/pi`). The `home/pi` prefix is only a tar convention; it is not the required login username. It is idempotent. See "Fresh Raspbian → music player" below for exactly what it does and does not cover.
+- `setup-hyperpixel.sh` is the **display** entrypoint and must run on the Pi **before** `setup-pi.sh`: it appends an `[all]` block with `dtoverlay=vc4-kms-dpi-hyperpixel4sq` to `/boot/firmware/config.txt` (backing the file up to `config.txt.hackpi.bak`), refuses to run on non-Pi hardware, is idempotent, and needs a reboot to take effect. `OVERLAY=vc4-kms-dpi-hyperpixel4` selects the rectangular panel; `OVERLAY_PARAMS` passes the overlay's own params (`rotate=90`, `touchscreen-swapped-x-y=1`, `disable-touch=1`).
+- `restore/home/pi/` is the authoritative **template payload**. Keep new files under `home/pi/` for the tar layout, but do not bake `/home/pi` or `/run/user/1000` into file contents. Use `~`, `$HOME`, `${XDG_RUNTIME_DIR:-/run/user/$(id -u)}`, systemd `%h`/`%t`, or service-relative paths so the payload works for any target user. `hackpi-backup/` and `hackpi-full-backup/` are raw snapshots of the running Pi for reference; do not treat them as the deploy source.
 - `wiremix` in `restore/home/pi/.cargo/bin` is a prebuilt aarch64 binary — there is no source in this repo; don't attempt to rebuild it here. It is **gitignored** (repo keeps no binaries), so a fresh deploy needs the binary supplied separately.
-- `.gitignore` keeps raw Pi snapshots (`hackpi-backup/`, `hackpi-full-backup/`, `*.tar.gz`), runtime caches (`mpd/tag_cache`, `mympd/tags`, `syncthing/index-*.db`), and all private keys/certs (`*.pem`, `*.key`, `mympd/ssl`, `pin_hash`) out of the repo. Consequence: a redeploy regenerates syncthing/mympd certs, so the syncthing device ID changes and pairing must be redone.
+- `.gitignore` keeps raw Pi snapshots (`hackpi-backup/`, `hackpi-full-backup/`, `*.tar.gz`), runtime caches (`mpd/tag_cache`, `mympd/tags`, `syncthing/index-*.db`), and all private keys/certs (`*.pem`, `*.key`, `mympd/ssl`, `pin_hash`) out of the repo. `restore/home/pi/.config/syncthing/config.xml` is a sanitized folder template only: it uses `~/Sync`, `~/Music`, `~/Mixes`, and contains no device IDs, API keys, passwords, or TLS material. Consequence: a redeploy regenerates syncthing/mympd certs, so the syncthing device ID changes and pairing must be redone.
+- Template rules: MPD config paths use `~`; sway key commands use `exec ~/.config/...`; shell helpers use `${XDG_RUNTIME_DIR:-/run/user/$(id -u)}`; systemd user units use `%h`/`%t`; myMPD state connects to `127.0.0.1` with port `6600`; Syncthing folder paths use `~`. Do not reintroduce `/home/pi` or `/run/user/1000` into payload files.
+
+## Fresh Raspbian → music player (what `setup-pi.sh` covers)
+
+**Verdict:** the script installs and configures the entire software stack, but it is **not yet a complete "default Raspbian → music player" converter**. On a stock image it either leaves the machine booting a different compositor (no sway session) or leaves sway with a partial config. The gaps are listed below; treat them as the remaining work for a true one-shot conversion.
+
+Deploy recipe the script assumes:
+```bash
+tar -C restore -czf /tmp/restore.tar.gz home      # members MUST be home/pi/...
+scp /tmp/restore.tar.gz setup-pi.sh pi@hackpi.local:/tmp/
+ssh pi@hackpi.local 'bash /tmp/setup-pi.sh'
+```
+Without `/tmp/restore.tar.gz` the script falls back to `$PAYLOAD` (default `/tmp/restore`) via `cp -a`, so that directory must mirror `restore/home/pi/`.
+
+What it does:
+- apt-installs the stack: sway, waybar, foot, fuzzel, swayimg, imv, syncthing, pipewire/pipewire-pulse/wireplumber, mpd/mpc/mpdris2, snapclient, wlogout, sway-notification-center, libnotify-bin, jq, gammastep, fonts.
+- builds myMPD from source with CMake (installs to `/usr`) when `mympd` is missing.
+- copies the payload configs (`waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot`, `systemd/user`, `.cargo`) and creates `Music`, `Mixes`, `playlists`.
+- seeds `~/.config/sway/config` from `/etc/sway/config` when the payload has no sway config, then edits that user config.
+- unmasks PipeWire/PulseAudio user units in **both** `~/.config/systemd/user` and `/etc/systemd/user`.
+- regenerates sway binds from `keys.json`, themes sway, comments out colliding stock binds, forces waybar as the only bar, autostarts waybar + swaync + Euphonica.
+- installs Euphonica as a **user** flatpak with the `GSK_RENDERER=cairo` override.
+- enables/starts user services (mpd, mympd, syncthing, snapclient, pipewire trio, swaync, volume-notify) and removes dunst/mpd-notify.
+
+Gaps that block a clean first-boot conversion:
+- **No base sway config in the payload.** `restore/home/pi/.config/sway/` still has no `config`, but `setup-pi.sh` now seeds `~/.config/sway/config` from `/etc/sway/config` before editing it. If `/etc/sway/config` is missing, it writes a minimal fallback, so a fresh image still needs verification that the stock sway binds are present.
+- **Nothing makes sway the login session.** The live Pi boots sway via lightdm (`/etc/lightdm/lightdm.conf`: `user-session=sway`, `autologin-user=pi`, `autologin-session=sway`, greeter `pi-greeter-wayfire`); `setup-pi.sh` never touches lightdm, so a default Raspberry Pi OS desktop keeps booting its own session (labwc on Bookworm) and the script's final `swaymsg reload` is a no-op.
+- **HyperPixel4 panel setup is scripted but must run first.** `setup-hyperpixel.sh` now adds the DPI overlay to `/boot/firmware/config.txt`; run it before `setup-pi.sh` and reboot. `/boot/firmware/config.txt` itself is still not captured in `hackpi-full-backup/`.
+- **`wiremix` is gitignored** → `$mod+v` is dead on a fresh deploy until the aarch64 binary is supplied separately.
+- **Packages the payload assumes but never installs:** `python3` (`generate-keys.sh`, `cheatsheet-svg.py`, `brightness.py`), `git` (myMPD clone) — both present on the desktop image, absent on Lite; `wvkbd` (waybar `custom/keyboard` button), `swayidle`, `wf-recorder`/`grim`/`ffmpeg` (screen-capture workflow below), `pipewire-alsa`/`pipewire-jack`. `mixxx` is referenced by `waybar/mixxx.sh` but is not installed and not used by the current waybar config.
+- **Wallpaper asset missing:** the live sway config does `output * bg /home/pi/wallpaper/wallpaper.jpg fill`, but `wallpaper/` is not in the payload.
+- **Silent failures:** `set -u` without `set -e`, plus `apt-get ... >/dev/null` and `flatpak install ... || true`, mean a failed package/build/flatpak step still prints `setup complete`.
+- **State that must be re-established after any deploy:** syncthing's device ID changes (certs/keys gitignored) → re-pair the sanitized `~/Sync`, `~/Music`, and `~/Mixes` folders; myMPD regenerates its TLS cert and PIN (`ssl=true`, `pin_hash` gitignored); MPD needs `mpc update` since no music is seeded; snapclient needs a snapserver elsewhere on the network.
+- **`wlogout` power buttons run `sudo shutdown ...`** from the GUI, which needs passwordless sudo for `pi`.
 
 ## Quirks an agent will miss
 - **Keybinds**: `restore/home/pi/.config/sway/keys.json` is the single source of truth. Edit `keys.json`, then run `generate-keys.sh` (requires `jq` and `python3`) to regenerate `generated.conf` + `cheatsheet.txt` + `cheatsheet.svg`; never hand-edit `generated.conf`. `setup-pi.sh` comments out conflicting binds in the base sway config, so music keys live only in `keys.json`.
-- `keys.json` commands hardcode `/home/pi/...` paths, and `cheatsheet.sh` reads the sway IPC socket from `/run/user/1000` (uid 1000 = `pi`). These only work on the Pi's `pi` user.
+- `keys.json` commands use `~/.config/...`, and helper scripts use `${XDG_RUNTIME_DIR:-/run/user/$(id -u)}` for sway IPC/runtime files. Verified on the live Pi: sway `exec` expands `~`, MPD expands `~` in config paths, and Syncthing expands `~` in folder paths.
 - **F13 is bound on the keyboard MCU** (custom VIAL layout on the Hackberry keyboard). Re-flashing firmware loses it; snapshot the `.vil` file first. F13 triggers `cheatsheet.sh` (toggles a floating `imv-wayland` overlay rendering `cheatsheet.svg`; the sway rule matches `app_id="imv"`).
 - **PipeWire**: the stock Pi image masks pipewire/pulseaudio user units in BOTH `~/.config/systemd/user` and `/etc/systemd/user`. Unmask both or MPD audio (pipewire output) and snapclient break.
 - **myMPD**: no Debian package — must be built from source with CMake (handled in `setup-pi.sh`); installed to `/usr`, runs as a user service against user MPD.
 - **Euphonica** is a user-scope flatpak (`flatpak --user run io.github.htkhiem.Euphonica`); it must be installed with `--user`, and sway autostarts it on workspace `1:Music`.
-- MPD runs as a **user** systemd service (not system), music dir is `/home/pi/Music` (MPD library root), playlists `/home/pi/playlists`, audio output is `pipewire`. Music arrives via syncthing (`Sync` → `Music`, `Mixes`).
+- MPD runs as a **user** systemd service (not system), music dir is `~/Music` (MPD library root), playlists `~/playlists`, audio output is `pipewire`. Music arrives via syncthing (`Sync` → `Music`, `Mixes`).
 - Waybar custom modules exec shell scripts in `restore/home/pi/.config/waybar/` (mixxx launch, now-playing via D-Bus/RIS, keyboard, power menu); waybar must be reloaded with `pkill -USR1 -x waybar` after config edits.
 - **Brightness**: the HyperPixel4 panel backlight is on/off only (`/sys/class/backlight/backlight/max_brightness` = 1; hardware dimming is the physical button). Waybar's backlight module is removed and there is **no brightness keybind** (`$mod+b` is sway's stock `splith`). `~/.config/sway/brightness.py` (gammastep software dimmer) and `gammastep` remain installed — run it manually if needed: `foot -e python3 ~/.config/sway/brightness.py` or `brightness.py --set <percent>`.
 - **Volume notifications**: `~/.config/sway/volume.sh` handles the sway volume keybinds and sends synchronous notifications; `volume-notify.service` runs `~/.config/sway/volume-notify.sh` to notify when PipeWire's default sink volume changes elsewhere. Notifications are not capped at 100%.
 
 ## Verification on the Pi
 - After changes: copy payload → run `setup-pi.sh`, then `swaymsg reload` and `pkill -USR1 -x waybar`.
+- On a fresh image, additionally check: the login session is actually sway (`swaymsg -t get_version`), `~/.config/sway/config` contains the stock binds *and* the hackpi block, the HyperPixel4 is the active output (`swaymsg -t get_outputs`), syncthing is paired, and myMPD answers on `https://hackpi.local:8443` with the regenerated PIN.
 - If a waybar restart makes the top bar disappear, reboot the Pi (`sudo shutdown -r now`) and wait for SSH to return before continuing; do not keep retrying `pkill` or `swaymsg exec waybar` over SSH.
 - Key services: `systemctl --user status mpd mympd syncthing snapclient pipewire pipewire-pulse wireplumber volume-notify`; test playback with `mpc toggle` / `mpc play`.
 
 ## Taking screen videos
-- Use `wf-recorder` on the Pi for Wayland screen recordings. It is installed by `setup-pi.sh` dependencies on the live Pi; `ffmpeg` is also available for frame extraction.
+- Use `wf-recorder` on the Pi for Wayland screen recordings. It is installed on the live Pi but **not** by `setup-pi.sh` — install it first: `sudo apt-get install -y wf-recorder grim ffmpeg`.
 - GUI recording commands need the same Wayland environment as other sway tests:
   ```bash
   export XDG_RUNTIME_DIR=/run/user/1000
