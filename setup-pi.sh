@@ -9,7 +9,14 @@ PAYLOAD=${1:-/tmp/restore}
 sudo rm -f /etc/apt/sources.list.d/mympd.list /etc/apt/trusted.gpg.d/mympd.asc
 sudo apt-get update >/dev/null
 sudo apt-get install -y sway waybar foot fuzzel swayimg imv syncthing pipewire pipewire-pulse wireplumber \
-    fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep >/dev/null
+    fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep \
+    bluez-tools rfkill >/dev/null
+
+# Bluetooth audio (PipeWire plays through paired devices): daemon on,
+# user in the bluetooth group (re-login to take effect).
+sudo systemctl enable --now bluetooth.service >/dev/null 2>&1 || true
+sudo usermod -aG bluetooth "$USER" 2>/dev/null || true
+sudo rfkill unblock bluetooth >/dev/null 2>&1 || true
 
 # myMPD from source (myMPD uses CMake; Debian has no package, GitHub has no deb assets).
 if ! command -v mympd >/dev/null; then
@@ -163,6 +170,11 @@ if ! grep -q '^for_window \[app_id="foot"\]' "$HOME/.config/sway/config"; then
     echo 'for_window [app_id="foot"] floating enable, resize set 640 480, move position center, border none' >> "$HOME/.config/sway/config"
 fi
 
+# Floating centered bluetooth manager (same geometry as the terminal).
+if ! grep -q '^for_window \[app_id="bluetooth"\]' "$HOME/.config/sway/config"; then
+    echo 'for_window [app_id="bluetooth"] floating enable, resize set 640 480, move position center, border none' >> "$HOME/.config/sway/config"
+fi
+
 # Start Euphonica when sway starts.
 if grep -q "exec flatpak --user run io.github.htkhiem.Euphonica" "$HOME/.config/sway/config"; then
     sed -i "s|exec flatpak --user run io.github.htkhiem.Euphonica|exec flatpak --user run --env=GSK_RENDERER=cairo io.github.htkhiem.Euphonica|" "$HOME/.config/sway/config"
@@ -214,6 +226,7 @@ chmod +x "$HOME/.config/sway/cheatsheet.sh"
 chmod +x "$HOME/.config/sway/cheatsheet-svg.py"
 chmod +x "$HOME/.config/sway/wiremix.sh"
 chmod +x "$HOME/.config/sway/browser.sh"
+chmod +x "$HOME/.config/sway/bluetooth.sh"
 chmod +x "$HOME/.config/sway/volume.sh"
 chmod +x "$HOME/.config/sway/volume-notify.sh"
 chmod +x "$HOME/.config/sway/brightness.py"

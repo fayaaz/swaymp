@@ -70,7 +70,7 @@ ICONS = {
     "wiremix peaks": "meter", "brightness": "sun",
     "notifications": "bell", "this cheatsheet": "help",
     "back / close cheatsheet": "close",     "launcher (fuzzel)": "launcher",
-    "euphonica": "headphone", "browser": "globe",
+    "euphonica": "headphone", "browser": "globe", "bluetooth": "bluetooth",
     "terminal": "terminal",
 }
 
@@ -83,7 +83,7 @@ SHORT = {
     "wiremix peaks": "wiremix", "brightness": "brightness",
     "notifications": "notifications", "this cheatsheet": "cheatsheet",
     "back / close cheatsheet": "close", "launcher (fuzzel)": "launcher",
-    "euphonica": "euphonica", "browser": "browser",
+    "euphonica": "euphonica", "browser": "browser", "bluetooth": "bluetooth",
     "media play": "media play", "media next": "media next", "media prev": "media prev",
 }
 
@@ -162,6 +162,9 @@ def icon(name, cx, cy, color, scale=1.0):
         path("M -8,0 A 8,8 0 1 0 8,0 A 8,8 0 1 0 -8,0")
         path("M 0,-8 A 3.5,8 0 1 0 0,8 A 3.5,8 0 1 0 0,-8")
         path("M -8,0 L 8,0")
+    elif name == "bluetooth":
+        path("M 0,-8 L 0,8")
+        path("M 0,-8 L 7,-4 L 0,0 L 7,4 L 0,8")
     elif name == "capslock":
         path("M -8,0 L -8,9 L 8,9 L 8,0 Z", fill=color)
         path("M -5,0 L -5,-5 A 5,5 0 0 1 5,-5 L 5,0")
