@@ -11,9 +11,11 @@ if swaymsg -s "$sock" -t get_tree | jq -e '.. | objects | select(.app_id? == "ch
     swaymsg -s "$sock" '[title="cheatsheet"] kill' >/dev/null 2>&1 || true
     exit 0
 fi
-# swayimg -p is relative to the workspace content origin (below waybar, y=43),
-# so 10,57 lands the 700x520 window at absolute 10,100 like the for_window rule.
-swayimg -a cheatsheet -w 700,520 -p 10,57 -s fit \
+# swayimg runs with SWAYSOCK unset: its Sway-mode parent-window lookup
+# segfaults when the active workspace has no windows, and the for_window
+# rule below does all sizing/placement (resize 700x520, move 10,57 which
+# lands at absolute 10,100). Window/app_id stay "cheatsheet".
+env -u SWAYSOCK swayimg -a cheatsheet \
     -c "viewer.window=#00000000" \
     -c "viewer.transparency=#00000000" \
     -c "info.show=no" \
@@ -21,5 +23,6 @@ swayimg -a cheatsheet -w 700,520 -p 10,57 -s fit \
 viewer=$!
 sleep 2
 if ! kill -0 $viewer 2>/dev/null; then
-    notify-send -u critical "ERROR: cheatsheet failed to open" "swayimg exited unexpectedly" >/dev/null 2>&1 || true
+    # Normal urgency so a failure is a transient note, not a sticky pile.
+    notify-send "ERROR: cheatsheet failed to open" "swayimg exited unexpectedly" >/dev/null 2>&1 || true
 fi

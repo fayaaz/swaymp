@@ -4,4 +4,4 @@
 - [x] Music,wiremix should always go to workspace 1. Browser workspace 2. Everything else workspace 3. Buttons and interactions should take you to the right workspace
 - [x] bluetooth packages missing. A tui bluetooth interface would be ideal
 - [x] cheatsheet is no longer center of the screen
-- [] cheatsheet no longer works at all. This is a regression
+- [x] cheatsheet no longer works at all. This is a regression

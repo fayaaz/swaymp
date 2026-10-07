@@ -89,7 +89,7 @@ default_border pixel 1
 default_floating_border pixel 1
 floating_minimum_size 420 x 240
 floating_maximum_size 720 x 700
-for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none
+for_window [app_id="cheatsheet"] floating enable, resize set 700 520, move position 10 57, border none
 for_window [app_id="wiremix"] resize set height 320 px
 client.focused #bd93f9 #bd93f9 #282a36 #bd93f9 #bd93f9
 client.focused_inactive #6272a4 #6272a4 #f8f8f2 #6272a4 #6272a4
@@ -131,8 +131,13 @@ sed -i 's/^    bindsym \$mod+\$up focus up/    #bindsym \$mod+$up focus up/' "$H
 sed -i 's/^    bindsym \$mod+s layout stacking/    #bindsym $mod+s layout stacking/' "$HOME/.config/sway/config"
 sed -i 's/^    #bindsym \$mod+b splith/    bindsym $mod+b splith/' "$HOME/.config/sway/config"
 sed -i 's/^    bindsym \$mod+v splitv/    #bindsym $mod+v splitv/' "$HOME/.config/sway/config"
-sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none/' "$HOME/.config/sway/config"
-sed -i 's/^for_window \[app_id="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, move position 10 100, border none/' "$HOME/.config/sway/config"
+# Cheatsheet overlay geometry: for_window move is relative to the workspace
+# content origin (below waybar, y=43), so 10,57 lands at absolute 10,100.
+# cheatsheet.sh runs swayimg with SWAYSOCK unset so its Sway-mode parent
+# lookup (which segfaults with no active window) never runs; the rule
+# below does all sizing and placement.
+sed -i 's/^for_window \[title="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, resize set 700 520, move position 10 57, border none/' "$HOME/.config/sway/config"
+sed -i 's/^for_window \[app_id="cheatsheet"\].*/for_window [app_id="cheatsheet"] floating enable, resize set 700 520, move position 10 57, border none/' "$HOME/.config/sway/config"
 sed -i 's/^for_window \[app_id="imv"\].*/for_window [app_id="imv"] floating enable, resize set 700 520, move position 10 100, border none/' "$HOME/.config/sway/config"
 if ! grep -q '^for_window \[app_id="imv"\]' "$HOME/.config/sway/config"; then
     echo 'for_window [app_id="imv"] floating enable, resize set 700 520, move position 10 100, border none' >> "$HOME/.config/sway/config"
