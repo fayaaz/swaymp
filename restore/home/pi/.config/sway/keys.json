@@ -16,7 +16,7 @@
     {"key": "$mod+v", "label": "wiremix peaks", "cmd": "exec ~/.config/sway/wiremix.sh", "group": "tools"},
     {"key": "$mod+d", "label": "notifications", "cmd": "exec ~/.config/sway/notifications.sh", "group": "tools"},
     {"key": "$mod+space", "label": "launcher (fuzzel)", "cmd": "exec fuzzel", "group": "tools"},
-    {"key": "$mod+dollar", "label": "euphonica", "cmd": "exec /bin/bash ~/.config/waybar/euphonica.sh", "group": "tools"},
+    {"key": "$mod+Shift+4", "label": "euphonica", "cmd": "exec /bin/bash ~/.config/waybar/euphonica.sh", "group": "tools"},
     {"key": "$mod+g", "label": "browser", "cmd": "exec ~/.config/sway/browser.sh", "group": "tools"},
     {"key": "$mod+u", "label": "bluetooth", "cmd": "exec ~/.config/sway/bluetooth.sh", "group": "tools"},
     {"key": "$mod+tab", "label": "terminal", "cmd": "exec foot", "group": "tools"},

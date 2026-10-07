@@ -5,3 +5,4 @@
 - [x] bluetooth packages missing. A tui bluetooth interface would be ideal
 - [x] cheatsheet is no longer center of the screen
 - [x] cheatsheet no longer works at all. This is a regression
+- [x] Pressing the euphonica shortcut from the browser should take you to music
