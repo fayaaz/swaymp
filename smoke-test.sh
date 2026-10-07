@@ -13,14 +13,14 @@
 # screenshots plus per-stage logs. Exit 0 only if every assertion passes.
 #
 # Stages: preflight input playback seek queue volume launcher terminal
-#         cheatsheet devices notifications browser euphonica wiremix mediakeys cleanup
+#         cheatsheet devices notifications miniplayer browser euphonica wiremix mediakeys cleanup
 # The Pi-side runner is embedded below and copied to /tmp/smoke/smoke-run.sh.
 set -u
 
 PI="${PI:-pi@raspberrypi.local}"
 OUT="${OUT:-/tmp/opencode/smoke-$(date +%Y%m%d-%H%M%S)}"
 REMOTE=/tmp/smoke
-STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices notifications browser euphonica wiremix mediakeys cleanup}"
+STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices notifications miniplayer browser euphonica wiremix mediakeys cleanup}"
 
 mkdir -p "$OUT"
 ssh_base() { ssh -o ConnectTimeout=8 -o BatchMode=yes "$PI" "$@"; }
@@ -90,6 +90,24 @@ sink_rows() { [ -f "$HOME/.config/sway/device.sh" ] && bash "$HOME/.config/sway/
 sink_count() { sink_rows | grep -c .; }
 default_sink() { sink_rows | awk -F'\t' '$2 == 1 { print $1; exit }'; }
 sink_title() { sink_rows | awk -F'\t' -v id="$1" '$1 == id { print $3; exit }'; }
+# MPD reaches swaync's miniplayer through the mpdris2 MPRIS bridge on the session bus
+mpdris_unit() { systemctl --user list-unit-files --no-legend 2>/dev/null | awk 'tolower($1) ~ /mpdris/ {print $1; exit}'; }
+mpris_names() {
+    if command -v busctl >/dev/null; then
+        busctl --user list --no-legend 2>/dev/null | awk '{print $1}' | grep '^org\.mpris\.MediaPlayer2\.'
+    else
+        dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.ListNames 2>/dev/null \
+            | grep -oE 'org\.mpris\.MediaPlayer2\.[A-Za-z0-9._-]+'
+    fi
+}
+mpris_prop() {
+    if command -v busctl >/dev/null; then
+        busctl --user call org.mpris.MediaPlayer2.mpd /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties Get ss "$1" "$2" 2>/dev/null
+    else
+        dbus-send --print-reply --dest=org.mpris.MediaPlayer2.mpd /org/mpris/MediaPlayer2 \
+            org.freedesktop.DBus.Properties.Get string:"$1" string:"$2" 2>/dev/null
+    fi
+}
 
 ensure_daemon() { :; }
 
@@ -287,6 +305,48 @@ stage_notifications() {
     nc_visible && fail "notification center did not close" || pass "notification center closed"
 }
 
+stage_miniplayer() {
+    local cfg=$HOME/.config/swaync/config.json unit names status title
+    jq -e '(.widgets // []) | index("mpris")' "$cfg" >/dev/null 2>&1 \
+        && pass "swaync config has the mpris widget" || fail "swaync config has no mpris widget"
+    jq -e '."widget-config".mpris' "$cfg" >/dev/null 2>&1 \
+        && pass "swaync config configures widget-config.mpris" || fail "swaync config has no widget-config.mpris"
+
+    unit=$(mpdris_unit)
+    if [ -z "$unit" ]; then
+        fail "no mpdris user unit installed"
+    elif systemctl --user is-active --quiet "$unit"; then
+        pass "mpdris bridge active ($unit)"
+    else
+        fail "mpdris bridge installed but not active ($unit)"
+    fi
+
+    [ -n "$(mpc playlist 2>/dev/null)" ] || mpc add "$(first_track)" >/dev/null 2>&1
+    mpc play >/dev/null 2>&1
+    sleep 1.5
+    names=$(mpris_names)
+    printf '%s\n' "$names" | grep -qx 'org.mpris.MediaPlayer2.mpd' \
+        && pass "MPD is on the session bus as org.mpris.MediaPlayer2.mpd" \
+        || fail "no org.mpris.MediaPlayer2.mpd bus name (have: ${names:-none})"
+
+    status=$(mpris_prop org.mpris.MediaPlayer2.Player PlaybackStatus | grep -oE '"[^"]*"' | tr -d '"' | head -n1)
+    case "$status" in
+        Playing|Paused) pass "MPRIS PlaybackStatus=$status" ;;
+        *) fail "MPRIS PlaybackStatus='${status:-none}', expected Playing/Paused" ;;
+    esac
+
+    title=$(mpris_prop org.mpris.MediaPlayer2.Player Metadata | tr '\n' ' ' | grep -oE '"xesam:title"[[:space:]]+(variant[[:space:]]+)?(s|string)[[:space:]]*"[^"]*"' | head -n1 | grep -oE '"[^"]*"$' | tr -d '"')
+    [ -n "$title" ] && pass "MPRIS metadata xesam:title=$title" || echo "NOTE no xesam:title in MPRIS metadata (empty MPD queue?)"
+
+    swaync-client -C >/dev/null 2>&1 || true
+    sleep 0.5
+    super "$KRET"; sleep 1.5
+    nc_visible && pass "control center open (miniplayer above the list)" || fail "control center did not open"
+    shot 11-miniplayer
+    super "$KRET"; sleep 1
+    nc_visible && fail "control center did not close" || pass "control center closed"
+}
+
 stage_browser() {
     kill_app firefox
     sleep 1
@@ -412,6 +472,7 @@ case "$STAGE" in
     cheatsheet) stage_cheatsheet ;;
     devices) stage_devices ;;
     notifications) stage_notifications ;;
+    miniplayer) stage_miniplayer ;;
     browser) stage_browser ;;
     euphonica) stage_euphonica ;;
     wiremix) stage_wiremix ;;

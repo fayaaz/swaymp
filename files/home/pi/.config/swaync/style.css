@@ -78,6 +78,46 @@ window {
     color: #f8f8f2;
 }
 
+.widget-mpris {
+    margin: 6px;
+    padding: 8px 12px;
+    background-color: rgba(40, 42, 54, 0.85);
+    border: 2px solid rgba(189, 147, 249, 0.45);
+    border-radius: 8px;
+}
+
+.widget-mpris .widget-mpris-player {
+    padding: 4px 6px;
+}
+
+.widget-mpris .widget-mpris-title {
+    font-weight: bold;
+    font-size: 17px;
+    color: #f8f8f2;
+}
+
+.widget-mpris .widget-mpris-subtitle {
+    font-size: 14px;
+    color: rgba(248, 248, 242, 0.75);
+}
+
+.widget-mpris .widget-mpris-album-art {
+    border-radius: 12px;
+    border: 1px solid rgba(189, 147, 249, 0.35);
+}
+
+.widget-mpris button {
+    background-color: rgba(189, 147, 249, 0.18);
+    color: #f8f8f2;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+.widget-mpris button:hover {
+    background-color: rgba(189, 147, 249, 0.35);
+}
+
 .empty-message {
     color: rgba(248, 248, 242, 0.75);
     font-size: 16px;

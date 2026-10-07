@@ -112,6 +112,13 @@ systemctl --user start pipewire.service pipewire-pulse.service wireplumber.servi
     mpd.service mympd.service syncthing.service snapclient.service
 systemctl --user restart volume-notify.service
 
+# MPD -> MPRIS bridge: swaync's miniplayer (mpris widget) reads MPD off the
+# session bus, so the distro-provided user unit must be enabled and running.
+mpdris_unit=$(systemctl --user list-unit-files --no-legend 2>/dev/null | awk 'tolower($1) ~ /mpdris/ {print $1; exit}')
+[ -n "$mpdris_unit" ] || mpdris_unit=mpDris2.service
+systemctl --user enable "$mpdris_unit" >/dev/null 2>&1 || true
+systemctl --user restart "$mpdris_unit" >/dev/null 2>&1 || true
+
 # VIAL keymap note: the custom Hackberry layout lives on the keyboard MCU.
 # Snapshot it to a .vil file in this repo before reflashing firmware; F13 is a
 # VIAL-side binding that sends F13 when pressed.
