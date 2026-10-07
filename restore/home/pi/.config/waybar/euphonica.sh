@@ -10,7 +10,23 @@ APP_ID="io.github.htkhiem.Euphonica"
 
 if ! pgrep -x euphonica >/dev/null; then
     flatpak --user run --env=GSK_RENDERER=cairo io.github.htkhiem.Euphonica >/dev/null 2>&1 &
-    sleep 2
+fi
+
+# A cold flatpak start takes many seconds; wait for the window (warm
+# toggles find it immediately) and fail loudly if it never appears.
+found=0
+for _w in $(seq 1 40); do
+    if swaymsg -t get_tree | jq -e --arg app "$APP_ID" \
+            '.. | objects | select(.app_id? == $app)' >/dev/null 2>&1; then
+        found=1
+        break
+    fi
+    sleep 0.5
+done
+unset _w
+if [ "$found" = 0 ]; then
+    notify-send "ERROR: euphonica failed to open" "no window after 20s" >/dev/null 2>&1 || true
+    exit 1
 fi
 
 if swaymsg -t get_tree | jq -e --arg app "$APP_ID" \
@@ -18,5 +34,22 @@ if swaymsg -t get_tree | jq -e --arg app "$APP_ID" \
     swaymsg "[app_id=\"$APP_ID\"] move scratchpad" >/dev/null 2>&1
 else
     swaymsg 'workspace "1:Music"' >/dev/null 2>&1
-    swaymsg "[app_id=\"$APP_ID\"] move to workspace \"1:Music\", floating disable, focus" >/dev/null 2>&1
+    # Separate steps, retried until shown: a freshly mapped window can
+    # drop the first commands, and a scratchpad window needs the move
+    # before it can untile (one chained command aborts on error).
+    for _s in $(seq 1 10); do
+        swaymsg "[app_id=\"$APP_ID\"] move to workspace \"1:Music\"" >/dev/null 2>&1
+        swaymsg "[app_id=\"$APP_ID\"] floating disable" >/dev/null 2>&1
+        swaymsg "[app_id=\"$APP_ID\"] focus" >/dev/null 2>&1
+        if swaymsg -t get_tree | jq -e --arg app "$APP_ID" \
+                '.. | objects | select(.app_id? == $app and .visible == true and .focused == true)' >/dev/null 2>&1; then
+            break
+        fi
+        sleep 0.5
+    done
+    unset _s
+    if ! swaymsg -t get_tree | jq -e --arg app "$APP_ID" \
+            '.. | objects | select(.app_id? == $app and .visible == true)' >/dev/null 2>&1; then
+        notify-send "ERROR: euphonica failed to show" "window never became visible" >/dev/null 2>&1 || true
+    fi
 fi
