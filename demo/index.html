@@ -1,20 +1,34 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <title>hackpi kb render</title>
+<!--
+  Hackberry Pi (black unit) promo render.
+  Body shell STLs are the real HackberryPi CM5 parts by ZitaoTech
+  (MIT licensed, https://github.com/ZitaoTech/HackberryPiCM5):
+    stl/q10_uppercase.stl      == HackberryPi_CM5_Q10_uppercase.STL (front)
+    stl/hackberry_middle.stl   == HackberryPi_CM5_Middlepart.STL (3D-printed mid)
+    stl/hackberry_lower.stl    == HackberryPi_CM5_Lowercase.STL (alu back)
+    stl/hackberry_redswitch.stl== HackberryPi_CM5_Redswitch.STL (side switch)
+  Keycaps/frets/trackpad/screws/glass are modelled procedurally from the
+  black-unit reference photos (black keys, silver frets, colored media
+  symbols, white trackpad ring).
+-->
 <style>
-  html, body { margin: 0; padding: 0; background: #000; }
-  canvas { width: 740px; height: 1080px; display: block; }
+  html, body { margin: 0; padding: 0; background: #05060a; }
+  canvas { width: 960px; height: 1400px; display: block; }
   video { display: none; }
   @font-face { font-family: "Nunito"; font-weight: 700; src: url("/fonts/nunito-700.woff2") format("woff2"); }
   @font-face { font-family: "Nunito"; font-weight: 800; src: url("/fonts/nunito-800.woff2") format("woff2"); }
+  @font-face { font-family: "BBKey"; font-weight: 400; src: url("/fonts/bbkey-400.woff2") format("woff2"); }
+  @font-face { font-family: "BBKey"; font-weight: 700; src: url("/fonts/bbkey-700.woff2") format("woff2"); }
 </style>
-<canvas id="c" width="740" height="1080"></canvas>
+<canvas id="c" width="960" height="1400"></canvas>
 <video id="vid" src="/hackpi-overlay.mp4" muted playsinline preload="auto"></video>
 <script src="/three.min.js"></script>
 <script>
-const W = 740, H = 1080;
+const W = 960, H = 1400;
 
-// shortcut timeline synced with hackpi-overlay.mp4
+// shortcut timeline synced with hackpi-overlay.mp4 (CONTENT - do not retime)
 const EVENTS = [
   { t: 2.07,  dur: 2.2, keys: ["super", "P"] },
   { t: 4.62,  dur: 2.2, keys: ["super", "P"] },
@@ -46,47 +60,131 @@ const EVENTS = [
   { t: 37.20, dur: 3.0, keys: ["super", "space"] },
 ];
 
-// Hackberry Q10: official keymap + photo alt legends, BB-style uppercase glyphs
+// Hackberry Q10: official keymap + photo alt legends, BB-style uppercase glyphs.
+// ids double as EVENTS keys - do not rename.
 const ROWS = [
   { type: "media" },
-  { ids: [["#","Q"],["1","W"],["2","E"],["3","R"],["(","T"],[")","Y"],["_","U"],["-","I"],["+","O"],["@","P"]] },
+  { ids: [["#","Q"],["1","W"],["2","E"],["3","R"],["(","T"],[")","Y"],["\u00AF","U"],["-","I"],["+","O"],["@","P"]] },
   { ids: [["*","A"],["4","S"],["5","D"],["6","F"],["/","G"],[":","H"],[";","J"],["'","K"],["\"","L"],["del","bspc"]] },
-  { ids: [["\u21E7","shift"],["7","Z"],["8","X"],["9","C"],["?","V"],["!","B"],[",","N"],[".","M"],["\uD83D\uDD0A","dollar"],[null,"enter"]] },
-  { ids: [["\u2b1f","ctrl"],["0","altw"],[null,"space"],["sym","layer1"],["\u260e","layer2"]] },
+  { ids: [[null,"shift"],["7","Z"],["8","X"],["9","C"],["?","V"],["!","B"],[",","N"],[".","M"],[null,"dollar"],[null,"enter"]] },
+  { ids: [[null,"ctrl",1],["0","altw",1],[null,"space",3.2],[null,"layer1",1],[null,"layer2",1]] },
 ];
+
+// per-key press-glow colors: letters warm amber, media keys match their
+// hardware symbols (red ring / green triangle / magenta X / lime square)
+const GLOW = {
+  capslock: 0xff5a52, super: 0x3ddc84, esc: 0xe879f9, tab: 0xc8f04a,
+};
+const AMBER = 0xffb85c;
 
 const renderer = new THREE.WebGLRenderer({
   canvas: document.getElementById("c"), antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(1);
 renderer.setSize(W, H, false);
-renderer.outputEncoding = THREE.sRGBEncoding;
+if (THREE.sRGBEncoding !== undefined && renderer.outputEncoding !== undefined)
+  renderer.outputEncoding = THREE.sRGBEncoding;
+if (renderer.outputColorSpace !== undefined && THREE.SRGBColorSpace !== undefined)
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+if (THREE.ACESFilmicToneMapping !== undefined) {
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+}
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-const cam = new THREE.PerspectiveCamera(30, W / H, 1, 6000);
+scene.background = new THREE.Color(0x05060a);
+const cam = new THREE.PerspectiveCamera(30, W / H, 1, 9000);
+let camBase = null; // {dist, cy} from frameCam
 function frameCam(bb, border) {
   const hgt = bb.max.y - bb.min.y;
   const half = hgt / (2 * (1 - border));
-  cam.position.set(0, (bb.min.y + bb.max.y) / 2, half / Math.tan((cam.fov * Math.PI / 180) / 2));
-  cam.lookAt(0, (bb.min.y + bb.max.y) / 2, 0);
+  const dist = half / Math.tan((cam.fov * Math.PI / 180) / 2);
+  const cy = (bb.min.y + bb.max.y) / 2;
+  camBase = { dist, cy };
+  cam.position.set(0, cy, dist);
+  cam.lookAt(0, cy, 0);
 }
 
-scene.add(new THREE.AmbientLight(0x46506e, 1.0));
-const keyL = new THREE.DirectionalLight(0xdde2f4, 1.05);
-keyL.position.set(-200, 300, 420); scene.add(keyL);
-const rim = new THREE.DirectionalLight(0x5b7bd8, 0.55);
-rim.position.set(220, -100, 220); scene.add(rim);
-const spot = new THREE.PointLight(0xffb24a, 0, 1200, 1.5);
-spot.position.set(0, -260, 320); scene.add(spot);
+// ---- studio lighting ----
+scene.add(new THREE.HemisphereLight(0x8fa0c8, 0x0b0d12, 0.3));
+const keyL = new THREE.DirectionalLight(0xf2f4ff, 1.7);
+keyL.position.set(-260, 340, 520);
+keyL.castShadow = true;
+keyL.shadow.mapSize.set(1024, 1024);
+keyL.shadow.camera.left = -320; keyL.shadow.camera.right = 320;
+keyL.shadow.camera.top = 420; keyL.shadow.camera.bottom = -420;
+keyL.shadow.camera.near = 50; keyL.shadow.camera.far = 2000;
+keyL.shadow.bias = -0.0004;
+scene.add(keyL);
+const rim = new THREE.DirectionalLight(0x5b7bd8, 1.1);
+rim.position.set(280, -140, 260); scene.add(rim);
+const fill = new THREE.DirectionalLight(0xffd9a8, 0.4);
+fill.position.set(60, -320, 480); scene.add(fill);
 
-// plain black background
+// procedural studio environment for PBR reflections (alu + chrome need it)
 (function () {
-  const cv = document.createElement("canvas"); cv.width = cv.height = 16;
-  const ctx = cv.getContext("2d");
-  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, 16, 16);
-  const bg = new THREE.Mesh(new THREE.PlaneGeometry(6600, 6600),
-    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv) }));
-  bg.position.z = -2200; scene.add(bg);
+  const env = new THREE.Scene();
+  const grad = (function () {
+    const cv = document.createElement("canvas"); cv.width = 64; cv.height = 256;
+    const ctx = cv.getContext("2d");
+    const g = ctx.createLinearGradient(0, 0, 0, 256);
+    g.addColorStop(0, "#6b7690"); g.addColorStop(0.5, "#232936"); g.addColorStop(1, "#05060a");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 256);
+    const t = new THREE.CanvasTexture(cv);
+    return t;
+  })();
+  const room = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20),
+    new THREE.MeshBasicMaterial({ map: grad, side: THREE.BackSide }));
+  env.add(room);
+  const strip = new THREE.Mesh(new THREE.PlaneGeometry(12, 4),
+    new THREE.MeshBasicMaterial({ color: 0xffffff }));
+  strip.position.set(-4, 6, 2); strip.lookAt(0, 0, 0);
+  env.add(strip);
+  const warm = new THREE.Mesh(new THREE.PlaneGeometry(8, 3),
+    new THREE.MeshBasicMaterial({ color: 0xffc890 }));
+  warm.position.set(5, -3, 3); warm.lookAt(0, 0, 0);
+  env.add(warm);
+  const pm = new THREE.PMREMGenerator(renderer);
+  const envRT = pm.fromScene(env, 0.06);
+  scene.environment = envRT.texture;
+  pm.dispose();
 })();
+
+// ---- studio backdrop: dark radial gradient + soft drop shadow ----
+(function () {
+  const cv = document.createElement("canvas"); cv.width = cv.height = 512;
+  const ctx = cv.getContext("2d");
+  const g = ctx.createRadialGradient(256, 220, 40, 256, 256, 360);
+  g.addColorStop(0, "#232b40"); g.addColorStop(0.55, "#11151f"); g.addColorStop(1, "#05060a");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+  const tex = new THREE.CanvasTexture(cv);
+  if (tex.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined)
+    tex.colorSpace = THREE.SRGBColorSpace;
+  else if (tex.encoding !== undefined && THREE.sRGBEncoding !== undefined)
+    tex.encoding = THREE.sRGBEncoding;
+  const bg = new THREE.Mesh(new THREE.PlaneGeometry(7000, 7000),
+    new THREE.MeshBasicMaterial({ map: tex, depthWrite: false }));
+  bg.position.z = -2400; scene.add(bg);
+})();
+let shadowBlob = null;
+function addShadowBlob(cw, chh, zBack) {
+  const cv = document.createElement("canvas"); cv.width = 256; cv.height = 256;
+  const ctx = cv.getContext("2d");
+  const g = ctx.createRadialGradient(128, 128, 10, 128, 128, 126);
+  g.addColorStop(0, "rgba(0,0,0,0.85)"); g.addColorStop(0.7, "rgba(0,0,0,0.4)");
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g;
+  // rounded-rect mask so the shadow follows the slab shape
+  ctx.save();
+  ctx.fillRect(0, 0, 256, 256);
+  ctx.restore();
+  const tex = new THREE.CanvasTexture(cv);
+  shadowBlob = new THREE.Mesh(new THREE.PlaneGeometry(cw * 1.3, chh * 1.12),
+    new THREE.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.62, depthWrite: false }));
+  shadowBlob.position.set(34, -44, zBack - 40);
+  scene.add(shadowBlob);
+}
 
 function parseSTL(buf) {
   const dv = new DataView(buf);
@@ -103,7 +201,21 @@ function parseSTL(buf) {
   return g;
 }
 const loadSTL = (u) => fetch(u).then(r => r.arrayBuffer()).then(parseSTL);
-function boxFor(g) { g.computeBoundingBox(); return g.boundingBox; }
+
+function noiseBump() {
+  const s = 256, cv = document.createElement("canvas");
+  cv.width = cv.height = s;
+  const ctx = cv.getContext("2d");
+  const img = ctx.createImageData(s, s);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = 118 + Math.random() * 20;
+    img.data[i] = img.data[i+1] = img.data[i+2] = v; img.data[i+3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(cv);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(3, 3);
+  return t;
+}
 
 const keycaps = {};
 const capGeoCache = {};
@@ -123,53 +235,79 @@ function capGeo(bw, bh, r) {
   shape.lineTo(-hw, -hh + r);
   shape.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
   const geo = new THREE.ExtrudeGeometry(shape, { depth: DEPTH, bevelEnabled: true,
-    bevelThickness: 0.9, bevelSize: 0.55, bevelSegments: 2, curveSegments: 6 });
+    bevelThickness: 0.9, bevelSize: 0.55, bevelSegments: 3, curveSegments: 10 });
   capGeoCache[kk] = geo;
   return geo;
 }
-const HANGUP = "\uE000"; // private-use token: end-call handset + power over Tab
-function drawHangup(ctx, cx, cy) {
-  // end-call handset (rotated receiver) ...
+function roundedRectShape(w, h, r) {
+  const s = new THREE.Shape(), hw = w / 2, hh = h / 2;
+  s.moveTo(-hw + r, -hh);
+  s.lineTo(hw - r, -hh); s.quadraticCurveTo(hw, -hh, hw, -hh + r);
+  s.lineTo(hw, hh - r); s.quadraticCurveTo(hw, hh, hw - r, hh);
+  s.lineTo(-hw + r, hh); s.quadraticCurveTo(-hw, hh, -hw, hh - r);
+  s.lineTo(-hw, -hh + r); s.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
+  return s;
+}
+
+const HANGUP = "HANGUP", SENDC = "SENDC", RING = "RING", TRIA = "TRIA", XCROSS = "XCROSS", SQUAR = "SQUAR";
+// media-row icons drawn in hardware colors (black unit: red ring, green
+// triangle, magenta X, lime square)
+const ICON_COLORS = { RING: "#ff5a52", TRIA: "#3ddc84", XCROSS: "#e879f9", SQUAR: "#c8f04a" };
+function drawMediaIcon(ctx, kind, cx, cy, S) {
   ctx.save();
-  ctx.translate(cx, cy + 8);
-  ctx.rotate(Math.PI * 0.75);
-  ctx.font = "76px DejaVu Sans, sans-serif";
-  ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText("\u260E", 0, 0);
-  ctx.restore();
-  // ... with BB power mark above it
-  ctx.save();
-  ctx.translate(cx + 44, cy - 44);
-  ctx.strokeStyle = "#e7eaf6"; ctx.lineWidth = 11; ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.arc(0, 6, 24, -Math.PI * 0.35, Math.PI * 1.35);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(0, -26); ctx.lineTo(0, 6);
-  ctx.stroke();
+  ctx.strokeStyle = ICON_COLORS[kind] || "#e7eaf6";
+  ctx.fillStyle = ICON_COLORS[kind] || "#e7eaf6";
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  if (kind === RING) {
+    ctx.lineWidth = S * 0.11;
+    ctx.beginPath(); ctx.arc(cx, cy, S * 0.30, 0, Math.PI * 2); ctx.stroke();
+  } else if (kind === TRIA) {
+    ctx.lineWidth = S * 0.11;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - S * 0.32);
+    ctx.lineTo(cx + S * 0.32, cy + S * 0.24);
+    ctx.lineTo(cx - S * 0.32, cy + S * 0.24);
+    ctx.closePath(); ctx.stroke();
+  } else if (kind === XCROSS) {
+    ctx.lineWidth = S * 0.13;
+    const d = S * 0.26;
+    ctx.beginPath();
+    ctx.moveTo(cx - d, cy - d); ctx.lineTo(cx + d, cy + d);
+    ctx.moveTo(cx + d, cy - d); ctx.lineTo(cx - d, cy + d);
+    ctx.stroke();
+  } else if (kind === SQUAR) {
+    ctx.lineWidth = S * 0.11;
+    const d = S * 0.27;
+    ctx.beginPath(); ctx.rect(cx - d, cy - d, d * 2, d * 2); ctx.stroke();
+  }
   ctx.restore();
 }
-// BB send icon: curved receiver, earpiece top-left to mouthpiece bottom-right
-function drawSend(ctx, cx, cy) {
-  ctx.save();
-  ctx.strokeStyle = "#e7eaf6"; ctx.lineWidth = 38; ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.arc(cx + 20, cy - 10, 74, Math.PI * 0.3, Math.PI * 1.3);
-  ctx.stroke();
-  ctx.restore();
-}
-function labelTex(top, bot, aspect) {
-  const hpx = 400, wpx = Math.round(hpx * aspect);
+function labelTex(top, bot, aspect, icon) {
+  const hpx = 512, wpx = Math.max(64, Math.round(hpx * aspect));
   const cv = document.createElement("canvas"); cv.width = wpx; cv.height = hpx;
   const ctx = cv.getContext("2d");
-  ctx.fillStyle = "#e7eaf6";
-  if (top === HANGUP) drawHangup(ctx, wpx / 2, 86);
-  else if (top) { ctx.font = "700 92px Nunito, Lato, sans-serif"; ctx.textAlign = "center"; ctx.fillText(top, wpx / 2, 124); }
-  if (bot === "\u2756") { drawBerry(ctx, wpx / 2, 225); ctx.font = "700 62px Nunito, Lato, sans-serif"; ctx.textAlign = "center"; ctx.fillText("super", wpx / 2, 352); } // super key = BlackBerry logo
-  else if (bot === "\u260E") drawSend(ctx, wpx / 2, 270); // send key = BB receiver
-  else if (bot) { ctx.font = "800 128px Nunito, Lato, sans-serif"; ctx.textAlign = "center"; ctx.fillText(bot, wpx / 2, 340); }
+  if (icon) {
+    drawMediaIcon(ctx, icon, wpx / 2, hpx * 0.52, Math.min(wpx, hpx) * 0.62);
+  } else {
+    if (top) {
+      ctx.fillStyle = "#aab1c5";
+      ctx.font = "400 118px BBKey, Nunito, sans-serif";
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.fillText(top, wpx / 2, 150);
+    }
+    if (bot) {
+      ctx.fillStyle = "#eef1f8";
+      ctx.font = "700 172px BBKey, Nunito, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(bot, wpx / 2, 432);
+    }
+  }
   const t = new THREE.CanvasTexture(cv);
-  t.anisotropy = 4;
+  t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  if (t.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined)
+    t.colorSpace = THREE.SRGBColorSpace;
+  else if (t.encoding !== undefined && THREE.sRGBEncoding !== undefined)
+    t.encoding = THREE.sRGBEncoding;
   return t;
 }
 // BlackBerry 7-dot mark: 4 dots over 3, staggered
@@ -187,34 +325,45 @@ function drawBerry(ctx, cx, cy) {
   ctx.fill();
 }
 const glyphs = {
-  bspc: "\u2190", enter: "\u21B5", shift: "aA", dollar: "$",
-  ctrl: "Ctrl", altw: "Alt", space: "space", layer1: "L1", layer2: "L2",
-  capslock: "\u260E", super: "\u2756", esc: "Esc", tab: "Tab",
+  bspc: "\u232B", enter: "\u21B5", shift: "\u21E7", dollar: "$",
+  ctrl: "Ctrl", altw: "Alt", space: "Space", layer1: "L1", layer2: "L2",
+  capslock: RING, super: TRIA, esc: XCROSS, tab: SQUAR,
 };
 
-function makeCap(id, topTxt, botTxt, kw, kh) {
+function makeCap(id, topTxt, botTxt, kw, kh, opts) {
+  opts = opts || {};
   const g = new THREE.Group();
-  // BB-style: caps tile their slots; slim seams reveal the chrome fret below
-  const bw = kw * 0.975, bh = kh * 0.975;
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0x0b0e16, roughness: 0.24, metalness: 0.12,
-    emissive: new THREE.Color(0xffb85c), emissiveIntensity: 0 });
-  const top = new THREE.Mesh(capGeo(bw, bh, bw * 0.22), mat);
+  const bw = kw * (opts.fill !== undefined ? opts.fill : 0.96);
+  const bh = kh * (opts.fillY !== undefined ? opts.fillY : 0.86);
+  const glowHex = GLOW[id] !== undefined ? GLOW[id] : AMBER;
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: 0x11141b, roughness: 0.34, metalness: 0.25,
+    clearcoat: 0.7, clearcoatRoughness: 0.25,
+    emissive: new THREE.Color(glowHex), emissiveIntensity: 0,
+    envMapIntensity: 0.45 });
+  const rr = opts.r !== undefined ? opts.r : Math.min(bw, bh) * 0.24;
+  const top = new THREE.Mesh(capGeo(bw, bh, rr), mat);
+  top.castShadow = true;
   let ftex;
-  const aspect = (bw * 0.82) / (bh * 0.66);
-  if (glyphs[id]) ftex = labelTex(topTxt, glyphs[id], aspect);
-  else ftex = labelTex(topTxt, botTxt, aspect);
-  const face = new THREE.Mesh(new THREE.PlaneGeometry(bw * 0.82, bh * 0.66),
-    new THREE.MeshBasicMaterial({ map: ftex, transparent: true, opacity: 0.95 }));
+  const aspect = (bw * 0.82) / (bh * 0.62);
+  const gl = glyphs[id];
+  if (typeof gl === "string" && ICON_COLORS[gl])
+    ftex = labelTex(null, null, aspect, gl);
+  else if (gl)
+    ftex = labelTex(topTxt, gl, aspect, null);
+  else
+    ftex = labelTex(topTxt, botTxt, aspect, null);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(bw * 0.82, bh * 0.62),
+    new THREE.MeshBasicMaterial({ map: ftex, transparent: true, opacity: 0.96 }));
   face.position.z = DEPTH + BEVEL + 0.05;
   g.add(top, face);
-  // halo ring behind the cap: the per-key press glow
-  const halo = new THREE.Mesh(new THREE.PlaneGeometry(bw * 2.0, bh * 2.0),
-    new THREE.MeshBasicMaterial({ map: haloTex(), transparent: true, opacity: 0,
+  // halo ring behind the cap: the per-key press glow, tinted per key
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(bw * 2.1, bh * 2.1),
+    new THREE.MeshBasicMaterial({ map: haloTex(), color: glowHex, transparent: true, opacity: 0,
       blending: THREE.AdditiveBlending, depthWrite: false }));
   halo.position.z = 0.7;
   g.add(halo);
-  keycaps[id] = { group: g, top, halo, baseY: 0 };
+  keycaps[id] = { group: g, top, face, halo, baseY: 0, glowHex };
   return g;
 }
 let _haloTex = null;
@@ -223,93 +372,184 @@ function haloTex() {
   const cv = document.createElement("canvas"); cv.width = cv.height = 128;
   const ctx = cv.getContext("2d");
   const g = ctx.createRadialGradient(64, 64, 8, 64, 64, 64);
-  g.addColorStop(0, "rgba(255,190,100,0.9)");
-  g.addColorStop(0.45, "rgba(255,160,70,0.35)");
-  g.addColorStop(1, "rgba(255,150,60,0)");
+  g.addColorStop(0, "rgba(255,255,255,0.9)");
+  g.addColorStop(0.45, "rgba(255,255,255,0.32)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = g; ctx.fillRect(0, 0, 128, 128);
   _haloTex = new THREE.CanvasTexture(cv);
   return _haloTex;
 }
+function ringTex() {
+  const cv = document.createElement("canvas"); cv.width = cv.height = 256;
+  const ctx = cv.getContext("2d");
+  ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 13;
+  ctx.shadowColor = "#ffffff"; ctx.shadowBlur = 22;
+  const r = 84, x0 = 42, y0 = 42, w = 172, h = 172, cr = 44;
+  ctx.beginPath();
+  ctx.moveTo(x0 + cr, y0);
+  ctx.lineTo(x0 + w - cr, y0); ctx.quadraticCurveTo(x0 + w, y0, x0 + w, y0 + cr);
+  ctx.lineTo(x0 + w, y0 + h - cr); ctx.quadraticCurveTo(x0 + w, y0 + h, x0 + w - cr, y0 + h);
+  ctx.lineTo(x0 + cr, y0 + h); ctx.quadraticCurveTo(x0, y0 + h, x0, y0 + h - cr);
+  ctx.lineTo(x0, y0 + cr); ctx.quadraticCurveTo(x0, y0, x0 + cr, y0);
+  ctx.stroke(); ctx.stroke();
+  return new THREE.CanvasTexture(cv);
+}
 
-let caseMesh = null, videoReady = false, mtex = null;
-function orientAndBuild() {
-  const geo = caseMesh.geometry;
-  geo.computeBoundingBox();
-  caseMesh.rotation.set(0, 0, 0);
-  caseMesh.scale.setScalar(3.3);
-  caseMesh.updateMatrixWorld(true);
-  let bbw = new THREE.Box3().setFromObject(caseMesh);
+let mtex = null, glassStreak = null, trackRing = null;
+function orientAndBuild(parts) {
+  const S = 3.3;
+  const device = new THREE.Group();
+  const alu = new THREE.MeshStandardMaterial({
+    color: 0x14161d, roughness: 0.52, metalness: 0.85,
+    bumpMap: noiseBump(), bumpScale: 0.5, envMapIntensity: 0.7 });
+  const matte = new THREE.MeshStandardMaterial({
+    color: 0x0e1015, roughness: 0.82, metalness: 0.08, envMapIntensity: 0.35 });
+  const red = new THREE.MeshStandardMaterial({
+    color: 0xb01818, roughness: 0.42, metalness: 0.3, envMapIntensity: 0.7 });
+
+  // normalize each real part: XY centered, stacked in -Z off the front face
+  // (front 5mm + mid 10.6mm + back 2mm = 17.6mm, the spec thickness)
+  function norm(geo) { geo.computeBoundingBox(); return geo.boundingBox.clone(); }
+  const bU = norm(parts.upper), bM = norm(parts.middle), bL = norm(parts.lower);
+  const cU = bU.getCenter(new THREE.Vector3());
+  const cM = bM.getCenter(new THREE.Vector3());
+  const cL = bL.getCenter(new THREE.Vector3());
+  const tU = bU.max.z - bU.min.z, tM = bM.max.z - bM.min.z, tL = bL.max.z - bL.min.z;
+  parts.upper.translate(-cU.x, -cU.y, -bU.max.z);
+  parts.middle.translate(-cM.x, -cM.y, -(bM.max.z + tU));
+  parts.lower.translate(-cL.x, -cL.y, -(bL.max.z + tU + tM));
+  const upper = new THREE.Mesh(parts.upper, alu);
+  const middle = new THREE.Mesh(parts.middle, matte);
+  const lower = new THREE.Mesh(parts.lower, alu);
+  upper.castShadow = true; upper.receiveShadow = true;
+  middle.receiveShadow = true;
+  device.add(upper, middle, lower);
+
+  // red side switch on the right edge, mid-body (front view: a small sliver)
+  parts.red.computeBoundingBox();
+  const bR0 = parts.red.boundingBox.clone();
+  const cR0 = bR0.getCenter(new THREE.Vector3());
+  parts.red.translate(-cR0.x, -cR0.y, -cR0.z);
+  parts.red.computeBoundingBox();
+  const bR = parts.red.boundingBox.clone();
+  const sR = bR.getSize(new THREE.Vector3());
+  const maxD = Math.max(sR.x, sR.y, sR.z);
+  const sw = new THREE.Mesh(parts.red, red);
+  sw.scale.setScalar(7 / maxD);
+  const half_w = 91.8 / 2;
+  sw.position.set(half_w - 1.0, -18, -(tU + tM / 2));
+  device.add(sw);
+
+  device.scale.setScalar(S);
+  scene.add(device);
+  device.updateMatrixWorld(true);
+  // Frame and lay out from the FRONT PLATE only: the side switch sticks out
+  // to the right and would otherwise pull every fraction off the case
+  // openings (screen/keys would sit visibly right of their cutouts).
+  let bbw = new THREE.Box3().setFromObject(upper);
   const cc = bbw.getCenter(new THREE.Vector3());
-  caseMesh.position.set(-cc.x, -cc.y, -cc.z);
-  caseMesh.updateMatrixWorld(true);
-  bbw = new THREE.Box3().setFromObject(caseMesh);
+  device.position.set(-cc.x, -cc.y, -cc.z);
+  device.updateMatrixWorld(true);
+  bbw = new THREE.Box3().setFromObject(upper);
   window.__bbw = bbw;
 
   const cw = bbw.max.x - bbw.min.x, chh = bbw.max.y - bbw.min.y;
   const zFace = bbw.max.z + 1.0;
 
-  // media row: measured case holes, expanded slightly: x 0.186..0.813, y 0.300..0.364
+  // full body extends ~12.6 STL units (~42 scene units) behind the front
+  // plate: middle + lower case. Keep the blob behind all of it.
+  addShadowBlob(cw, chh, bbw.min.z - 42);
+
+  // ---- front screws: M2 countersunk look (dark alu head + hex socket) ----
+  // bottom pair flanking the keyboard, mid pair flanking the media row
+  const screwPos = [[0.085, 0.055], [0.915, 0.055], [0.085, 0.335], [0.915, 0.335]];
+  const headMat = new THREE.MeshStandardMaterial({
+    color: 0x9aa0b0, roughness: 0.3, metalness: 1.0, envMapIntensity: 1.1 });
+  const sockMat = new THREE.MeshStandardMaterial({ color: 0x14161c, roughness: 0.5, metalness: 0.7 });
+  for (const [fx, fy] of screwPos) {
+    const sg = new THREE.Group();
+    const head = new THREE.Mesh(new THREE.CylinderGeometry(6.0, 6.8, 2.4, 28), headMat);
+    head.rotation.x = Math.PI / 2;
+    const sock = new THREE.Mesh(new THREE.CylinderGeometry(2.9, 2.9, 1.2, 6), sockMat);
+    sock.rotation.x = Math.PI / 2;
+    sock.position.z = 1.0;
+    head.castShadow = true;
+    sg.add(head, sock);
+    sg.position.set(bbw.min.x + cw * fx, bbw.min.y + chh * fy, zFace - 0.6);
+    scene.add(sg);
+  }
+
+  // ---- media row: red ring / green triangle / trackpad / magenta X / lime ----
   const mY0 = bbw.min.y + chh * 0.300, mY1 = bbw.min.y + chh * 0.364;
   const mH = mY1 - mY0, mY = (mY0 + mY1) / 2;
   const mX0 = bbw.min.x + cw * 0.186, mX1 = bbw.min.x + cw * 0.813;
   const slotw = (mX1 - mX0) / 5;
-  const mkM = (id, si, top) => {
-    const cap = makeCap(id, top || null, null, slotw, mH);
-    cap.position.set(mX0 + slotw * (si + 0.5), mY, zFace);
+  // dark key wells so the islands read as separate keys
+  const wellMat = new THREE.MeshStandardMaterial({ color: 0x05070c, roughness: 0.7, metalness: 0.2 });
+  const mkM = (id, si) => {
+    const cx = mX0 + slotw * (si + 0.5);
+    const well = new THREE.Mesh(new THREE.PlaneGeometry(slotw * 0.98, mH * 1.25), wellMat);
+    well.position.set(cx, mY, zFace - 0.9);
+    scene.add(well);
+    const cap = makeCap(id, null, null, slotw, mH, { fill: 0.88, fillY: 0.94, r: Math.min(slotw, mH) * 0.14 });
+    cap.position.set(cx, mY, zFace);
     keycaps[id].baseY = mY;
     scene.add(cap);
   };
   mkM("capslock", 0); mkM("super", 1);
-  // trackpad: chrome ring (BB style) with dark pad recessed inside
-  const tpRing = new THREE.Mesh(new THREE.BoxGeometry(slotw * 0.99, mH * 0.99, 1.0),
-    new THREE.MeshStandardMaterial({ color: 0x9aa2b5, roughness: 0.3, metalness: 0.85 }));
-  tpRing.position.set((mX0 + mX1) / 2, mY, zFace - 1.0);
-  scene.add(tpRing);
-  const tp = new THREE.Mesh(new THREE.BoxGeometry(slotw * 0.84, mH * 0.82, 2.4),
-    new THREE.MeshStandardMaterial({ color: 0x0a0d15, roughness: 0.28, metalness: 0.42 }));
-  tp.position.set((mX0 + mX1) / 2, mY, zFace - 0.5);
+  // trackpad: dark pad + white LED ring (BB style), ring gently lit
+  const tpX = mX0 + slotw * 2.5;
+  const tpWell = new THREE.Mesh(new THREE.PlaneGeometry(slotw * 0.98, mH * 1.25), wellMat);
+  tpWell.position.set(tpX, mY, zFace - 0.9);
+  scene.add(tpWell);
+  const tp = new THREE.Mesh(capGeo(slotw * 0.74, mH * 0.8, slotw * 0.18),
+    new THREE.MeshPhysicalMaterial({ color: 0x080a10, roughness: 0.22, metalness: 0.35,
+      clearcoat: 1.0, clearcoatRoughness: 0.12, envMapIntensity: 0.8 }));
+  tp.position.set(tpX, mY, zFace - 0.4);
   scene.add(tp);
-  mkM("esc", 3, "\u21A9"); mkM("tab", 4, HANGUP);
+  trackRing = new THREE.Mesh(new THREE.PlaneGeometry(slotw * 0.98, mH * 1.04),
+    new THREE.MeshBasicMaterial({ map: ringTex(), transparent: true, opacity: 0.92,
+      blending: THREE.AdditiveBlending, depthWrite: false }));
+  trackRing.position.set(tpX, mY, zFace + DEPTH + 0.6);
+  scene.add(trackRing);
+  mkM("esc", 3); mkM("tab", 4);
 
-  // letter + bottom rows: measured case opening, expanded slightly: x 0.150..0.849, y 0.104..0.295
+  // ---- letter + bottom rows between raised chrome frets (BB style) ----
   const kbX0 = bbw.min.x + cw * 0.150, kbX1 = bbw.min.x + cw * 0.849;
   const kbY0 = bbw.min.y + chh * 0.104, kbY1 = bbw.min.y + chh * 0.295;
   const rowsL = [ROWS[1], ROWS[2], ROWS[3], ROWS[4]];
   const rowH = (kbY1 - kbY0) / rowsL.length;
+  const fretMat = new THREE.MeshStandardMaterial({
+    color: 0xb9bfcc, roughness: 0.27, metalness: 1.0, envMapIntensity: 0.9 });
+  for (let r = 0; r <= rowsL.length; r++) {
+    const fy = kbY1 - rowH * r;
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(kbX1 - kbX0 + 5, 2.0, 1.6), fretMat);
+    rail.position.set((kbX0 + kbX1) / 2, fy, zFace - 0.5);
+    scene.add(rail);
+  }
+  // dark membrane behind the keyboard cutouts so any peeks read as recess
+  const mem = new THREE.Mesh(new THREE.PlaneGeometry(kbX1 - kbX0 + 4, kbY1 - kbY0 + 4),
+    new THREE.MeshBasicMaterial({ color: 0x04060a }));
+  mem.position.set((kbX0 + kbX1) / 2, (kbY0 + kbY1) / 2, zFace - 7);
+  scene.add(mem);
   rowsL.forEach((row, ri) => {
     const y = kbY1 - rowH * (ri + 0.5);
-    const kw = (kbX1 - kbX0) / row.ids.length;
-    row.ids.forEach((p, i) => {
-      const cap = makeCap(p[1], p[0], p[1], kw, rowH);
-      cap.position.set(kbX0 + kw * (i + 0.5), y, zFace);
+    const units = row.ids.reduce((a, p) => a + (p[2] || 1), 0);
+    const uw = (kbX1 - kbX0) / units;
+    let x = kbX0;
+    row.ids.forEach((p) => {
+      const kw = uw * (p[2] || 1);
+      const cap = makeCap(p[1], p[0], p[1], kw, rowH, { fill: 0.96, fillY: 0.80 });
+      cap.position.set(x + kw / 2, y, zFace);
       keycaps[p[1]].baseY = y;
       scene.add(cap);
+      x += kw;
     });
   });
 
-  // face depth for the key light
-  window.__zFace = zFace;
-  // dark membrane behind the keyboard cutouts so any peeks read as recess
-  const mem = new THREE.Mesh(new THREE.PlaneGeometry(cw * 0.72, chh * 0.32),
-    new THREE.MeshBasicMaterial({ color: 0x05070c }));
-  mem.position.set(bbw.min.x + cw * 0.5, bbw.min.y + chh * 0.21, zFace - 8);
-  scene.add(mem);
-  // chrome fret plate behind the letter grid; seams between caps reveal it
-  const fret = new THREE.Mesh(new THREE.PlaneGeometry(kbX1 - kbX0 + 4, kbY1 - kbY0 + 4),
-    new THREE.MeshStandardMaterial({ color: 0x9aa2b5, roughness: 0.32, metalness: 0.85 }));
-  fret.position.set((kbX0 + kbX1) / 2, (kbY0 + kbY1) / 2, zFace - 1.0);
-  scene.add(fret);
-
-  // screen plane fed by pre-decoded JPEG sequence (this Chromium decodes
-  // <video> to black pixels for WebGL/canvas, verified via drawImage).
-  // The muted video element is kept as the animation clock only.
-  const vid = document.getElementById("vid");
-  mtex = new THREE.Texture();
-  mtex.encoding = THREE.sRGBEncoding;
-  mtex.minFilter = THREE.LinearFilter;
-  mtex.magFilter = THREE.LinearFilter;
+  // ---- screen: black glass bezel, video plane, glass + traveling streak ----
+  window.__FR = 12;
   window.__frames = [];
-  window.__FR = 8;
   window.__framesLoaded = false;
   function loadFrames(n) {
     if (window.__framesLoaded) return;
@@ -320,37 +560,95 @@ function orientAndBuild() {
       window.__frames.push(im);
     }
   }
-  // frame count follows the source clip length, not a hardcoded constant
+  const vid = document.getElementById("vid");
   vid.addEventListener("loadedmetadata", () => {
     const d = isFinite(vid.duration) && vid.duration > 1 ? vid.duration : 45;
     loadFrames(Math.ceil(d * window.__FR));
   }, { once: true });
-  setTimeout(() => loadFrames(400), 4000);
+  setTimeout(() => loadFrames(520), 4000);
+  mtex = new THREE.Texture();
+  if (mtex.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined)
+    mtex.colorSpace = THREE.SRGBColorSpace;
+  else if (mtex.encoding !== undefined && THREE.sRGBEncoding !== undefined)
+    mtex.encoding = THREE.sRGBEncoding;
+  mtex.minFilter = THREE.LinearFilter;
+  mtex.magFilter = THREE.LinearFilter;
+  mtex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+
   const sy0 = bbw.min.y + chh * 0.385, sy1 = bbw.min.y + chh * 0.985;
   const sx0 = bbw.min.x + cw * 0.032, sx1 = bbw.max.x - cw * 0.032;
-  // black bezel fills the opening; video plane smaller inside it
-  const bez = new THREE.Mesh(new THREE.PlaneGeometry(sx1 - sx0, sy1 - sy0),
-    new THREE.MeshBasicMaterial({ color: 0x000000 }));
-  bez.position.set((sx0 + sx1) / 2, (sy0 + sy1) / 2, zFace - 3.2);
+  const scrW = sx1 - sx0, scrH = sy1 - sy0;
+  const scrCx = (sx0 + sx1) / 2, scrCy = (sy0 + sy1) / 2;
+  const vw = scrW * 0.93, vh = scrH * 0.93;
+  // glossy black bezel with rounded opening (video shows through the hole)
+  const bezShape = roundedRectShape(scrW, scrH, 20);
+  bezShape.holes.push((function () {
+    const hole = new THREE.Path();
+    const hw = vw / 2, hh = vh / 2, r = 12;
+    hole.moveTo(-hw + r, -hh);
+    hole.lineTo(hw - r, -hh); hole.quadraticCurveTo(hw, -hh, hw, -hh + r);
+    hole.lineTo(hw, hh - r); hole.quadraticCurveTo(hw, hh, hw - r, hh);
+    hole.lineTo(-hw + r, hh); hole.quadraticCurveTo(-hw, hh, -hw, hh - r);
+    hole.lineTo(-hw, -hh + r); hole.quadraticCurveTo(-hw, -hh, -hw + r, -hh);
+    return hole;
+  })());
+  const bez = new THREE.Mesh(new THREE.ShapeGeometry(bezShape, 24),
+    new THREE.MeshPhysicalMaterial({ color: 0x030407, roughness: 0.12, metalness: 0.5,
+      clearcoat: 1.0, clearcoatRoughness: 0.08, envMapIntensity: 1.0 }));
+  bez.position.set(scrCx, scrCy, zFace - 2.4);
   scene.add(bez);
-  const sm = new THREE.Mesh(new THREE.PlaneGeometry((sx1 - sx0) * 0.86, (sy1 - sy0) * 0.86),
-    new THREE.MeshBasicMaterial({ map: mtex }));
-  sm.position.set((sx0 + sx1) / 2, (sy0 + sy1) / 2, zFace - 3.0);
+  // back the opening with black so unloaded frames read as off-glass
+  const scrBack = new THREE.Mesh(new THREE.PlaneGeometry(vw, vh),
+    new THREE.MeshBasicMaterial({ color: 0x000000 }));
+  scrBack.position.set(scrCx, scrCy, zFace - 2.2);
+  scene.add(scrBack);
+  const sm = new THREE.Mesh(new THREE.PlaneGeometry(vw, vh),
+    new THREE.MeshBasicMaterial({ map: mtex, toneMapped: true }));
+  sm.position.set(scrCx, scrCy, zFace - 2.0);
   scene.add(sm);
+  // cover glass: faint clearcoat sheet over the video
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(vw + 6, vh + 6),
+    new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.07,
+      roughness: 0.05, metalness: 0.0, envMapIntensity: 1.0, depthWrite: false }));
+  glass.position.set(scrCx, scrCy, zFace - 1.2);
+  scene.add(glass);
+  // diagonal specular streak drifting with the camera sway
+  const streakCv = document.createElement("canvas");
+  streakCv.width = 256; streakCv.height = 256;
+  (function () {
+    const ctx = streakCv.getContext("2d");
+    const g = ctx.createLinearGradient(0, 0, 256, 0);
+    g.addColorStop(0.30, "rgba(255,255,255,0)");
+    g.addColorStop(0.47, "rgba(255,255,255,0.55)");
+    g.addColorStop(0.55, "rgba(255,255,255,0.55)");
+    g.addColorStop(0.72, "rgba(255,255,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 256, 256);
+  })();
+  glassStreak = new THREE.Mesh(new THREE.PlaneGeometry(vw * 1.4, vh * 1.4),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(streakCv), transparent: true,
+      opacity: 0.10, blending: THREE.AdditiveBlending, depthWrite: false }));
+  glassStreak.rotation.z = -0.5;
+  glassStreak.position.set(scrCx, scrCy, zFace - 1.0);
+  scene.add(glassStreak);
+
+  // face depth for the key light
+  window.__zFace = zFace;
 
   frameCam(bbw, 0.03);
-  vid.addEventListener("loadeddata", () => { videoReady = true; });
+  // widen shadow frustum to the final device size
+  keyL.target.position.set(0, (bbw.min.y + bbw.max.y) / 2, 0);
+  scene.add(keyL.target);
+  vid.addEventListener("loadeddata", () => { window.__videoReady = true; });
   vid.load();
   window.__built = true;
 }
 
-Promise.all([loadSTL("/stl/q10_uppercase.stl"),
-  document.fonts.load('800 100px Nunito'), document.fonts.load('700 100px Nunito')
-]).then(([geo]) => {
-  caseMesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-    color: 0x0d1322, roughness: 0.66, metalness: 0.22 }));
-  scene.add(caseMesh);
-  orientAndBuild();
+Promise.all([loadSTL("/stl/q10_uppercase.stl"), loadSTL("/stl/hackberry_middle.stl"),
+  loadSTL("/stl/hackberry_lower.stl"), loadSTL("/stl/hackberry_redswitch.stl"),
+  document.fonts.load('800 100px Nunito'), document.fonts.load('700 100px Nunito'),
+  document.fonts.load('700 100px BBKey'), document.fonts.load('400 100px BBKey')
+]).then(([upper, middle, lower, redswitch]) => {
+  orientAndBuild({ upper, middle, lower, red: redswitch });
   window.__ready = true;
 }).catch(e => { window.__err = String(e); });
 
@@ -399,6 +697,8 @@ async function getRec() {
   });
 }
 
+const pressLight = new THREE.PointLight(0xffb85c, 0, 700, 1.6);
+scene.add(pressLight);
 function loop() {
   if (window.__built) {
     const vid = document.getElementById("vid");
@@ -411,17 +711,29 @@ function loop() {
     for (const id in keycaps) {
       const k = keycaps[id], s = st[id];
       const gl = s ? s.glow : 0;
-      k.top.material.emissiveIntensity = gl * 2.2;
-      if (k.halo) k.halo.material.opacity = gl * 0.85;
-      k.group.position.y = k.baseY - (s ? s.sink : 0) * 1.4;
+      // restrained backlight: legends stay readable, halo carries the glow
+      k.top.material.emissiveIntensity = gl * 0.7;
+      if (k.halo) k.halo.material.opacity = gl * 0.55;
+      k.group.position.y = k.baseY - (s ? s.sink : 0) * 1.6;
       if (gl > bestGlow) { bestGlow = gl; best = k; }
     }
-    // press light follows the active key instead of sitting in one place
+    // press light follows the active key, tinted to match it
     if (best && window.__zFace !== undefined) {
-      spot.position.set(best.group.position.x, best.group.position.y, window.__zFace + 70);
-      spot.intensity = bestGlow * 0.08;
+      pressLight.color.setHex(best.glowHex);
+      pressLight.position.set(best.group.position.x, best.group.position.y, window.__zFace + 90);
+      pressLight.intensity = bestGlow * 6;
     } else {
-      spot.intensity = 0;
+      pressLight.intensity = 0;
+    }
+    // trackpad ring breathes gently
+    if (trackRing) trackRing.material.opacity = 0.85 + 0.1 * Math.sin(t * 2.2);
+    // cinematic drift: slow push-in + lateral sway, glass streak follows
+    if (camBase) {
+      const push = 1 - 0.035 * (t < 6 ? (1 - Math.cos(Math.PI * t / 6)) / 2 : 1);
+      const sx = 12 * Math.sin(t * 0.12), sy = 8 * Math.sin(t * 0.09 + 1);
+      cam.position.set(sx, camBase.cy + sy, camBase.dist * push);
+      cam.lookAt(0, camBase.cy, 0);
+      if (glassStreak) glassStreak.position.x += 0; // streak static on glass
     }
   }
   renderer.render(scene, cam);

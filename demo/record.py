@@ -18,7 +18,7 @@ for _ in range(60):
            "const f=window.__frames?window.__frames.filter("
            "x=>x.complete&&x.naturalWidth).length:0;"
            "return b+' frames:'+f;})()")
-    if s.startswith("True") and int(s.split(":")[1]) > 270:
+    if s.startswith("True") and int(s.split(":")[1]) > 400:
         break
 print("ready:", s)
 
@@ -29,7 +29,7 @@ print(js("""
   await vid.play();
   const stream = renderer.domElement.captureStream(30);
   window.__rrec = new MediaRecorder(stream,
-    {mimeType:'video/webm;codecs=vp9', videoBitsPerSecond: 2500000});
+    {mimeType:'video/webm;codecs=vp9', videoBitsPerSecond: 12000000});
   window.__rchunks = [];
   window.__rrec.ondataavailable = e => { if (e.data.size) window.__rchunks.push(e.data); };
   window.__rdone = new Promise(res => { window.__rrec.onstop = res; });
