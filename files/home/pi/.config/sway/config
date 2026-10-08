@@ -197,14 +197,18 @@ bindsym $mod+Shift+r mode "resize"
 
 ### Window rules
 #
-# Cheatsheet overlay: for_window move is relative to the workspace content
-# origin (below waybar, y=43), so 10,57 lands at absolute 10,100.
+# Floating terminal standard: every foot-based helper window (terminal,
+# wiremix, bluetuith, nmtui) is 600x600 centered. The cheatsheet/imv overlays
+# keep their own sizes (they are images, not terminals). The cheatsheet's
+# for_window move is relative to the workspace content origin (below waybar,
+# y=43), so 10,57 lands at absolute 10,100.
 for_window [app_id="cheatsheet"] floating enable, resize set 700 520, move position 10 57, border none
 for_window [app_id="imv"] floating enable, resize set 700 520, move position 10 100, border none
-for_window [app_id="wiremix"] resize set height 320 px
-for_window [app_id="foot"] floating enable, resize set 640 480, move position center, border none
-# bluetuith (TUI bluetooth manager) needs more room than a plain terminal.
-for_window [app_id="bluetooth"] floating enable, resize set 700 620, move position center, border none
+for_window [app_id="foot"] floating enable, resize set 600 600, move position center, border none
+for_window [app_id="wiremix"] floating enable, resize set 600 600, move position center, border none
+# bluetuith (TUI bluetooth manager): same 600x600 box; bluetooth.sh drops the
+# font to size=13 so the menu bar chips and device rows fit it.
+for_window [app_id="bluetooth"] floating enable, resize set 600 600, move position center, border none
 # nmtui (NetworkManager TUI, waybar network button / $mod+n): replaces the
 # nm-applet tray icon.
 for_window [app_id="network"] floating enable, resize set 600 600, move position center, border none

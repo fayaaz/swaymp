@@ -21,5 +21,6 @@ fi
 mkdir -p "$HOME/Downloads"
 export BLUETUITH_RECEIVE_DIR="$HOME/Downloads"
 # Smaller font than foot.ini so the TUI's menu bar (adapter name + menu +
-# Powered/Scanning/Pairable chips), device rows and help line fit the 720x720 panel.
+# Powered/Scanning/Pairable chips) and device rows fit the standard 600x600
+# floating window.
 exec foot --app-id bluetooth --title bluetooth --font "JetBrains Mono:size=13" -e "$bt"

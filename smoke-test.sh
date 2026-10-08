@@ -72,6 +72,25 @@ win_count() { swaymsg -t get_tree 2>/dev/null | jq -r --arg id "$1" '.. | .app_i
 win_visible_count() { swaymsg -t get_tree 2>/dev/null | jq -r --arg id "$1" '.. | objects | select(.app_id? == $id and .visible == true) | .app_id' | grep -c .; }
 win_ws() { swaymsg -t get_tree 2>/dev/null | jq -r --arg id "$1" '.. | select(.type? == "workspace") | .name as $n | [.. | .app_id? // empty] | select(index($id)) | $n' | head -n1; }
 win_floating() { swaymsg -t get_tree 2>/dev/null | jq -r --arg id "$1" '.. | select(.app_id? == $id) | .floating' | head -n1; }
+win_size() { swaymsg -t get_tree 2>/dev/null | jq -r --arg id "$1" '.. | select(.app_id? == $id) | "\(.rect.width) \(.rect.height)"' | head -n1; }
+# Standard floating terminal size (sway rules): 600x600. foot snaps the window
+# to whole cells of its font grid, so a mapped window lands a cell or two under
+# the requested size (measured: 588x594 at size=18, 590x576 at size=13). The
+# slack covers that grid snap; the pre-standard sizes (640x480, 700x620) are
+# far outside it.
+expect_size() {
+    local id=$1 want=$2 tol=${3:-24} got w h dw dh
+    got=$(win_size "$id")
+    if [ -z "$got" ]; then fail "$id window missing for size check"; return; fi
+    w=${got%% *}; h=${got##* }
+    dw=$((w - want)); [ "$dw" -lt 0 ] && dw=$((-dw))
+    dh=$((h - want)); [ "$dh" -lt 0 ] && dh=$((-dh))
+    if [ "$dw" -le "$tol" ] && [ "$dh" -le "$tol" ]; then
+        pass "$id sized ${w}x${h} (standard ${want}x${want})"
+    else
+        fail "$id sized ${w}x${h}, expected ${want}x${want}"
+    fi
+}
 kill_app() { swaymsg "[app_id=\"$1\"] kill" >/dev/null 2>&1 || true; }
 wait_win() { local id=$1 want=$2 n=${3:-20} i c; for i in $(seq 1 "$n"); do c=$(win_count "$id"); { [ "$want" = present ] && [ "$c" -ge 1 ]; } || { [ "$want" = absent ] && [ "$c" -eq 0 ]; } && return 0; sleep 1; done; return 1; }
 wait_vis() { local id=$1 want=$2 n=${3:-20} i c; for i in $(seq 1 "$n"); do c=$(win_visible_count "$id"); { [ "$want" = present ] && [ "$c" -ge 1 ]; } || { [ "$want" = absent ] && [ "$c" -eq 0 ]; } && return 0; sleep 1; done; return 1; }
@@ -148,6 +167,11 @@ stage_preflight() {
         systemctl --user is-active --quiet "$s" && pass "service $s active" || fail "service $s not active"
     done
     command -v grim >/dev/null && pass "grim present" || fail "grim missing"
+    # Floating terminal standard: foot/wiremix/bluetooth/network all 600x600.
+    local rules
+    rules=$(grep -cE 'for_window \[app_id="(foot|wiremix|bluetooth|network)"\] floating enable, resize set 600 600, move position center, border none' "$HOME/.config/sway/config")
+    [ "$rules" -eq 4 ] && pass "all 4 floating terminal rules standardised to 600x600" \
+        || fail "floating terminal rules not standardised ($rules/4 at 600x600)"
     shot 00-preflight
 }
 
@@ -265,6 +289,7 @@ stage_terminal() {
     super "$KTAB"; sleep 2
     [ "$(win_count foot)" -ge 1 ] && pass "Super+Tab opened foot" || fail "Super+Tab did not open foot"
     case "$(win_floating foot)" in user_on|auto_on) pass "foot opened floating ($(win_floating foot))" ;; *) fail "foot not floating ($(win_floating foot))" ;; esac
+    expect_size foot 600
     shot 07-terminal
     kill_app foot
     wait_win foot absent 8 && pass "foot closed" || fail "foot did not close"
@@ -353,6 +378,7 @@ stage_bluetooth() {
         user_on|auto_on) pass "bluetooth UI opened floating ($(win_floating bluetooth))" ;;
         *) fail "bluetooth UI not floating ($(win_floating bluetooth))" ;;
     esac
+    expect_size bluetooth 600
     if pgrep -f bluetuith >/dev/null 2>&1; then
         pass "bluetuith is the bluetooth UI (pid $(pgrep -f bluetuith | head -n1))"
     else
@@ -403,6 +429,7 @@ stage_network() {
         user_on|auto_on) pass "network UI opened floating ($(win_floating network))" ;;
         *) fail "network UI not floating ($(win_floating network))" ;;
     esac
+    expect_size network 600
     pgrep -f 'nmtui' >/dev/null 2>&1 \
         && pass "nmtui is the network UI (pid $(pgrep -f nmtui | head -n1))" \
         || fail "nmtui not running in the network UI"
@@ -518,6 +545,11 @@ stage_wiremix() {
     sleep 1
     super "$KV"; sleep 2
     wait_win wiremix present 8 && pass "Super+V opened wiremix" || fail "Super+V did not open wiremix"
+    case "$(win_floating wiremix)" in
+        user_on|auto_on) pass "wiremix opened floating ($(win_floating wiremix))" ;;
+        *) fail "wiremix not floating ($(win_floating wiremix))" ;;
+    esac
+    expect_size wiremix 600
     shot 14-wiremix
     super "$KV"
     wait_win wiremix absent 8 && pass "Super+V toggled wiremix closed" || fail "wiremix did not close"
