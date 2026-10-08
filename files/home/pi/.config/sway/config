@@ -198,7 +198,7 @@ bindsym $mod+Shift+r mode "resize"
 ### Window rules
 #
 # Floating terminal standard: every foot-based helper window (terminal,
-# wiremix, bluetuith, nmtui) is 600x600 centered. The cheatsheet/imv overlays
+# wiremix, bluetuith, wifitui) is 600x600 centered. The cheatsheet/imv overlays
 # keep their own sizes (they are images, not terminals). The cheatsheet's
 # for_window move is relative to the workspace content origin (below waybar,
 # y=43), so 10,57 lands at absolute 10,100.
@@ -209,8 +209,8 @@ for_window [app_id="wiremix"] floating enable, resize set 600 600, move position
 # bluetuith (TUI bluetooth manager): same 600x600 box; bluetooth.sh drops the
 # font to size=13 so the menu bar chips and device rows fit it.
 for_window [app_id="bluetooth"] floating enable, resize set 600 600, move position center, border none
-# nmtui (NetworkManager TUI, waybar network button / $mod+n): replaces the
-# nm-applet tray icon.
+# wifitui (NetworkManager wifi TUI, waybar network button / $mod+n): replaces
+# the nm-applet tray icon.
 for_window [app_id="network"] floating enable, resize set 600 600, move position center, border none
 
 # Workspace placement: music player + wiremix on 1:Music, browser on
@@ -228,9 +228,10 @@ exec --no-startup-id waybar
 # activates on this image, so an enabled unit alone leaves notifications dead.
 exec --no-startup-id systemctl --user start swaync.service
 exec --no-startup-id devmon
-# nm-applet is intentionally NOT started: network management moved to the nmtui
-# TUI (waybar network button / $mod+n -> ~/.config/sway/network.sh). The package
-# stays installed (it is what pulls in nmtui), the tray icon is gone.
+# nm-applet is intentionally NOT started: network management moved to the
+# wifitui TUI (waybar network button / $mod+n -> ~/.config/sway/network.sh).
+# network-manager(-applet) stay installed - NetworkManager is wifitui's backend
+# and nmtui is its fallback - but the tray icon is gone.
 exec swaymsg 'workspace "1:Music"; exec flatpak --user run --env=GSK_RENDERER=cairo io.github.htkhiem.Euphonica'
 
 ### Music / cheatsheet keys

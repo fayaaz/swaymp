@@ -25,7 +25,7 @@
     },
     "custom/network": {
         "format": " \uf1eb ",
-        "tooltip-format": "Network (nmtui)",
+        "tooltip-format": "Network (wifitui)",
         "on-click": "/bin/bash $HOME/.config/sway/network.sh",
         "spacing": 10
     },

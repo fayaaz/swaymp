@@ -419,7 +419,15 @@ stage_network() {
         && fail "waybar still has the tray module" || pass "waybar tray module removed"
     jq -e '."custom/network"."on-click" | test("network\\.sh")' "$wb" >/dev/null 2>&1 \
         && pass "waybar network button runs network.sh" || fail "waybar network button does not run network.sh"
-    command -v nmtui >/dev/null && pass "nmtui installed" || fail "nmtui not installed"
+    if [ -x "$HOME/.local/bin/wifitui" ] || command -v wifitui >/dev/null; then
+        pass "wifitui installed"
+    elif command -v nmtui >/dev/null; then
+        echo "NOTE wifitui not installed: network UI falls back to nmtui"
+    else
+        fail "neither wifitui nor nmtui available"
+    fi
+    [ -f "$HOME/.config/wifitui/theme.toml" ] \
+        && pass "wifitui Dracula theme present" || echo "NOTE no wifitui theme.toml"
 
     kill_app network
     sleep 0.5
@@ -430,9 +438,16 @@ stage_network() {
         *) fail "network UI not floating ($(win_floating network))" ;;
     esac
     expect_size network 600
-    pgrep -f 'nmtui' >/dev/null 2>&1 \
-        && pass "nmtui is the network UI (pid $(pgrep -f nmtui | head -n1))" \
-        || fail "nmtui not running in the network UI"
+    if pgrep -f 'wifitui' >/dev/null 2>&1; then
+        pass "wifitui is the network UI (pid $(pgrep -f wifitui | head -n1))"
+    elif pgrep -f 'nmtui' >/dev/null 2>&1; then
+        echo "SKIP nmtui fallback in use (wifitui not running)"
+    else
+        fail "no wifitui/nmtui process in the network UI"
+    fi
+    # wifitui starts a scan on launch; give it a moment so the screenshot shows
+    # the network list instead of "No items."
+    sleep 4
     shot 09c-network
     super "$KN"
     wait_win network absent 8 && pass "Super+N toggled the network UI closed" || fail "network UI did not close"

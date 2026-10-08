@@ -73,7 +73,7 @@ ICONS = {
     "notifications": "bell", "this cheatsheet": "help",
     "back / close cheatsheet": "close",     "launcher (fuzzel)": "launcher",
     "euphonica": "headphone", "browser": "globe", "bluetooth": "bluetooth",
-    "network (nmtui)": "wifi",
+    "network (wifitui)": "wifi",
     "terminal": "terminal",
 }
 
@@ -87,7 +87,7 @@ SHORT = {
     "notifications": "notifications", "this cheatsheet": "cheatsheet",
     "back / close cheatsheet": "close", "launcher (fuzzel)": "launcher",
     "euphonica": "euphonica", "browser": "browser", "bluetooth": "bluetooth",
-    "network (nmtui)": "network",
+    "network (wifitui)": "network",
     "media play": "media play", "media next": "media next", "media prev": "media prev",
 }
 

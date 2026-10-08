@@ -21,9 +21,11 @@ sudo systemctl enable --now bluetooth.service >/dev/null 2>&1 || true
 sudo usermod -aG bluetooth "$USER" 2>/dev/null || true
 sudo rfkill unblock bluetooth >/dev/null 2>&1 || true
 
-# Network UI is the nmtui TUI (~/.config/sway/network.sh, waybar button / $mod+n).
-# network-manager-applet stays installed (it is what pulls in nmtui alongside
-# network-manager) but the sway config no longer autostarts the tray applet.
+# Network UI is wifitui (https://github.com/shazow/wifitui), a NetworkManager
+# wifi TUI (~/.config/sway/network.sh, waybar button / $mod+n).
+# network-manager + network-manager-applet stay installed: NetworkManager is the
+# backend wifitui talks to over D-Bus, and nmtui (from network-manager) is the
+# fallback. The sway config no longer autostarts the tray applet.
 sudo systemctl enable --now NetworkManager >/dev/null 2>&1 || true
 
 # bluetuith (TUI bluetooth manager, $mod+b): not packaged for Debian/Raspbian
@@ -54,6 +56,36 @@ if ! command -v bluetuith >/dev/null && [ ! -x "$HOME/.local/bin/bluetuith" ]; t
     fi
 fi
 
+# wifitui (wifi TUI, $mod+n / waybar network button): not packaged for
+# Debian/Raspbian and the repo keeps no binaries, so fetch the pinned GitHub
+# release tarball for this architecture and verify it against the release
+# checksums. ~/.config/sway/network.sh falls back to nmtui when this fails
+# (the release ships no 32-bit arm asset).
+wfver=0.13.0
+if ! command -v wifitui >/dev/null && [ ! -x "$HOME/.local/bin/wifitui" ]; then
+    case "$(uname -m)" in
+        aarch64|arm64) wfarch=arm64 ;;
+        x86_64)        wfarch=x86_64 ;;
+        *)             wfarch="" ;;
+    esac
+    if [ -n "$wfarch" ]; then
+        wfname=wifitui-${wfver}-linux-${wfarch}.tar.gz
+        wfbase=https://github.com/shazow/wifitui/releases/download/v${wfver}
+        wftmp=$(mktemp -d)
+        mkdir -p "$HOME/.local/bin"
+        if curl -fsSL -o "$wftmp/$wfname" "$wfbase/$wfname" \
+            && curl -fsSL -o "$wftmp/wifitui_${wfver}_checksums.txt" "$wfbase/wifitui_${wfver}_checksums.txt" \
+            && (cd "$wftmp" && grep " ${wfname}\$" "wifitui_${wfver}_checksums.txt" | sha256sum -c) \
+            && tar -C "$wftmp" -xzf "$wftmp/$wfname" \
+            && install -m 755 "$wftmp/wifitui" "$HOME/.local/bin/wifitui"; then
+            echo "installed wifitui $wfver ($wfarch) -> ~/.local/bin/wifitui"
+        else
+            echo "WARNING: wifitui install failed; the network UI falls back to nmtui" >&2
+        fi
+        rm -rf "$wftmp"
+    fi
+fi
+
 # myMPD from source (myMPD uses CMake; Debian has no package, GitHub has no deb assets).
 if ! command -v mympd >/dev/null; then
     sudo apt-get install -y build-essential cmake pkg-config libmpdclient-dev libssl-dev >/dev/null
@@ -67,7 +99,7 @@ fi
 if [ -f /tmp/setup.tar.gz ]; then
     tar -C "$HOME" --strip-components=2 -xzf /tmp/setup.tar.gz
 else
-    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot bluetuith; do
+    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot bluetuith wifitui; do
         cp -a "$PAYLOAD/home/pi/.config/$d" "$HOME/.config/"
     done
     cp -a "$PAYLOAD/home/pi/.config/systemd/user" "$HOME/.config/systemd/"

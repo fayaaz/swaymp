@@ -20,7 +20,7 @@
     {"key": "$mod+Shift+4", "label": "euphonica", "cmd": "exec /bin/bash ~/.config/waybar/euphonica.sh", "group": "tools", "norepeat": true},
     {"key": "$mod+g", "label": "browser", "cmd": "exec ~/.config/sway/browser.sh", "group": "tools", "norepeat": true},
     {"key": "$mod+b", "label": "bluetooth", "cmd": "exec ~/.config/sway/bluetooth.sh", "group": "tools", "norepeat": true},
-    {"key": "$mod+n", "label": "network (nmtui)", "cmd": "exec ~/.config/sway/network.sh", "group": "tools", "norepeat": true},
+    {"key": "$mod+n", "label": "network (wifitui)", "cmd": "exec ~/.config/sway/network.sh", "group": "tools", "norepeat": true},
     {"key": "$mod+tab", "label": "terminal", "cmd": "exec foot", "group": "tools", "norepeat": true},
     {"key": "F13", "label": "this cheatsheet", "cmd": "exec ~/.config/sway/cheatsheet.sh", "group": "tools", "norepeat": true},
     {"key": "F11", "label": "back / close cheatsheet", "cmd": "exec ~/.config/sway/cheatsheet.sh", "group": "tools", "norepeat": true}

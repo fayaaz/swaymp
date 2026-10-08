@@ -10,10 +10,10 @@ Have a miniplayer always in notifications.
 Investigate and use https://github.com/bluetuith-org/bluetuith
 
 
-## Replace network manager gnome applet with nmtui
+## Replace network manager gnome applet with wifitui: DONE
 
-Floating terminal again. Leave it installed but don't start. Replace the tray button with a waybar button that opens the floating terminal
+Floating terminal again. Leave network-manager/network-manager-applet installed but don't start nm-applet. Replace the tray button with a waybar button that opens a floating terminal running wifitui, with nmtui as fallback.
 
-## Standardise size of floating terminals
+## Standardise size of floating terminals: DONE
 
-Make it 600x600 for terminal, wiremix, bluetuith and maybe nmtui if set up
+Make it 600x600 for terminal, wiremix, bluetuith and network (wifitui).

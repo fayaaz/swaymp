@@ -1,0 +1,22 @@
+# Dracula theme for wifitui (https://github.com/shazow/wifitui).
+# Loaded by ~/.config/sway/network.sh via WIFITUI_THEME.
+# Colors may be a single hex or a [light, dark] pair; the TUI picks dark here.
+
+Primary = ["#bd93f9", "#bd93f9"]   # selection highlight (purple)
+Subtle = ["#6272a4", "#6272a4"]    # secondary text (comment)
+Success = ["#50fa7b", "#50fa7b"]   # active connection (green)
+Error = ["#ff5555", "#ff5555"]     # errors (red)
+Normal = ["#282a36", "#f8f8f2"]    # body text
+Disabled = ["#9a9a9a", "#6272a4"]  # out-of-range / hidden networks
+Border = ["#44475a", "#44475a"]    # UI borders (selection)
+SignalHigh = ["#50fa7b", "#50fa7b"]
+SignalLow = ["#ffb86c", "#ffb86c"]
+Saved = ["#8be9fd", "#8be9fd"]     # saved networks (cyan)
+
+# foot has no emoji fallback in this payload, so keep the icons ASCII.
+TitleIcon = "wifi "
+NetworkSecureIcon = "*"
+NetworkOpenIcon = "o"
+NetworkUnknownIcon = "?"
+NetworkSavedIcon = "+"
+AccessPointIcon = "AP"
