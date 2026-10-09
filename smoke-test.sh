@@ -99,7 +99,7 @@ mfirstline() { mpc status 2>/dev/null | grep -E '^\[(playing|paused|stopped)\]' 
 mpos() { mfirstline | grep -oE '#[0-9]+/[0-9]+' | head -n1 | tr -d '#' | cut -d/ -f1; }
 mqueue_len() { mfirstline | grep -oE '#[0-9]+/[0-9]+' | head -n1 | tr -d '#' | cut -d/ -f2; }
 melapsed() { mfirstline | grep -oE '[0-9]+:[0-9]+/[0-9]+:[0-9]+' | head -n1 | cut -d/ -f1 | awk -F: '{print $1*60+$2}'; }
-# swaync 0.11 has no "visible" property: GetVisibility/NotificationCount are methods.
+# swaync 0.11/0.12: GetVisibility/NotificationCount are methods (no "visible" property).
 # (swaync-client -s is a *subscription* that never exits, so it is not a status read.)
 nc_visible() {
     if command -v busctl >/dev/null; then

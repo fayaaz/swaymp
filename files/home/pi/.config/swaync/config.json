@@ -40,7 +40,6 @@
   "widget-config": {
     "mpris": {
       "image-size": 96,
-      "image-radius": 12,
       "autohide": false,
       "show-album-art": "when-available",
       "loop-carousel": true,

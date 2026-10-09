@@ -10,7 +10,7 @@ PAYLOAD=${1:-/tmp/files}
 sudo rm -f /etc/apt/sources.list.d/mympd.list /etc/apt/trusted.gpg.d/mympd.asc
 sudo apt-get update >/dev/null
 sudo apt-get install -y sway waybar foot fuzzel swayimg imv syncthing pipewire pipewire-pulse wireplumber \
-    fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout sway-notification-center libnotify-bin jq gammastep \
+    fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout libnotify-bin jq gammastep \
     bluez-tools rfkill udevil network-manager network-manager-applet curl >/dev/null
 # Cheatsheet overlay viewer (GTK3 transparent window).
 sudo apt-get install -y python3-gi gir1.2-gtk-3.0 >/dev/null
@@ -95,11 +95,35 @@ if ! command -v mympd >/dev/null; then
     sudo cmake --install "$HOME/src/myMPD/build"
 fi
 
+# swaync from source: Debian ships only 0.11.0 (GTK3), whose mpris widget makes
+# synchronous D-Bus calls that deadlock with mpdris2 on every song skip. 0.12.6
+# (GTK4 rewrite) makes them async and honors the payload's 0.12-only mpris keys.
+if ! swaync --version 2>/dev/null | grep -q " 0\.12"; then
+    sudo apt-get install -y valac libgtk-4-dev libadwaita-1-dev libgtk4-layer-shell-dev \
+        libgee-0.8-dev libjson-glib-dev libgranite-7-dev libwayland-dev wayland-protocols \
+        scdoc sassc blueprint-compiler >/dev/null
+    sudo apt-get remove -y sway-notification-center >/dev/null 2>&1 || true
+    mkdir -p "$HOME/src"
+    if [ ! -f "$HOME/src/swaync-0.12.6.tar.gz" ] \
+        && ! curl -fsSL -o "$HOME/src/swaync-0.12.6.tar.gz" \
+            https://github.com/ErikReider/SwayNotificationCenter/archive/refs/tags/v0.12.6.tar.gz; then
+        echo "WARNING: swaync download failed; notification daemon will be missing" >&2
+    elif echo "0c844eb5c9524f924495bd4145e5db575096de36f3ec87fb37e4c1ed6eacb897  $HOME/src/swaync-0.12.6.tar.gz" | sha256sum -c >/dev/null 2>&1; then
+        [ -d "$HOME/src/SwayNotificationCenter-0.12.6" ] || tar -C "$HOME/src" -xzf "$HOME/src/swaync-0.12.6.tar.gz"
+        meson setup "$HOME/src/SwayNotificationCenter-0.12.6/build" "$HOME/src/SwayNotificationCenter-0.12.6" \
+            --prefix=/usr -Dpulse-audio=false >/dev/null || true
+        ninja -C "$HOME/src/SwayNotificationCenter-0.12.6/build"
+        sudo ninja -C "$HOME/src/SwayNotificationCenter-0.12.6/build" install >/dev/null
+    else
+        echo "WARNING: swaync tarball checksum mismatch; not building" >&2
+    fi
+fi
+
 # --- configs from payload (template payload; no path rewriting) ---
 if [ -f /tmp/setup.tar.gz ]; then
     tar -C "$HOME" --strip-components=2 -xzf /tmp/setup.tar.gz
 else
-    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot bluetuith wifitui; do
+    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot bluetuith wifitui mpDris2; do
         cp -a "$PAYLOAD/home/pi/.config/$d" "$HOME/.config/"
     done
     cp -a "$PAYLOAD/home/pi/.config/systemd/user" "$HOME/.config/systemd/"
