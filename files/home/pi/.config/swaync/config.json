@@ -6,7 +6,7 @@
   "layer-shell": true,
   "layer-shell-cover-screen": false,
   "cssPriority": "user",
-  "control-center-margin-top": 44,
+  "control-center-margin-top": 0,
   "control-center-margin-bottom": 8,
   "control-center-margin-right": 8,
   "control-center-margin-left": 8,
@@ -43,7 +43,8 @@
       "image-radius": 12,
       "autohide": false,
       "show-album-art": "when-available",
-      "loop-carousel": true
+      "loop-carousel": true,
+      "blacklist": ["io.github.htkhiem.Euphonica"]
     },
     "title": {
       "text": "Notifications",

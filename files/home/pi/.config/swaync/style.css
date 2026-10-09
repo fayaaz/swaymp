@@ -17,12 +17,12 @@ window {
 }
 
 .window {
-    margin-top: 44px;
+    margin-top: 52px;
     margin-right: 8px;
 }
 
 .control-center {
-    margin-top: 44px;
+    margin-top: 9px;
     margin-right: 8px;
 }
 
@@ -79,15 +79,19 @@ window {
 }
 
 .widget-mpris {
-    margin: 6px;
-    padding: 8px 12px;
-    background-color: rgba(40, 42, 54, 0.85);
-    border: 2px solid rgba(189, 147, 249, 0.45);
-    border-radius: 8px;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    border: none;
 }
 
 .widget-mpris .widget-mpris-player {
-    padding: 4px 6px;
+    padding: 6px;
+    margin: 4px;
+    background-color: rgba(40, 42, 54, 0.85);
+    border: 2px solid rgba(189, 147, 249, 0.45);
+    border-radius: 8px;
+    box-shadow: none;
 }
 
 .widget-mpris .widget-mpris-title {
