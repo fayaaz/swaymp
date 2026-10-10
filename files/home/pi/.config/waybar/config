@@ -26,7 +26,6 @@
     },
     "custom/audio": {
         "exec": "/bin/bash $HOME/.config/sway/audio-mode.sh status --waybar",
-        "interval": 5,
         "signal": 8,
         "format": " {} ",
         "tooltip-format": "Audio mode (click to switch)",

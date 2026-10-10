@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# smoke-test.sh — end-to-end HackPi smoke test driven over SSH from the workstation.
+# smoke-test.sh — end-to-end swaymp smoke test driven over SSH from the workstation.
 # Injects keypresses on the Pi with wtype (Wayland virtual keyboard; ydotool's
 # uinput daemon proved unreliable on this Pi), asserts the resulting state via
 # swaymsg/mpc/wpctl/swaync-client, and takes a grim screenshot at every stage,
@@ -25,7 +25,7 @@ STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal c
 mkdir -p "$OUT"
 ssh_base() { ssh -o ConnectTimeout=8 -o BatchMode=yes "$PI" "$@"; }
 
-echo "== HackPi smoke test against $PI"
+echo "== swaymp smoke test against $PI"
 echo "== artifacts: $OUT"
 
 ssh_base 'command -v grim swaymsg mpc wpctl jq >/dev/null' || {
@@ -630,6 +630,8 @@ stage_multiroom() {
         && pass "waybar has custom/audio" || fail "waybar missing custom/audio"
     jq -e '."custom/audio"."signal" == 8' "$wb" >/dev/null 2>&1 \
         && pass "custom/audio refreshes on signal 8" || fail "custom/audio has no signal 8"
+    jq -e '."custom/audio" | has("interval") | not' "$wb" >/dev/null 2>&1 \
+        && pass "custom/audio has no poll interval (signal-only refresh)" || fail "custom/audio still polls"
     command -v avahi-browse >/dev/null && pass "avahi-browse installed" || fail "avahi-browse missing (avahi-utils)"
     n=$(bash "$am" list 2>/dev/null | wc -l)
     [ "$n" -eq 4 ] && pass "audio-mode.sh list prints 4 modes" || fail "audio-mode.sh list printed $n rows"
