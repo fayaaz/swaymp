@@ -221,7 +221,7 @@ def main():
            f'<rect x="1" y="1" width="{W-2}" height="{H-2}" rx="14" fill="none" '
            f'stroke="{PURPLE}" stroke-opacity="0.70" stroke-width="1"/>',
            f'<text x="{M}" y="{M+22}" font-size="20" font-weight="bold" fill="{FG}">'
-           f'HACKPI KEYS</text>',
+           f'SWAYMP KEYS</text>',
            f'<text x="{W-M}" y="{M+22}" font-size="12" fill="{PURPLE}" text-anchor="end">'
            f'hold MOD (LGUI) + key</text>']
 

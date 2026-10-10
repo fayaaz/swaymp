@@ -13,7 +13,7 @@ import sys
 import time
 from pathlib import Path
 
-STATE = Path.home() / ".cache" / "hackpi-brightness"
+STATE = Path.home() / ".cache" / "swaymp-brightness"
 MIN = 0.1
 MAX = 1.0
 STEP = 0.05

@@ -1,5 +1,5 @@
 [Unit]
-Description=HackPi PipeWire volume change notifications
+Description=swaymp PipeWire volume change notifications
 After=pipewire.service pipewire-pulse.service wireplumber.service swaync.service
 
 [Service]

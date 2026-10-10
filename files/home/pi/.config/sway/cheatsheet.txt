@@ -1,4 +1,4 @@
-HACKPI MUSIC KEYS
+SWAYMP MUSIC KEYS
 $mod+p       play / pause
 $mod+h       previous
 $mod+l       next

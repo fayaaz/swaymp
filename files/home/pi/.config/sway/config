@@ -1,4 +1,4 @@
-# HackPi sway config (template payload).
+# swaymp sway config (template payload).
 #
 # This file is the single source of truth for the sway session: it is copied
 # verbatim by setup-pi.sh (no sed patching of a distro config). Music and

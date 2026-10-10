@@ -5,7 +5,7 @@ DIR="$(dirname "$0")"
 jq -r '.binds[] | "bindsym \(if .norepeat then "--no-repeat " else "" end)\(.key) \(.cmd)"' "$DIR/keys.json" > "$DIR/generated.conf"
 
 C=28
-printf 'HACKPI MUSIC KEYS\n' > "$DIR/cheatsheet.txt"
+printf 'SWAYMP MUSIC KEYS\n' > "$DIR/cheatsheet.txt"
 jq -r '.binds[] | select(.hide != true) | "\(.key)\t\(.label)"' "$DIR/keys.json" | awk -v c=$C '{
   key=$1; $1=""; sub(/^ /,""); lab=$0
   if (length(key) > 12) key=substr(key,1,12)
