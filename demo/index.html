@@ -29,70 +29,72 @@
 const W = 960, H = 1400;
 
 // shortcut timeline synced with swaymp-overlay.mp4 (CONTENT - do not retime)
+// regenerated from /tmp/swaymp-overlay.marks after the v4 re-record:
+// no bluetooth/network beats; terminal typing lights each key as typed.
 const EVENTS = [
-  // Euphonica opens on Now Playing via the dollar key (Super+Shift+4)
-  { t: 1.05,  dur: 2.2, keys: ["super", "shift", "dollar"] },
-  { t: 5.12,  dur: 2.2, keys: ["super", "P"] },
-  { t: 7.65,  dur: 2.2, keys: ["super", "P"] },
-  { t: 10.71, dur: 2.2, keys: ["super", "K"] },
-  { t: 13.26, dur: 2.2, keys: ["super", "J"] },
-  // Euphonica Queue view (Ctrl+7 = Ctrl+Z on the Hackberry keycap)
-  { t: 16.79, dur: 2.2, keys: ["ctrl", "Z"] },
-  // queue next/previous
-  { t: 19.83, dur: 2.2, keys: ["super", "L"] },
-  { t: 22.37, dur: 2.2, keys: ["super", "H"] },
-  // volume 100% -> 50% (Super+I x10, 5% per press)
-  { t: 28.80, dur: 1.1, keys: ["super", "I"] },
-  { t: 29.29, dur: 1.1, keys: ["super", "I"] },
-  { t: 29.76, dur: 1.1, keys: ["super", "I"] },
-  { t: 30.24, dur: 1.1, keys: ["super", "I"] },
-  { t: 30.71, dur: 1.1, keys: ["super", "I"] },
-  { t: 31.18, dur: 1.1, keys: ["super", "I"] },
-  { t: 31.66, dur: 1.1, keys: ["super", "I"] },
-  { t: 32.13, dur: 1.1, keys: ["super", "I"] },
-  { t: 32.60, dur: 1.1, keys: ["super", "I"] },
-  { t: 33.09, dur: 1.1, keys: ["super", "I"] },
-  // volume 50% -> 100% (Super+O x10)
-  { t: 35.12, dur: 1.1, keys: ["super", "O"] },
-  { t: 35.60, dur: 1.1, keys: ["super", "O"] },
-  { t: 36.08, dur: 1.1, keys: ["super", "O"] },
-  { t: 36.56, dur: 1.1, keys: ["super", "O"] },
-  { t: 37.03, dur: 1.1, keys: ["super", "O"] },
-  { t: 37.50, dur: 1.1, keys: ["super", "O"] },
-  { t: 37.99, dur: 1.1, keys: ["super", "O"] },
-  { t: 38.47, dur: 1.1, keys: ["super", "O"] },
-  { t: 38.95, dur: 1.1, keys: ["super", "O"] },
-  { t: 39.43, dur: 1.1, keys: ["super", "O"] },
-  // mute/unmute
-  { t: 41.46, dur: 2.2, keys: ["super", "M"] },
-  { t: 43.49, dur: 2.2, keys: ["super", "M"] },
-  // wiremix
-  { t: 45.54, dur: 2.2, keys: ["super", "V"] },
-  { t: 48.57, dur: 2.2, keys: ["super", "V"] },
-  // bluetooth
-  { t: 49.61, dur: 2.2, keys: ["super", "B"] },
-  { t: 53.14, dur: 2.2, keys: ["super", "B"] },
-  // network
-  { t: 54.18, dur: 2.2, keys: ["super", "N"] },
-  { t: 58.20, dur: 2.2, keys: ["super", "N"] },
-  // audio output
-  { t: 59.24, dur: 2.2, keys: ["super", "D"] },
-  // notifications / miniplayer
-  { t: 61.80, dur: 2.2, keys: ["super", "enter"] },
-  // browser + address bar load
-  { t: 66.74, dur: 2.2, keys: ["super", "G"] },
-  { t: 70.56, dur: 1.2, keys: ["enter"] },
-  // audio mode picker + Escape
-  { t: 77.61, dur: 2.2, keys: ["super", "X"] },
-  { t: 80.13, dur: 1.2, keys: ["esc"] },
-  // launcher
-  { t: 81.17, dur: 2.2, keys: ["super", "space"] },
+  { t: 1.06, dur: 2.20, keys: ["super", "dollar"] }, // Euphonica opens (Super+$; hardware sends Shift+4, shift stays dark)
+  { t: 5.14, dur: 2.20, keys: ["super", "P"] }, // pause
+  { t: 7.69, dur: 2.20, keys: ["super", "P"] }, // resume
+  { t: 10.77, dur: 2.20, keys: ["super", "K"] }, // seek+5
+  { t: 13.34, dur: 2.20, keys: ["super", "J"] }, // seek-5
+  { t: 16.88, dur: 2.20, keys: ["ctrl", "Z"] }, // Euphonica Queue view (no popup; lights the 7/Z key)
+  { t: 19.94, dur: 2.20, keys: ["super", "L"] }, // next
+  { t: 22.49, dur: 2.20, keys: ["super", "H"] }, // prev
+  { t: 28.96, dur: 1.10, keys: ["super", "I"] }, // vol-down-1
+  { t: 29.44, dur: 1.10, keys: ["super", "I"] }, // vol-down-2
+  { t: 29.91, dur: 1.10, keys: ["super", "I"] }, // vol-down-3
+  { t: 30.39, dur: 1.10, keys: ["super", "I"] }, // vol-down-4
+  { t: 30.87, dur: 1.10, keys: ["super", "I"] }, // vol-down-5
+  { t: 31.34, dur: 1.10, keys: ["super", "I"] }, // vol-down-6
+  { t: 31.82, dur: 1.10, keys: ["super", "I"] }, // vol-down-7
+  { t: 32.31, dur: 1.10, keys: ["super", "I"] }, // vol-down-8
+  { t: 32.78, dur: 1.10, keys: ["super", "I"] }, // vol-down-9
+  { t: 33.26, dur: 1.10, keys: ["super", "I"] }, // vol-down-10
+  { t: 35.28, dur: 1.10, keys: ["super", "O"] }, // vol-up-1
+  { t: 35.76, dur: 1.10, keys: ["super", "O"] }, // vol-up-2
+  { t: 36.24, dur: 1.10, keys: ["super", "O"] }, // vol-up-3
+  { t: 36.72, dur: 1.10, keys: ["super", "O"] }, // vol-up-4
+  { t: 37.20, dur: 1.10, keys: ["super", "O"] }, // vol-up-5
+  { t: 37.68, dur: 1.10, keys: ["super", "O"] }, // vol-up-6
+  { t: 38.16, dur: 1.10, keys: ["super", "O"] }, // vol-up-7
+  { t: 38.64, dur: 1.10, keys: ["super", "O"] }, // vol-up-8
+  { t: 39.11, dur: 1.10, keys: ["super", "O"] }, // vol-up-9
+  { t: 39.59, dur: 1.10, keys: ["super", "O"] }, // vol-up-10
+  { t: 41.61, dur: 2.20, keys: ["super", "M"] }, // mute
+  { t: 43.66, dur: 2.20, keys: ["super", "M"] }, // unmute
+  { t: 45.70, dur: 2.20, keys: ["super", "V"] }, // wiremix
+  { t: 48.73, dur: 2.20, keys: ["super", "V"] }, // wiremix-close
+  { t: 49.79, dur: 2.20, keys: ["super", "D"] }, // output
+  { t: 52.36, dur: 2.20, keys: ["super", "enter"] }, // notifications
+  { t: 56.96, dur: 2.20, keys: ["super", "G"] }, // browser
+  { t: 60.89, dur: 1.20, keys: ["enter"] }, // load
+  { t: 67.98, dur: 2.20, keys: ["super", "X"] }, // audio-mode
+  { t: 70.53, dur: 1.20, keys: ["esc"] }, // audio-mode-close
+  { t: 71.57, dur: 2.20, keys: ["super", "space"] }, // launcher
+  { t: 75.16, dur: 2.20, keys: ["super", "tab"] }, // terminal
+  { t: 77.18, dur: 0.35, keys: ["M"] }, // type m
+  { t: 77.31, dur: 0.35, keys: ["P"] }, // type p
+  { t: 77.45, dur: 0.35, keys: ["C"] }, // type c
+  { t: 77.58, dur: 0.35, keys: ["space"] }, // type space
+  { t: 77.71, dur: 0.35, keys: ["S"] }, // type s
+  { t: 77.85, dur: 0.35, keys: ["T"] }, // type t
+  { t: 77.98, dur: 0.35, keys: ["A"] }, // type a
+  { t: 78.12, dur: 0.35, keys: ["T"] }, // type t
+  { t: 78.25, dur: 0.35, keys: ["U"] }, // type u
+  { t: 78.38, dur: 0.35, keys: ["S"] }, // type s
+  { t: 78.52, dur: 1.00, keys: ["enter"] }, // type-run
+  { t: 79.03, dur: 0.35, keys: ["E"] }, // type e
+  { t: 79.16, dur: 0.35, keys: ["X"] }, // type x
+  { t: 79.30, dur: 0.35, keys: ["I"] }, // type i
+  { t: 79.43, dur: 0.35, keys: ["T"] }, // type t
+  { t: 79.57, dur: 1.00, keys: ["enter"] }, // type-exit
 ];
+// total events: 56
 
 // Screen regions that must stay unreadable in the promo render.
+// Currently empty: the bluetooth/network beats (the only sensitive windows)
+// were removed from the demo in v4, so nothing needs blurring.
 const SENSITIVE = [
-  { start: 49.40, end: 53.40 }, // bluetooth / bluetuith
-  { start: 54.00, end: 58.50 }, // network / wifitui
 ];
 function sensitiveAt(t) {
   return SENSITIVE.some((s) => t >= s.start && t <= s.end);
@@ -189,22 +191,49 @@ fill.position.set(60, -320, 480); scene.add(fill);
   pm.dispose();
 })();
 
-// ---- studio backdrop: dark radial gradient + soft drop shadow ----
-(function () {
-  const cv = document.createElement("canvas"); cv.width = cv.height = 512;
+// ---- studio backdrop: Unsplash photo (Pat Hayden, black concentric rings,
+// Unsplash license - see ../files/home/pi/wallpaper/wallpaper.attribution.txt)
+// served as /bg.jpg, cover-fit to the portrait frame with a soft vignette so
+// the black unit reads off the black. Falls back to a dark gradient if the
+// photo is missing, so the render never breaks.
+function loadBgImage(url) {
+  return new Promise((resolve) => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = () => resolve(null);
+    im.src = url;
+  });
+}
+function bgTexture(img) {
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
   const ctx = cv.getContext("2d");
-  const g = ctx.createRadialGradient(256, 220, 40, 256, 256, 360);
-  g.addColorStop(0, "#232b40"); g.addColorStop(0.55, "#11151f"); g.addColorStop(1, "#05060a");
-  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+  if (img) {
+    const s = Math.max(W / img.width, H / img.height);
+    const dw = img.width * s, dh = img.height * s;
+    ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    const g = ctx.createRadialGradient(W / 2, H * 0.40, 120, W / 2, H / 2, 950);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(0,0,0,0.42)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  } else {
+    const g = ctx.createRadialGradient(W / 2, H * 0.40, 40, W / 2, H / 2, 700);
+    g.addColorStop(0, "#232b40"); g.addColorStop(0.55, "#11151f"); g.addColorStop(1, "#05060a");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
   const tex = new THREE.CanvasTexture(cv);
   if (tex.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined)
     tex.colorSpace = THREE.SRGBColorSpace;
   else if (tex.encoding !== undefined && THREE.sRGBEncoding !== undefined)
     tex.encoding = THREE.sRGBEncoding;
+  return tex;
+}
+loadBgImage("/bg.jpg").then((img) => {
+  const tex = bgTexture(img);
   const bg = new THREE.Mesh(new THREE.PlaneGeometry(7000, 7000),
-    new THREE.MeshBasicMaterial({ map: tex, depthWrite: false }));
+    new THREE.MeshBasicMaterial({ map: tex, depthWrite: false, toneMapped: false }));
   bg.position.z = -2400; scene.add(bg);
-})();
+  window.__bgReady = true;
+});
 let shadowBlob = null;
 function addShadowBlob(cw, chh, zBack) {
   const cv = document.createElement("canvas"); cv.width = 256; cv.height = 256;
@@ -744,7 +773,9 @@ async function getRec() {
   });
 }
 
-const pressLight = new THREE.PointLight(0xffb85c, 0, 700, 1.6);
+// press light follows the active key: tight pool (legacy falloff is ~linear,
+// so the distance is small) - neighbors get a kiss of light, never a wash
+const pressLight = new THREE.PointLight(0xffb85c, 0, 70, 2);
 scene.add(pressLight);
 let lastNow = null;
 function loop() {
@@ -787,8 +818,8 @@ function loop() {
     // press light follows the active key, tinted to match it
     if (best && window.__zFace !== undefined) {
       pressLight.color.setHex(best.glowHex);
-      pressLight.position.set(best.group.position.x, best.group.position.y, window.__zFace + 90);
-      pressLight.intensity = bestGlow * 6;
+      pressLight.position.set(best.group.position.x, best.group.position.y, window.__zFace + 45);
+      pressLight.intensity = bestGlow * 3;
     } else {
       pressLight.intensity = 0;
     }

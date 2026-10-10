@@ -31,7 +31,7 @@ include /etc/sway/config.d/*
 ### Output configuration
 #
 # Wallpaper ships in the payload (~/wallpaper/wallpaper.jpg; Unsplash photo by
-# Daniel Olah, Unsplash license - see wallpaper.attribution.txt). sway errors on a
+# Pat Hayden, Unsplash license - see wallpaper.attribution.txt). sway errors on a
 # missing file, so the asset must be deployed with the config.
 output * bg ~/wallpaper/wallpaper.jpg fill
 

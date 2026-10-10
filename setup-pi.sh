@@ -214,7 +214,7 @@ mkdir -p "$HOME/Music" "$HOME/Mixes" "$HOME/playlists"
 # from keys.json and included last. The payload copy above already installed it.
 
 # The payload ships the wallpaper (~/wallpaper/wallpaper.jpg - Unsplash photo by
-# Daniel Olah, Unsplash license; see wallpaper.attribution.txt). sway references it
+# Pat Hayden, Unsplash license; see wallpaper.attribution.txt). sway references it
 # as ~/wallpaper/wallpaper.jpg and errors on a missing file, so it must be deployed.
 
 # Regenerate binds + cheatsheet from keys.json (single source of truth).

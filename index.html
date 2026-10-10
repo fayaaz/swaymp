@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>swaymp — Music Player for the Hackberry Pi</title>
+<meta name="description" content="A complete software stack that turns a Hackberry Pi into a dedicated music player: MPD, sway, PipeWire, Snapcast multiroom.">
+<style>
+  :root { --bg: #0b0d12; --panel: #161a23; --ink: #eef1f8; --dim: #aab1c5;
+          --acc: #bd93f9; --grn: #3ddc84; --amb: #ffb85c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 48px 20px 64px; }
+  header h1 { font-size: 2.2rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+  header h1 span { color: var(--acc); }
+  header p { color: var(--dim); margin: 0 0 28px; font-size: 1.1rem; }
+  .btns { display: flex; gap: 12px; flex-wrap: wrap; margin: 0 0 28px; }
+  .btns a { background: var(--panel); color: var(--ink); text-decoration: none;
+            border: 1px solid #2a3040; border-radius: 10px; padding: 10px 18px; }
+  .btns a:hover { border-color: var(--acc); }
+  .btns a.primary { background: var(--acc); color: #14101f; border-color: var(--acc);
+                    font-weight: 700; }
+  figure { margin: 0 0 28px; }
+  video { width: min(100%, 480px); border-radius: 14px; border: 1px solid #2a3040;
+          background: #000; display: block; margin: 0 auto; }
+  h2 { font-size: 1.3rem; margin: 34px 0 10px; }
+  ul.feats { list-style: none; padding: 0; display: grid; gap: 10px;
+             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  ul.feats li { background: var(--panel); border: 1px solid #232936;
+                border-radius: 10px; padding: 12px 14px; font-size: 0.95rem; }
+  ul.feats b { display: block; margin-bottom: 2px; }
+  ul.feats .g b { color: var(--grn); } ul.feats .a b { color: var(--amb); }
+  ul.feats .p b { color: var(--acc); }
+  pre { background: var(--panel); border: 1px solid #232936; border-radius: 10px;
+        padding: 14px 16px; overflow-x: auto; font-size: 0.85rem; color: #d6dcf0; }
+  footer { color: var(--dim); font-size: 0.85rem; margin-top: 40px; }
+  footer a { color: var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1><span>swaymp</span> — Hackberry Pi Music Player</h1>
+    <p>A complete stack turning a Hackberry Pi (CM5 handheld) into a dedicated
+       music player: MPD + sway + PipeWire + Snapcast multiroom on a
+       HyperPixel4 square panel.</p>
+    <div class="btns">
+      <a class="primary" href="https://github.com/fayaaz/swaymp">GitHub repo</a>
+      <a href="https://github.com/fayaaz/swaymp/blob/main/AGENTS.md">Operator manual</a>
+    </div>
+  </header>
+
+  <figure>
+    <video src="demo/embed.mp4" controls playsinline preload="metadata"
+           poster="demo/embed-poster.jpg"></video>
+  </figure>
+
+  <h2>What you get</h2>
+  <ul class="feats">
+    <li class="g"><b>Playback</b>MPD user service, MPC keybinds: play/pause, next/previous, ±5s seek, volume + mute.</li>
+    <li class="p"><b>Clients</b>Euphonica on Now Playing, myMPD web UI, fuzzel launcher, F13 cheatsheet card.</li>
+    <li class="a"><b>Multiroom</b>Snapcast Receiver / Broadcast / Group via Super+X, snapweb phone UI, mode restored at boot.</li>
+    <li class="g"><b>Handheld UI</b>sway + waybar + Dracula theme on 720×720, bluetuith and wifitui TUIs.</li>
+    <li class="p"><b>Music delivery</b>Syncthing folders for Sync, Music and Mixes.</li>
+  </ul>
+
+  <footer>
+    Wallpaper / render backdrop: photo by Pat Hayden on Unsplash ·
+    Demo track: ENOENT — <i>Hopscotch</i> ·
+    Body shells: ZitaoTech HackberryPi CM5 (MIT)
+  </footer>
+</main>
+</body>
+</html>

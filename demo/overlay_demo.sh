@@ -10,11 +10,12 @@
 #     Bone tunes), queue prev/next (Super+H/L), then touch the Queue header's
 #     yellow play button to return to Now Playing, volume (Super+I/O) + mute
 #     (Super+M),
-#     wiremix (Super+V), bluetooth (Super+B), network (Super+N), audio output
-#     (Super+D), notifications/miniplayer (Super+Return), browser (Super+G),
-#     audio mode picker (Super+X), launcher (Super+Space), cheatsheet (pointer
-#     touch on the waybar button, then the pointer is moved off the button so
-#     no tooltip lingers).
+#     wiremix (Super+V), audio output (Super+D),
+#     notifications/miniplayer (Super+Return), browser (Super+G),
+#     audio mode picker (Super+X), launcher (Super+Space),
+#     terminal (Super+Tab, types mpc status, runs it, exits),
+#     cheatsheet (pointer touch on the waybar button, then the pointer is
+#     moved off the button so no tooltip lingers).
 # Copy to the Pi and run:
 #   scp overlay_demo.sh swaymp-touch.c pi@hackpi.local:/tmp/
 #   ssh pi@hackpi.local 'bash /tmp/overlay_demo.sh'
@@ -116,6 +117,21 @@ kill_app() { swaymsg "[app_id=\"$1\"] kill" >/dev/null 2>&1 || true; }
 key()      { wtype -M logo -k "$1" -m logo; }
 keyshift4(){ wtype -M logo -M shift -k 4 -m shift -m logo; }   # dollar key = Shift+4
 ekey()     { wtype -M ctrl -k "$1" -m ctrl; }                  # Euphonica window accel
+# type text char by char so the 3D render can light each key (marks drive EVENTS)
+type_text() {
+    local text="$1" i ch
+    for (( i = 0; i < ${#text}; i++ )); do
+        ch="${text:$i:1}"
+        if [ "$ch" = " " ]; then
+            wtype -k space >/dev/null 2>&1 || true
+            mark "TYPE space"
+        else
+            wtype "$ch" >/dev/null 2>&1 || true
+            mark "TYPE $ch"
+        fi
+        sleep 0.12
+    done
+}
 euph_visible() { swaymsg -t get_tree 2>/dev/null \
     | jq -r --arg id "$EUPH" '.. | objects | select(.app_id? == $id and .visible == true) | .app_id' | grep -c .; }
 swaync_visible() {
@@ -139,8 +155,6 @@ swaync_close() {
 kill_app cheatsheet
 kill_app foot
 kill_app wiremix
-kill_app bluetooth
-kill_app network
 kill_app firefox
 kill_app imv
 kill_app imv-wayland
@@ -193,6 +207,15 @@ sleep 2
 mpc status >>"$LOG" 2>&1 || true
 wpctl get-volume @DEFAULT_AUDIO_SINK@ >>"$LOG" 2>&1 || true
 
+# park the pointer in the bottom-left dead corner so no widget tooltip is up
+# when recording starts (a stale hover can leave e.g. a rating tooltip visible)
+if [ -x "$TOUCH" ]; then
+    swaymsg 'input * accel_profile flat' >/dev/null 2>&1 || true
+    swaymsg 'input * pointer_accel 0' >/dev/null 2>&1 || true
+    sudo "$TOUCH" home pause 200 move 15 700 pause 200 >/dev/null 2>&1 || true
+    swaymsg 'input * accel_profile adaptive' >/dev/null 2>&1 || true
+fi
+
 wf-recorder -y -a --audio-backend=pipewire -f "$OUT" -r 15 -D >/tmp/swaymp-overlay-rec.log 2>&1 &
 REC=$!
 T0=$(date +%s.%N)
@@ -200,23 +223,23 @@ sleep 1
 mark "REC_START"
 
 # ---- Euphonica opens (starts closed; dollar key shows it on Now Playing) ----
-notify-send -t 2200 "Key" "Super+Shift+4 Euphonica"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Super+$ Euphonica"
 keyshift4; mark "KEY super dollar euphonica-open"; sleep 3.0
 
-notify-send -t 2500 "swaymp" "Now playing: ENOENT - Hopscotch (from 0:40)"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2500 "swaymp" "Now playing: ENOENT - Hopscotch (from 0:40)"
 mark "NOTIFY now-playing"
 sleep 1.0
 
 # ---- playback ----
-notify-send -t 1800 "Key" "Super+P Play/Pause"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 1800 "Key" "Super+P Play/Pause"
 key p; mark "KEY super P pause"; sleep 2.5
-notify-send -t 1800 "Key" "Super+P Play/Pause"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 1800 "Key" "Super+P Play/Pause"
 key p; mark "KEY super P resume"; sleep 3.0
 
 # ---- seek ----
-notify-send -t 1800 "Key" "Super+K Seek +5s"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 1800 "Key" "Super+K Seek +5s"
 key k; mark "KEY super K seek+5"; sleep 2.5
-notify-send -t 1800 "Key" "Super+J Seek -5s"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 1800 "Key" "Super+J Seek -5s"
 key j; mark "KEY super J seek-5"; sleep 3.0
 
 # ---- Euphonica Queue view: show the queue list ----
@@ -227,9 +250,9 @@ wtype -k Escape >/dev/null 2>&1 || true
 ekey 7; mark "KEY ctrl7 queue-view"; sleep 3.0
 
 # ---- queue prev/next (Super+L next, Super+H previous) ----
-notify-send -t 2000 "Key" "Super+L Next track"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2000 "Key" "Super+L Next track"
 key l; mark "KEY super L next"; sleep 2.5
-notify-send -t 2000 "Key" "Super+H Previous track"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2000 "Key" "Super+H Previous track"
 key h; mark "KEY super H prev"; sleep 1.0
 mpc seek "$START_AT" >/dev/null 2>&1 || true
 sleep 1.5
@@ -240,55 +263,47 @@ swaymsg "[app_id=\"$EUPH\"] focus" >/dev/null 2>&1 || true; sleep 0.5
 if [ -x "$TOUCH" ]; then
     swaymsg 'input * accel_profile flat' >/dev/null 2>&1 || true
     swaymsg 'input * pointer_accel 0' >/dev/null 2>&1 || true
-    sudo "$TOUCH" home pause 250 move 582 66 pause 500 click pause 500
+    # click the Queue header's yellow play button, then park the pointer in
+    # the bottom-left dead corner so no widget tooltip lingers on screen
+    sudo "$TOUCH" home pause 250 move 582 66 pause 500 click pause 300 move -567 634 pause 200
     mark "TOUCH queue-nowplaying"
     swaymsg 'input * accel_profile adaptive' >/dev/null 2>&1 || true
 fi
 sleep 1.0
 
 # ---- volume 100% -> 50% -> 100% ----
-notify-send -t 2000 "Key" "Super+I Volume - (100% to 50%)"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2000 "Key" "Super+I Volume - (100% to 50%)"
 mark "NOTIFY volume-down"
 for i in $(seq 1 "$VOL_STEPS"); do key i; mark "KEY super I vol-down-$i"; sleep "$STEP_GAP"; done
 sleep 1.5; mark "HOLD 50%"; mpc status >>"$LOG" 2>&1 || true
 
-notify-send -t 2000 "Key" "Super+O Volume + (50% to 100%)"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2000 "Key" "Super+O Volume + (50% to 100%)"
 mark "NOTIFY volume-up"
 for i in $(seq 1 "$VOL_STEPS"); do key o; mark "KEY super O vol-up-$i"; sleep "$STEP_GAP"; done
 sleep 1.5; mark "HOLD 100%"; mpc status >>"$LOG" 2>&1 || true
 
-notify-send -t 1800 "Key" "Super+M Mute"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 1800 "Key" "Super+M Mute"
 key m; mark "KEY super M mute"; sleep 2.0
-notify-send -t 1800 "Key" "Super+M Unmute"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 1800 "Key" "Super+M Unmute"
 key m; mark "KEY super M unmute"; sleep 2.0
 
-# ---- wiremix peaks ----
-notify-send -t 2200 "Key" "Super+V Wiremix peaks"
+# ---- wiremix ----
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Super+V Wiremix"
 key v; mark "KEY super V wiremix"; sleep 3.0
 key v; mark "KEY super V wiremix-close"; sleep 1.0
 
-# ---- bluetooth (bluetuith) ----
-notify-send -t 2200 "Key" "Super+B Bluetooth"
-key b; mark "KEY super B bluetooth"; sleep 3.5
-key b; mark "KEY super B bluetooth-close"; sleep 1.0
-
-# ---- network (wifitui) ----
-notify-send -t 2200 "Key" "Super+N Network"
-key n; mark "KEY super N network"; sleep 4.0
-key n; mark "KEY super N network-close"; sleep 1.0
-
 # ---- audio output switcher (notification) ----
-notify-send -t 2200 "Key" "Super+D Audio output"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Super+D Audio output"
 key d; mark "KEY super D output"; sleep 2.5
 
 # ---- notifications / miniplayer (control center) ----
 swaync_close >/dev/null 2>&1 || true
-notify-send -t 2200 "Key" "Super+Return Notifications"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Super+Return Notifications"
 key Return; mark "KEY super Return notifications"; sleep 3.5
 swaync_close >/dev/null 2>&1 || true; mark "CMD swaync-close"; sleep 1.0
 
 # ---- browser (firefox -> 2:Browser, type the repo URL into the address bar) ----
-notify-send -t 2200 "Key" "Super+G Browser"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Super+G Browser"
 key g; mark "KEY super G browser"
 for _f in $(seq 1 24); do
     swaymsg -t get_tree | jq -e '..|objects|select(.app_id?=="firefox")' >/dev/null 2>&1 && break
@@ -297,24 +312,38 @@ done
 swaymsg '[app_id="firefox"] focus' >/dev/null 2>&1; sleep 1.0
 wtype -M ctrl -k l -m ctrl; sleep 0.5
 wtype "https://github.com/fayaaz/swaymp"; mark "CMD type-url"; sleep 0.5
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 1500 "Key" "Enter Open page"
 wtype -k Return; mark "KEY enter load"; sleep 5.0
 kill_app firefox; sleep 1.0
 swaymsg 'workspace "1:Music"; focus' >/dev/null 2>&1 || true
 sleep 1.0
 
 # ---- audio mode picker (fuzzel; Esc leaves the mode unchanged) ----
-notify-send -t 2200 "Key" "Super+X Audio mode"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Super+X Audio mode"
 key x; mark "KEY super X audio-mode"; sleep 2.5
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 1500 "Key" "Esc Close"
 wtype -k Escape; mark "KEY esc audio-mode-close"; sleep 1.0
 
 # ---- launcher (fuzzel) ----
-notify-send -t 2200 "Key" "Super+Space Launcher"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Super+Space Launcher"
 key space; mark "KEY super space launcher"; sleep 3.0
 pkill -x fuzzel >/dev/null 2>&1 || true
 sleep 0.5
 
+# ---- terminal (foot): Super+Tab, type mpc status, run it, exit ----
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Super+Tab Terminal"
+key Tab; mark "KEY super Tab terminal"; sleep 1.5
+swaymsg '[app_id="foot"] focus' >/dev/null 2>&1 || true; sleep 0.5
+type_text "mpc status"
+wtype -k Return; mark "KEY enter type-run"; sleep 0.5
+type_text "exit"
+wtype -k Return; mark "KEY enter type-exit"; sleep 1.0
+kill_app foot; sleep 0.5
+swaymsg 'workspace "1:Music"; focus' >/dev/null 2>&1 || true
+sleep 0.5
+
 # ---- cheatsheet: pointer touch on the waybar button (no keycap) ----
-notify-send -t 2200 "Key" "Cheatsheet (waybar)"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2200 "Key" "Cheatsheet (waybar)"
 mark "NOTIFY cheatsheet"
 swaymsg 'input * accel_profile flat' >/dev/null 2>&1 || true
 swaymsg 'input * pointer_accel 0' >/dev/null 2>&1 || true
@@ -335,7 +364,7 @@ else
 fi
 sleep 1.5
 
-notify-send -t 2500 "Done" "swaymp overlay demo"
+notify-send --hint=string:x-canonical-private-synchronous:swaymp-demo -t 2500 "Done" "swaymp overlay demo"
 mark "NOTIFY done"
 sleep 2
 

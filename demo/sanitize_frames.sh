@@ -7,7 +7,8 @@ FRAMES="$DIR/frames"
 FPS=12
 SIGMA=32
 MARKER="$FRAMES/.sanitized"
-SENSITIVE="49.40-53.40 54.00-58.50"
+# No sensitive windows in the v4 demo (bluetooth/network beats removed).
+SENSITIVE=""
 
 if [ ! -f "$FRAMES/f_001.jpg" ]; then
   exit 0
