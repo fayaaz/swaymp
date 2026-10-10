@@ -190,7 +190,10 @@ fi
 if [ -f /tmp/setup.tar.gz ]; then
     tar -C "$HOME" --strip-components=2 -xzf /tmp/setup.tar.gz
 else
-    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot bluetuith wifitui mpDris2 snapserver snapclient; do
+    # Syncthing is apt-installed but NOT configured: the payload ships no
+    # ~/.config/syncthing, so a deploy never writes/overwrites its config,
+    # device ID, or keys (syncthing bootstraps its own on first run).
+    for d in waybar mpd pipewire mympd sway fuzzel wlogout swaync foot bluetuith wifitui mpDris2 snapserver snapclient; do
         cp -a "$PAYLOAD/home/pi/.config/$d" "$HOME/.config/"
     done
     cp -a "$PAYLOAD/home/pi/.config/systemd/user" "$HOME/.config/systemd/"
