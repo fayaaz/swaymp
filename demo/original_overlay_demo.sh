@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ORIGINAL screen-recording demo — runs ON THE PI as user pi (not here).
-# Records /tmp/hackpi-overlay.mp4: Euphonica playback + timed Super+key events
+# Records /tmp/swaymp-overlay.mp4: Euphonica playback + timed Super+key events
 # with notify-send popups, captured with wf-recorder + PipeWire audio.
-# That mp4 is the demo/hackpi-overlay.mp4 input: it plays on the 3D device's
+# That mp4 is the demo/swaymp-overlay.mp4 input: it plays on the 3D device's
 # display (as frames/) and its audio track is muxed into the final video.
 # Body below is verbatim as recorded 2026-10-06.
 set -u
@@ -13,8 +13,8 @@ export SWAYSOCK=$(ls -1 /run/user/1000/sway-ipc.*.sock | head -n1)
 export DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus
 export PATH=/usr/local/bin:/usr/bin:/bin:/home/pi/.cargo/bin
 
-OUT=/tmp/hackpi-overlay.mp4
-LOG=/tmp/hackpi-overlay.log
+OUT=/tmp/swaymp-overlay.mp4
+LOG=/tmp/swaymp-overlay.log
 rm -f "$OUT" "$LOG"
 
 kill_app() {
@@ -46,11 +46,11 @@ wpctl set-volume @DEFAULT_AUDIO_SINK@ 1.00 >/dev/null 2>&1 || true
 sleep 2
 mpc status >>"$LOG" 2>&1 || true
 
-wf-recorder -y -a --audio-backend=pipewire -f "$OUT" -r 15 -D >/tmp/hackpi-overlay-rec.log 2>&1 &
+wf-recorder -y -a --audio-backend=pipewire -f "$OUT" -r 15 -D >/tmp/swaymp-overlay-rec.log 2>&1 &
 REC=$!
 sleep 1
 
-notify-send -t 2500 "HackPi" "Now playing: ENOENT - Shiral (from 0:40)"
+notify-send -t 2500 "swaymp" "Now playing: ENOENT - Shiral (from 0:40)"
 sleep 1
 
 # t=2.0 Super+P
@@ -106,7 +106,7 @@ wtype -M logo -k space -m logo
 sleep 3.0
 pkill -x fuzzel >/dev/null 2>&1 || true
 
-notify-send -t 2500 "Done" "HackPi overlay demo"
+notify-send -t 2500 "Done" "swaymp overlay demo"
 sleep 2
 
 kill -INT "$REC" 2>/dev/null || true

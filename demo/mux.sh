@@ -5,7 +5,7 @@
 # tightens text edges and adds a touch of vignette/saturation.
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
-ffmpeg -v error -y -i "$DIR/kb_final.webm" -i "$DIR/hackpi-overlay.mp4" \
+ffmpeg -v error -y -i "$DIR/kb_final.webm" -i "$DIR/swaymp-overlay.mp4" \
   -map 0:v -map 1:a \
   -vf "unsharp=5:5:0.5:5:5:0.0,eq=saturation=1.06:contrast=1.02,vignette=PI/5" \
   -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p -c:a aac -b:a 192k \

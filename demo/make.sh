@@ -6,7 +6,9 @@ set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 PORT="${PORT:-7171}"
 export BU_CDP_URL="${BU_CDP_URL:-http://127.0.0.1:9333}"
+export KB_DUR="${KB_DUR:-$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$DIR/swaymp-overlay.mp4")}"
 
+"$DIR/sanitize_video.sh"
 "$DIR/extract_frames.sh"
 
 if ! curl -s -o /dev/null "http://127.0.0.1:$PORT/"; then

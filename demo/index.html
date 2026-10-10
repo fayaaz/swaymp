@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>hackpi kb render</title>
+<title>swaymp kb render</title>
 <!--
   Hackberry Pi (black unit) promo render.
   Body shell STLs are the real HackberryPi CM5 parts by ZitaoTech
@@ -23,42 +23,80 @@
   @font-face { font-family: "BBKey"; font-weight: 700; src: url("/fonts/bbkey-700.woff2") format("woff2"); }
 </style>
 <canvas id="c" width="960" height="1400"></canvas>
-<video id="vid" src="/hackpi-overlay.mp4" muted playsinline preload="auto"></video>
+<video id="vid" src="/swaymp-overlay.mp4" muted playsinline preload="auto"></video>
 <script src="/three.min.js"></script>
 <script>
 const W = 960, H = 1400;
 
-// shortcut timeline synced with hackpi-overlay.mp4 (CONTENT - do not retime)
+// shortcut timeline synced with swaymp-overlay.mp4 (CONTENT - do not retime)
 const EVENTS = [
-  { t: 2.07,  dur: 2.2, keys: ["super", "P"] },
-  { t: 4.62,  dur: 2.2, keys: ["super", "P"] },
-  { t: 7.67,  dur: 2.2, keys: ["super", "K"] },
-  { t: 10.24,  dur: 2.2, keys: ["super", "J"] },
+  // Euphonica opens on Now Playing via the dollar key (Super+Shift+4)
+  { t: 1.05,  dur: 2.2, keys: ["super", "shift", "dollar"] },
+  { t: 5.12,  dur: 2.2, keys: ["super", "P"] },
+  { t: 7.65,  dur: 2.2, keys: ["super", "P"] },
+  { t: 10.71, dur: 2.2, keys: ["super", "K"] },
+  { t: 13.26, dur: 2.2, keys: ["super", "J"] },
+  // Euphonica Queue view (Ctrl+7 = Ctrl+Z on the Hackberry keycap)
+  { t: 16.79, dur: 2.2, keys: ["ctrl", "Z"] },
+  // queue next/previous
+  { t: 19.83, dur: 2.2, keys: ["super", "L"] },
+  { t: 22.37, dur: 2.2, keys: ["super", "H"] },
   // volume 100% -> 50% (Super+I x10, 5% per press)
-  { t: 13.30,  dur: 1.1, keys: ["super", "I"] },
-  { t: 13.78,  dur: 1.1, keys: ["super", "I"] },
-  { t: 14.25,  dur: 1.1, keys: ["super", "I"] },
-  { t: 14.73,  dur: 1.1, keys: ["super", "I"] },
-  { t: 15.21,  dur: 1.1, keys: ["super", "I"] },
-  { t: 15.69,  dur: 1.1, keys: ["super", "I"] },
-  { t: 16.17,  dur: 1.1, keys: ["super", "I"] },
-  { t: 16.65,  dur: 1.1, keys: ["super", "I"] },
-  { t: 17.13,  dur: 1.1, keys: ["super", "I"] },
-  { t: 17.61,  dur: 1.1, keys: ["super", "I"] },
+  { t: 28.80, dur: 1.1, keys: ["super", "I"] },
+  { t: 29.29, dur: 1.1, keys: ["super", "I"] },
+  { t: 29.76, dur: 1.1, keys: ["super", "I"] },
+  { t: 30.24, dur: 1.1, keys: ["super", "I"] },
+  { t: 30.71, dur: 1.1, keys: ["super", "I"] },
+  { t: 31.18, dur: 1.1, keys: ["super", "I"] },
+  { t: 31.66, dur: 1.1, keys: ["super", "I"] },
+  { t: 32.13, dur: 1.1, keys: ["super", "I"] },
+  { t: 32.60, dur: 1.1, keys: ["super", "I"] },
+  { t: 33.09, dur: 1.1, keys: ["super", "I"] },
   // volume 50% -> 100% (Super+O x10)
-  { t: 20.03,  dur: 1.1, keys: ["super", "O"] },
-  { t: 20.52,  dur: 1.1, keys: ["super", "O"] },
-  { t: 21.00,  dur: 1.1, keys: ["super", "O"] },
-  { t: 21.48,  dur: 1.1, keys: ["super", "O"] },
-  { t: 21.96,  dur: 1.1, keys: ["super", "O"] },
-  { t: 22.43,  dur: 1.1, keys: ["super", "O"] },
-  { t: 22.92,  dur: 1.1, keys: ["super", "O"] },
-  { t: 23.39,  dur: 1.1, keys: ["super", "O"] },
-  { t: 23.86,  dur: 1.1, keys: ["super", "O"] },
-  { t: 24.34,  dur: 1.1, keys: ["super", "O"] },
-  // cheatsheet: pointer touch on the waybar button (no keycap)
-  { t: 37.20, dur: 3.0, keys: ["super", "space"] },
+  { t: 35.12, dur: 1.1, keys: ["super", "O"] },
+  { t: 35.60, dur: 1.1, keys: ["super", "O"] },
+  { t: 36.08, dur: 1.1, keys: ["super", "O"] },
+  { t: 36.56, dur: 1.1, keys: ["super", "O"] },
+  { t: 37.03, dur: 1.1, keys: ["super", "O"] },
+  { t: 37.50, dur: 1.1, keys: ["super", "O"] },
+  { t: 37.99, dur: 1.1, keys: ["super", "O"] },
+  { t: 38.47, dur: 1.1, keys: ["super", "O"] },
+  { t: 38.95, dur: 1.1, keys: ["super", "O"] },
+  { t: 39.43, dur: 1.1, keys: ["super", "O"] },
+  // mute/unmute
+  { t: 41.46, dur: 2.2, keys: ["super", "M"] },
+  { t: 43.49, dur: 2.2, keys: ["super", "M"] },
+  // wiremix
+  { t: 45.54, dur: 2.2, keys: ["super", "V"] },
+  { t: 48.57, dur: 2.2, keys: ["super", "V"] },
+  // bluetooth
+  { t: 49.61, dur: 2.2, keys: ["super", "B"] },
+  { t: 53.14, dur: 2.2, keys: ["super", "B"] },
+  // network
+  { t: 54.18, dur: 2.2, keys: ["super", "N"] },
+  { t: 58.20, dur: 2.2, keys: ["super", "N"] },
+  // audio output
+  { t: 59.24, dur: 2.2, keys: ["super", "D"] },
+  // notifications / miniplayer
+  { t: 61.80, dur: 2.2, keys: ["super", "enter"] },
+  // browser + address bar load
+  { t: 66.74, dur: 2.2, keys: ["super", "G"] },
+  { t: 70.56, dur: 1.2, keys: ["enter"] },
+  // audio mode picker + Escape
+  { t: 77.61, dur: 2.2, keys: ["super", "X"] },
+  { t: 80.13, dur: 1.2, keys: ["esc"] },
+  // launcher
+  { t: 81.17, dur: 2.2, keys: ["super", "space"] },
 ];
+
+// Screen regions that must stay unreadable in the promo render.
+const SENSITIVE = [
+  { start: 49.40, end: 53.40 }, // bluetooth / bluetuith
+  { start: 54.00, end: 58.50 }, // network / wifitui
+];
+function sensitiveAt(t) {
+  return SENSITIVE.some((s) => t >= s.start && t <= s.end);
+}
 
 // Hackberry Q10: official keymap + photo alt legends, BB-style uppercase glyphs.
 // ids double as EVENTS keys - do not rename.
@@ -566,7 +604,15 @@ function orientAndBuild(parts) {
     loadFrames(Math.ceil(d * window.__FR));
   }, { once: true });
   setTimeout(() => loadFrames(520), 4000);
-  mtex = new THREE.Texture();
+  const screenCanvas = document.createElement("canvas");
+  screenCanvas.width = 720;
+  screenCanvas.height = 720;
+  const screenCtx = screenCanvas.getContext("2d");
+  window.__screenCanvas = screenCanvas;
+  window.__screenCtx = screenCtx;
+  window.__lastFrameIndex = -1;
+  window.__lastSensitive = false;
+  mtex = new THREE.CanvasTexture(screenCanvas);
   if (mtex.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined)
     mtex.colorSpace = THREE.SRGBColorSpace;
   else if (mtex.encoding !== undefined && THREE.sRGBEncoding !== undefined)
@@ -574,6 +620,7 @@ function orientAndBuild(parts) {
   mtex.minFilter = THREE.LinearFilter;
   mtex.magFilter = THREE.LinearFilter;
   mtex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  mtex.needsUpdate = true;
 
   const sy0 = bbw.min.y + chh * 0.385, sy1 = bbw.min.y + chh * 0.985;
   const sx0 = bbw.min.x + cw * 0.032, sx1 = bbw.max.x - cw * 0.032;
@@ -699,13 +746,33 @@ async function getRec() {
 
 const pressLight = new THREE.PointLight(0xffb85c, 0, 700, 1.6);
 scene.add(pressLight);
+let lastNow = null;
 function loop() {
   if (window.__built) {
-    const vid = document.getElementById("vid");
-    const t = vid.currentTime || 0;
+    const now = performance.now();
+    let t;
+    if (window.__recording) {
+      if (lastNow === null) lastNow = now;
+      t = (now - (window.__recStart || now)) / 1000;
+      lastNow = now;
+    } else {
+      const vid = document.getElementById("vid");
+      t = vid.currentTime || 0;
+    }
     const fi = Math.min(window.__frames.length - 1, Math.max(0, Math.floor(t * window.__FR)));
     const fim = window.__frames[fi];
-    if (fim && fim.complete && fim.naturalWidth && mtex.image !== fim) { mtex.image = fim; mtex.needsUpdate = true; }
+    const sens = sensitiveAt(t);
+    if (fim && fim.complete && fim.naturalWidth &&
+        (fi !== window.__lastFrameIndex || sens !== window.__lastSensitive)) {
+      const ctx = window.__screenCtx;
+      ctx.save();
+      ctx.filter = sens ? "blur(32px)" : "none";
+      ctx.drawImage(fim, 0, 0, 720, 720);
+      ctx.restore();
+      mtex.needsUpdate = true;
+      window.__lastFrameIndex = fi;
+      window.__lastSensitive = sens;
+    }
     const st = stateAt(t);
     let best = null, bestGlow = 0;
     for (const id in keycaps) {

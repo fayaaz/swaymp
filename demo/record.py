@@ -33,6 +33,8 @@ print(js("""
   window.__rchunks = [];
   window.__rrec.ondataavailable = e => { if (e.data.size) window.__rchunks.push(e.data); };
   window.__rdone = new Promise(res => { window.__rrec.onstop = res; });
+  window.__recording = true;
+  window.__recStart = performance.now();
   window.__rrec.start(500);
   return 'REC STARTED';
 })()

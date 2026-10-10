@@ -1,11 +1,11 @@
-/* hackpi-touch: inject pointer motion + a left click through /dev/uinput.
+/* swaymp-touch: inject pointer motion + a left click through /dev/uinput.
  * Run as root (sudo). Used by overlay_demo.sh to show a touch on the waybar
  * cheatsheet button. Commands are executed in order:
  *   home            clamp the cursor to (0,0) with a large negative warp
  *   move X Y        relative pointer move
  *   click           BTN_LEFT press + release
  *   pause MS        sleep
- * example: sudo hackpi-touch home pause 300 move 82 20 pause 400 click
+ * example: sudo swaymp-touch home pause 300 move 82 20 pause 400 click
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,7 +66,7 @@ static int open_dev(void)
     us.id.bustype = BUS_VIRTUAL;
     us.id.vendor = 0x2131;
     us.id.product = 0x0001;
-    strcpy(us.name, "hackpi-touch");
+    strcpy(us.name, "swaymp-touch");
     if (ioctl(fd, UI_DEV_SETUP, &us) < 0) { perror("UI_DEV_SETUP"); return 1; }
     if (ioctl(fd, UI_DEV_CREATE) < 0) { perror("UI_DEV_CREATE"); return 1; }
     usleep(600000);
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 {
     int i;
     if (argc < 2) {
-        fprintf(stderr, "usage: hackpi-touch home|move X Y|click|pause MS [...]\n");
+        fprintf(stderr, "usage: swaymp-touch home|move X Y|click|pause MS [...]\n");
         return 2;
     }
     if (open_dev() != 0) return 1;

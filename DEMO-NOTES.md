@@ -1,0 +1,8 @@
+- At 0:01 the shortcut should be Super + $ and not light up the shift. This is a quirk of the hackberry keyboard
+- At 0:18 random keys on the left light up
+- At 0:29 the pop up saying clear rating stays up
+- At 0:46 the notification should say 'Wiremix' - lose the peaks
+- Remove wifi and bluetooth entirely
+- At 1:10 keys light up randomly
+- At 1:20 the X on the top row lights up for no reason
+- Add opening a terminal with Super + Tab after the launcher and type mpc status ENTER and then wait for 0.5 seconds before typing exit ENTER
