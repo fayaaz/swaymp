@@ -1,0 +1,8 @@
+# SNAPCLIENT_OPTS override for the payload snapclient.service, read after
+# /etc/default/snapclient (the later file wins). Written by audio-mode.sh:
+#
+#   receiver + Avahi discovery     : comment-only (nothing to set)
+#   receiver + chosen "Listen to"  : SNAPCLIENT_OPTS=--host <host> --port <port>
+#   group                          : SNAPCLIENT_OPTS=--host 127.0.0.1 --port 1704
+#
+# Leave this file comment-only for automatic discovery.

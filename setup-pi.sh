@@ -10,10 +10,54 @@ PAYLOAD=${1:-/tmp/files}
 sudo rm -f /etc/apt/sources.list.d/mympd.list /etc/apt/trusted.gpg.d/mympd.asc
 sudo apt-get update >/dev/null
 sudo apt-get install -y sway waybar foot fuzzel swayimg imv syncthing pipewire pipewire-pulse wireplumber \
-    fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapclient wlogout libnotify-bin jq gammastep \
+    fonts-jetbrains-mono fonts-font-awesome mpd mpc mpdris2 snapserver python3 avahi-utils \
+    wlogout libnotify-bin jq gammastep \
     bluez-tools rfkill udevil network-manager network-manager-applet curl >/dev/null
 # Cheatsheet overlay viewer (GTK3 transparent window).
 sudo apt-get install -y python3-gi gir1.2-gtk-3.0 >/dev/null
+
+# snapclient with the PipeWire player: Debian trixie's 0.31 is built without it
+# ("No audio player support for: pipewire"), which only surfaces once the
+# client connects to a server. Install the pinned upstream with-pipewire .deb
+# (checksum = GitHub release asset digest). There is deliberately no distro
+# fallback: a failure aborts setup instead of drifting to a client that cannot
+# play through PipeWire.
+scver=0.35.0
+if ! snapclient --version 2>/dev/null | grep -q "v$scver"; then
+    case "$(uname -m)" in
+        aarch64|arm64) scarch=arm64; scsha=6ed5573c59cbf457a04bc8b4b972e42e66219f14ba586f6f357de48730f7bc1e ;;
+        armv7l|armhf)  scarch=armhf; scsha=d4cc565f6dfe621d89c88efc3147f60676fecd53b7e5dfa4afba9a8648194728 ;;
+        x86_64)        scarch=amd64; scsha=05e112410c536199181adae50419801d2e155afa53493cb80b7420854ecb0375 ;;
+        *)             scarch="" ;;
+    esac
+    if [ -z "$scarch" ]; then
+        echo "ERROR: no pinned snapclient $scver build for $(uname -m); aborting" >&2
+        exit 1
+    fi
+    scdeb=snapclient_${scver}-1_${scarch}_trixie_with-pipewire.deb
+    scbase=https://github.com/badaix/snapcast/releases/download/v${scver}
+    if curl -fsSL -o "/tmp/$scdeb" "$scbase/$scdeb" \
+        && echo "$scsha  /tmp/$scdeb" | sha256sum -c >/dev/null 2>&1 \
+        && sudo apt-get install -y -o Dpkg::Options::="--force-confold" "/tmp/$scdeb" >/dev/null; then
+        rm -f "/tmp/$scdeb"
+        echo "installed snapclient $scver ($scarch, pipewire player)"
+    else
+        rm -f "/tmp/$scdeb"
+        echo "ERROR: failed to install snapclient $scver ($scarch, with-pipewire); aborting" >&2
+        exit 1
+    fi
+fi
+
+# Multiroom audio (Snapcast) is payload-owned: user snapserver.service is
+# started on demand by audio-mode.sh, user snapclient.service plays through
+# PipeWire. The distro SYSTEM units must be off:
+#  - system snapclient runs as _snapclient with ALSA and would double-play
+#    alongside the payload user snapclient;
+#  - system snapserver would own ports 1704/1780 and create a
+#    snapserver-owned /tmp/snapfifo (fs.protected_fifos then blocks MPD).
+sudo systemctl disable --now snapclient.service >/dev/null 2>&1 || true
+sudo systemctl disable --now snapserver.service >/dev/null 2>&1 || true
+sudo rm -f /tmp/snapfifo
 
 # Bluetooth audio (PipeWire plays through paired devices): daemon on,
 # user in the bluetooth group (re-login to take effect).
@@ -86,6 +130,29 @@ if ! command -v wifitui >/dev/null && [ ! -x "$HOME/.local/bin/wifitui" ]; then
     fi
 fi
 
+# snapweb (snapserver's phone UI on :1780): Debian trixie has no snapweb
+# package; the snapserver package ships only a placeholder index.html at
+# snapserver's default doc_root. Install the pinned upstream release there
+# (checksum-verified, same pattern as bluetuith/wifitui); manifest.webmanifest
+# marks the real build. Optional: a failure only means no phone UI.
+swver=0.9.3
+swsha=cc258df98b8c474ea19048bc84c0c2e2c5fbc3b0856aef03a838f3a4489fa4c7
+if [ ! -f /usr/share/snapserver/snapweb/manifest.webmanifest ]; then
+    swtmp=$(mktemp -d)
+    if curl -fsSL -o "$swtmp/snapweb.zip" \
+            "https://github.com/snapcast/snapweb/releases/download/v${swver}/snapweb.zip" \
+        && echo "$swsha  $swtmp/snapweb.zip" | sha256sum -c >/dev/null 2>&1 \
+        && (command -v unzip >/dev/null || sudo apt-get install -y unzip >/dev/null) \
+        && unzip -q "$swtmp/snapweb.zip" -d "$swtmp/web" \
+        && sudo mkdir -p /usr/share/snapserver/snapweb \
+        && sudo cp -a "$swtmp/web/." /usr/share/snapserver/snapweb/; then
+        echo "installed snapweb $swver -> /usr/share/snapserver/snapweb"
+    else
+        echo "WARNING: snapweb install failed; snapserver still streams (no phone UI)" >&2
+    fi
+    rm -rf "$swtmp"
+fi
+
 # myMPD from source (myMPD uses CMake; Debian has no package, GitHub has no deb assets).
 if ! command -v mympd >/dev/null; then
     sudo apt-get install -y build-essential cmake pkg-config libmpdclient-dev libssl-dev >/dev/null
@@ -123,7 +190,7 @@ fi
 if [ -f /tmp/setup.tar.gz ]; then
     tar -C "$HOME" --strip-components=2 -xzf /tmp/setup.tar.gz
 else
-    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot bluetuith wifitui mpDris2; do
+    for d in waybar mpd syncthing pipewire mympd sway fuzzel wlogout swaync foot bluetuith wifitui mpDris2 snapserver snapclient; do
         cp -a "$PAYLOAD/home/pi/.config/$d" "$HOME/.config/"
     done
     cp -a "$PAYLOAD/home/pi/.config/systemd/user" "$HOME/.config/systemd/"
@@ -188,19 +255,29 @@ chmod +x "$HOME/.config/sway/network.sh"
 chmod +x "$HOME/.config/sway/volume.sh"
 chmod +x "$HOME/.config/sway/volume-notify.sh"
 chmod +x "$HOME/.config/sway/brightness.py"
+chmod +x "$HOME/.config/sway/audio-mode.sh"
 systemctl --user disable --now dunst.service >/dev/null 2>&1 || true
 rm -f "$HOME/.config/systemd/user/dunst.service"
 systemctl --user disable --now mpd-notify.service >/dev/null 2>&1 || true
 rm -f "$HOME/.config/systemd/user/mpd-notify.service"
 rm -f "$HOME/.config/waybar/mpd-notify.sh"
 systemctl --user daemon-reload
+# snapserver.service is deliberately NOT enabled: it must only ever be started
+# on demand by audio-mode.sh (Broadcast/Group); audio-mode-restore.service may
+# start it at boot solely to restore a saved Broadcast/Group mode.
 systemctl --user enable mpd.service mympd.service syncthing.service snapclient.service \
     pipewire.service pipewire-pulse.service wireplumber.service \
-    swaync.service volume-notify.service >/dev/null
+    swaync.service volume-notify.service audio-mode-restore.service >/dev/null
 systemctl --user restart swaync.service
 systemctl --user start pipewire.service pipewire-pulse.service wireplumber.service \
     mpd.service mympd.service syncthing.service snapclient.service
+# `start` is a no-op on a running MPD, so re-runs would not pick up mpd.conf
+# changes (the Multiroom fifo output) without an explicit restart.
+systemctl --user restart mpd.service
 systemctl --user restart volume-notify.service
+# Apply the saved (or default off) audio mode now, so a fresh deploy does not
+# leave snapclient running in discovery until the next boot.
+systemctl --user start audio-mode-restore.service >/dev/null 2>&1 || true
 
 # MPD -> MPRIS bridge: swaync's miniplayer (mpris widget) reads MPD off the
 # session bus, so the distro-provided user unit must be enabled and running.

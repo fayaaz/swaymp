@@ -1,0 +1,13 @@
+[Unit]
+Description=Snapcast server (multiroom broadcast)
+Documentation=man:snapserver(1)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/snapserver -c %h/.config/snapserver/snapserver.conf
+Restart=on-failure
+StandardOutput=null
+
+[Install]
+WantedBy=default.target

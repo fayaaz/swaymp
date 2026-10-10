@@ -30,9 +30,9 @@ remote receiver switching (see §13).
 | Transport | Snapcast, standalone `snapserver` from apt (0.31 on trixie) | Protocol-level clock sync; tunable buffer; official clients for all OSes |
 | Server input | MPD `fifo` output -> `pipe:///tmp/snapfifo` | Kernel-only raw PCM path, no PipeWire hop, lowest latency, apt-managed |
 | Server lifecycle | On demand only: started by the picker/waybar (Broadcast or Group), stopped in Receiver; never enabled at boot | No server running or advertised on the LAN when not sending |
-| Local output | `snapclient --player=pipewire` (existing unit) | Already deployed; required for group mode |
-| Local modes | receiver / broadcast / group (+ "Listen to...") | Covers listen, send, sync use cases |
-| UI | `$mod+Shift+m` fuzzel picker + waybar indicator | Matches `device.sh` / `network.sh` conventions |
+| Local output | `snapclient --player=pipewire` (payload unit) | Upstream v0.35.0 `with-pipewire` .deb installed by `setup-pi.sh`; Debian's 0.31 has no pipewire player |
+| Local modes | off / receiver / broadcast / group (+ "Listen to...") | Covers local-only, listen, send, sync use cases |
+| UI | `$mod+x` fuzzel picker + waybar indicator | Matches `device.sh` / `network.sh` conventions |
 | Codec/latency | PCM, `chunk_ms=20`, `buffer=150` | ~200 ms end-to-end; tunable 80-300 ms; ~1.5 Mbit/s per client |
 | Web UI | Bundle snapweb per sender, served at `:1780` | Free phone UI for volume/mute/group/streams of connected receivers |
 | Receiver switching | Deferred (§13) | Snapcast has no remote server-switch protocol; needs an agent |
@@ -53,13 +53,22 @@ Rejected for this phase:
 
 Checked against the live Pi (`ssh pi@hackpi.local`) and upstream sources:
 
-- Pi runs Debian trixie: `mpd 0.24.4` (has `fifo` + `snapcast` output
-  plugins), `snapclient 0.31.0` installed, `snapserver 0.31.0` available in
-  apt (`http://deb.debian.org/debian trixie/main`).
+- Pi runs Debian trixie: `mpd 0.24.0` (has `fifo` + `snapcast` output
+  plugins), `snapclient 0.35.0` (upstream `with-pipewire` .deb), `snapserver
+  0.31.0` from apt (`http://deb.debian.org/debian trixie/main`).
 - **Double-client bug**: the apt system unit `snapclient.service`
   (`User=_snapclient`, ALSA player) is `active` **and** `enabled`, while the
   payload user unit (`--player=pipewire`) is also active. With a server
   present, both would play (double audio). Must be disabled in `setup-pi.sh`.
+- **Debian's snapclient has no pipewire player.** Trixie's 0.31 links
+  libpulse/libasound but not libpipewire; `--player=pipewire` only fails once
+  the client actually connects to a server (`Exception: No audio player
+  support for: pipewire`), which is why the latent bug never showed before
+  this feature (with no server, the client sits in discovery forever).
+  `setup-pi.sh` therefore installs the upstream v0.35.0
+  `snapclient_*_trixie_with-pipewire.deb` (checksum-verified against the
+  GitHub release asset digest) and the payload unit uses
+  `--player=pipewire`.
 - MPD `state_file` persists audio-output enable states
   (`audio_output_state_save/read` in `StateFile.cxx`), so after a reboot in
   broadcast/group mode MPD re-enables the `Multiroom` output. A boot restore
@@ -86,7 +95,7 @@ Checked against the live Pi (`ssh pi@hackpi.local`) and upstream sources:
   `pipe://` source (§13, phase 3).
 - `fuzzel` is installed; Avahi is present (snapclient depends on it);
   `avahi-utils` (`avahi-browse`) and `python3` must be added to the deploy.
-- `sway` config is payload-owned; `$mod+Shift+m` is free (stock collisions
+- `sway` config is payload-owned; `$mod+x` is free (stock collisions
   absent), `$mod+Shift+r` is resize mode, `$mod+Shift+4` is Euphonica.
 
 ## 4. Architecture
@@ -103,14 +112,14 @@ MPD (user) --pipewire out--> PipeWire --> speaker          [receiver, broadcast]
   in receiver mode (avoids self-advertisement and the local client discovering
   its own server).
 - The local `snapclient` is explicitly pointed at `127.0.0.1:1704` in group
-  mode, stopped in broadcast mode, and uses discovery or a chosen host in
-  receiver mode. No mode can loop or double-play.
+  mode, stopped in off/broadcast modes, and uses discovery or a chosen host
+  in receiver mode. No mode can loop or double-play.
 - Ports: 1704 stream, 1705 JSON-RPC, 1780 HTTP/snapweb. All unprivileged.
 
 **snapserver must not run at all times.** It is never enabled at boot and
 never started by `setup-pi.sh`; it runs only when the user selects Broadcast
-or Group via the `$mod+Shift+m` picker (or the waybar `custom/audio` button),
-and it is stopped again when Receiver is selected. `snapserver.service` is a
+or Group via the `$mod+x` picker (or the waybar `custom/audio` button),
+and it is stopped again when Off or Receiver is selected. `snapserver.service` is a
 payload-owned user unit left disabled precisely so the only things that can
 start it are the shortcut and the waybar. This keeps the Pi from advertising a
 `_snapcast._tcp` server (and from holding ports 1704/1780) when it is not
@@ -123,12 +132,13 @@ not by the unit's enable state.
 
 | Mode | snapserver | local snapclient | MPD outputs | Result |
 |---|---|---|---|---|
-| **receiver** (default) | stopped | discovery, or a host chosen via "Listen to..." | `PipeWire Sound Server` | Pi listens to another server |
+| **off** (default) | stopped | stopped | `PipeWire Sound Server` | plain local playback; nothing sent, received, or advertised |
+| **receiver** | stopped | discovery, or a host chosen via "Listen to..." | `PipeWire Sound Server` | Pi listens to another server |
 | **broadcast** | running | stopped | `PipeWire Sound Server` + `Multiroom` | Pi plays locally; other rooms can join `hackpi.local:1704`; Pi is the (slightly ahead) master |
 | **group** | running | `127.0.0.1:1704` | `Multiroom` only | every room including the Pi is synced (buffer 150 ms) |
 
 Mode state is stored in `~/.config/sway/.audio-mode` (one word; missing or
-invalid = receiver). `audio-mode-restore.service` re-applies it at boot after
+invalid = off). `audio-mode-restore.service` re-applies it at boot after
 MPD is up.
 
 ## 5. The picker: how it works and how it is used
@@ -139,10 +149,10 @@ MPD is up.
 
 | Action | Caller | Behaviour |
 |---|---|---|
-| `pick` (default) | `$mod+Shift+m`, waybar click | opens the fuzzel picker, applies the selection |
-| `set <mode>` | internal, smoke test | applies receiver/broadcast/group directly |
-| `listen <host:port>` | picker entry 4 | sets the remote host for receiver mode (see 5.3) |
-| `listen auto` | picker entry 4 | clears the host; client uses Avahi discovery |
+| `pick` (default) | `$mod+x`, waybar click | opens the fuzzel picker, applies the selection |
+| `set <mode>` | internal, smoke test | applies off/receiver/broadcast/group directly |
+| `listen <host:port>` | picker entry 5 | sets the remote host for receiver mode (see 5.3) |
+| `listen auto` | picker entry 5 | clears the host; client uses Avahi discovery |
 | `status` | waybar every 5 s | one line `<icon> <mode>`; `--waybar` variant for the module |
 | `restore` | boot oneshot | reads the saved state and re-applies it |
 | `list` | smoke test | `mode<TAB>active<TAB>description` rows |
@@ -153,7 +163,7 @@ binds, waybar, and SSH tests.
 
 ### 5.2 Opening and choosing
 
-`$mod+Shift+m` (or clicking the waybar icon) runs:
+`$mod+x` (or clicking the waybar icon) runs:
 
 ```bash
 fuzzel --dmenu --width 56 --prompt "Audio mode: "
@@ -163,15 +173,16 @@ Menu rows (active mode marked `  <- current`, same convention as
 `device.sh pick`):
 
 ```
-1) Receiver  — listen to a remote Snapcast server   <- current
-2) Broadcast — send this Pi's music to the network
-3) Group     — this Pi and the other rooms play in sync
-4) Listen to… — choose a discovered Snapcast server for this Pi
+1) Off       — local playback only                    <- current
+2) Receiver  — remote Snapcast server
+3) Broadcast — send this Pi's music
+4) Group     — sync with other rooms
+5) Listen to… — choose a discovered server
 ```
 
 Keyboard/UX:
-- Type to filter (`rec`, `broad`, `group`, `listen`, also `1`-`4`); Enter
-  confirms.
+- Type to filter (`off`, `rec`, `broad`, `group`, `listen`, also `1`-`5`);
+  Enter confirms.
 - **Esc / click-away cancels silently**: empty selection -> `exit 0`, no
   notification, mode unchanged.
 - Choosing the current mode re-applies it idempotently and notifies.
@@ -180,7 +191,7 @@ Keyboard/UX:
 
 ### 5.3 "Listen to..." flow (receiver-side, local only)
 
-Entry 4 opens a second fuzzel list built from
+Entry 5 opens a second fuzzel list built from
 `avahi-browse -rpt _snapcast._tcp` (plus an explicit "Automatic (discovery)"
 row):
 
@@ -213,6 +224,12 @@ row):
   receiver, once. There is no remote takeover yet (§13).
 
 ### 5.4 Applying a mode (order matters)
+
+**off**
+1. `mpc enable only "PipeWire Sound Server"` (stops the fifo writer first).
+2. `systemctl --user stop snapserver`.
+3. `systemctl --user stop snapclient`.
+4. Save state, notify.
 
 **receiver**
 1. `mpc enable only "PipeWire Sound Server"` (stops the fifo writer first).
@@ -248,7 +265,8 @@ notify-send --expire-time=2000 \
   "Audio mode" "Broadcast — other rooms can join hackpi.local:1704"
 ```
 
-Copy: `Receiver — listening for a remote Snapcast server`,
+Copy: `Off — local playback only (Snapcast stopped)`,
+`Receiver — listening for a remote Snapcast server`,
 `Broadcast — other rooms can join hackpi.local:1704`,
 `Group — synced with other rooms (buffer 150 ms)`,
 `Listening to hackpi-b (192.168.1.42:1704)`.
@@ -257,7 +275,7 @@ Copy: `Receiver — listening for a remote Snapcast server`,
 
 - snapserver won't start (port busy, config error): notify
   `ERROR: snapserver failed to start (systemctl --user status snapserver)`
-  and revert to `receiver`.
+  and revert to the previously saved mode (off when the server was down).
 - `mpc` fails (MPD down): notify `ERROR: MPD unavailable`, state unchanged.
 - `/tmp/snapfifo` not writable (stale owner): notify
   `ERROR: /tmp/snapfifo not writable` and point at `setup-pi.sh`.
@@ -277,9 +295,11 @@ Copy: `Receiver — listening for a remote Snapcast server`,
 }
 ```
 
-`status --waybar` prints one line with a Font Awesome glyph: receiver `\uf001`,
-broadcast `\uf519`, group `\uf0c0` (final glyphs verified against the installed
-font during implementation). Placed in `modules-right` next to
+`status --waybar` prints one line with a Font Awesome glyph: off `\uf204`,
+receiver `\uf028` (speaker; the music note `\uf001` looked like Euphonica's
+headphones and signal bars `\uf012` like wifi), broadcast `\uf0a1` (FA 4.7
+has no broadcast-tower `\uf519`), group `\uf0c0` (verified against the
+installed font during implementation). Placed in `modules-right` next to
 `custom/network`. Optional nicety: waybar `"signal": 8` +
 `pkill -RTMIN+8 -x waybar` from the script for instant refresh instead of the
 5 s poll.
@@ -295,15 +315,16 @@ reboots, e.g. broadcast survives a power cycle.
 ### 5.9 Usage walkthrough
 
 1. Play music as usual (Euphonica/myMPD/`mpc`).
-2. `Super+Shift+M` -> **Broadcast** -> Pi keeps playing locally; on another
+2. **Off** is the default: local playback only, nothing sent or received.
+3. `Super+X` -> **Broadcast** -> Pi keeps playing locally; on another
    machine run `snapclient --host hackpi.local` (or let it auto-discover) to
    hear it.
-3. Want the Pi itself sample-synced with the other rooms? Pick **Group**.
-4. To listen to someone else's `snapserver`, pick **Receiver** ->
+4. Want the Pi itself sample-synced with the other rooms? Pick **Group**.
+5. To listen to someone else's `snapserver`, pick **Receiver** ->
    **Listen to...** and choose the discovered server (or Automatic).
-5. `http://hackpi.local:1780` (snapweb) controls volume/mute/group/streams of
+6. `http://hackpi.local:1780` (snapweb) controls volume/mute/group/streams of
    whatever receivers are connected to this Pi while it is broadcasting.
-6. Esc on the picker means "do nothing".
+7. Esc on the picker means "do nothing".
 
 ## 6. File-by-file changes
 
@@ -324,7 +345,7 @@ Modified:
 |---|---|
 | `files/home/pi/.config/mpd/mpd.conf` | add disabled `fifo` output `Multiroom` |
 | `files/home/pi/.config/systemd/user/snapclient.service` | read `EnvironmentFile=-%h/.config/snapclient/env` after `/etc/default` |
-| `files/home/pi/.config/sway/keys.json` | add `$mod+Shift+m` bind (norepeat) |
+| `files/home/pi/.config/sway/keys.json` | add `$mod+x` bind (norepeat) |
 | `files/home/pi/.config/sway/generated.conf`, `cheatsheet.txt`, `cheatsheet.svg` | regenerate via `generate-keys.sh` |
 | `files/home/pi/.config/waybar/config` | add `custom/audio` |
 | `setup-pi.sh` | install/disable services, copy dirs, chmod, enable restore service |
@@ -352,6 +373,11 @@ audio_output {
 ```ini
 [server]
 threads = -1
+
+[http]
+# doc_root is not a compiled default: our -c config replaces /etc/snapserver.conf,
+# so without this :1780 serves snapserver's built-in placeholder page.
+doc_root = /usr/share/snapserver/snapweb
 
 [stream]
 source = pipe:///tmp/snapfifo?name=Multiroom&sampleformat=48000:16:2&codec=pcm&chunk_ms=20
@@ -393,30 +419,39 @@ applies.
 1. Add `snapserver python3 avahi-utils` to the apt install line
    (`setup-pi.sh:12-14`). `python3` also fixes the existing gap for
    `generate-keys.sh`/cheatsheet scripts.
-2. After install:
+2. Install the pinned upstream `snapclient` v0.35.0
+   `with-pipewire` `.deb` (arm64/armhf/amd64, checksum-verified against the
+   GitHub release asset digest) unless `snapclient --version` already reports
+   v0.35.0. Debian trixie's 0.31 has no pipewire player. No distro fallback:
+   a download/checksum/install failure aborts `setup-pi.sh` (`exit 1`) instead
+   of leaving a client that cannot play through PipeWire.
+3. After install:
    - `sudo systemctl disable --now snapclient.service` — fixes the
      double-client bug.
    - `sudo systemctl disable --now snapserver.service` — the distro unit
      would own 1704/1780 and create a root/`snapserver`-owned FIFO.
    - `sudo rm -f /tmp/snapfifo` — clear any stale FIFO from the brief system
      service run.
-3. Add `snapserver snapclient` to the fallback copy loop (`setup-pi.sh:126`).
-4. `chmod +x "$HOME/.config/sway/audio-mode.sh"` with the other scripts
+4. Add `snapserver snapclient` to the fallback copy loop (`setup-pi.sh:126`).
+5. `chmod +x "$HOME/.config/sway/audio-mode.sh"` with the other scripts
    (`setup-pi.sh:179-190`).
-5. Add `audio-mode-restore.service` to the user `enable` list
+6. Add `audio-mode-restore.service` to the user `enable` list
    (`setup-pi.sh:197`). Do **not** enable or start `snapserver.service` — it is
    strictly on demand: the picker (or waybar) starts it for Broadcast/Group
-   and stops it in Receiver. Only the boot restore service may start it, and
-   only to restore a saved Broadcast/Group mode.
-6. Restart MPD after the config copy:
+   and Off/Receiver stop it. Only the boot restore service may start it, and
+   only to restore a saved Broadcast/Group mode. `setup-pi.sh` also starts
+   `audio-mode-restore.service` once at the end so the saved/default mode
+   (off) applies immediately instead of waiting for the next boot.
+7. Restart MPD after the config copy:
    `systemctl --user restart mpd.service`. The existing `start` call is a
    no-op when MPD is already running, so the new `fifo` output would otherwise
    not apply on a re-run of `setup-pi.sh`.
-7. Keep regenerating keys and validating sway as today.
-8. snapweb (optional but recommended): install the pinned upstream release
-   into `/usr/share/snapserver/snapweb` (checksum-verified, same pattern as
-   bluetuith/wifitui). Trixie has no package; snapserver's default `doc_root`
-   already points there. Skip cleanly if the download fails.
+8. Keep regenerating keys and validating sway as today.
+9. snapweb (optional but recommended): install the pinned upstream release
+   into `/usr/share/snapserver/snapweb` and set `[http] doc_root` in the
+   payload `snapserver.conf` (the snapserver package ships only a placeholder
+   and the compiled `doc_root` default is empty). Checksum-verified, same
+   pattern as bluetuith/wifitui. Skip cleanly if the download fails.
 
 ## 8. Client setup on other machines
 
@@ -437,12 +472,12 @@ Per mode on the Pi:
 ```bash
 mpc outputs
 systemctl --user is-active snapserver snapclient
-systemctl --user show snapclient -p Environment | tr ' ' '\n' | grep SNAPCLIENT_OPTS
+tr '\0' '\n' < /proc/$(systemctl --user show snapclient -p MainPID --value)/environ | grep SNAPCLIENT_OPTS
 # prove the server actually serves audio (writes non-empty PCM):
-timeout 3 snapclient --host 127.0.0.1 --player=file:/tmp/cap.raw && test -s /tmp/cap.raw
+timeout 3 snapclient --host 127.0.0.1 --player=file:filename=/tmp/cap.raw,mode=w && test -s /tmp/cap.raw
 ```
 
-- Picker: `wtype -M logo -M shift -k m`, wait, `grim /tmp/picker.png` (verify
+- Picker: `wtype -M logo -k x`, wait, `grim /tmp/picker.png` (verify
   fuzzel + current marker), `wtype -k Escape`; assert mode unchanged.
   Deterministic assertions use `audio-mode.sh set ...`.
 - "Listen to...": verify `avahi-browse -rpt _snapcast._tcp` output parsing
@@ -452,10 +487,10 @@ timeout 3 snapclient --host 127.0.0.1 --player=file:/tmp/cap.raw && test -s /tmp
   and MPD's fifo output is consistent.
 - Sway: `sway -C -c ~/.config/sway/config`, and after reboot verify
   `pgrep -ax swaynag` is empty (red-banner collision check per repo memory).
-- Smoke test stage: receiver default -> group (assert Multiroom only,
-  snapserver active, client host `127.0.0.1`, `/tmp/cap.raw` non-empty) ->
-  broadcast (assert both outputs, client stopped) -> receiver (assert
-  PipeWire only, snapserver stopped), restoring the starting mode at the end.
+- Smoke test stage: off (assert PipeWire only, snapserver and snapclient
+  stopped) -> receiver -> group (assert Multiroom only, snapserver active,
+  client host `127.0.0.1`, `/tmp/cap.raw` non-empty) -> broadcast (assert both
+  outputs, client stopped) -> receiver, restoring the starting mode at the end.
 
 ## 10. Risks and gotchas
 
@@ -537,13 +572,15 @@ takes them over.
 - snapserver 0.31 config: `[server] [http] [tcp] [stream] [logging]`,
   `--<section>.<name>` CLI overrides, default `doc_root` —
   https://raw.githubusercontent.com/badaix/snapcast/v0.31.0/server/etc/snapserver.conf
-- snapclient 0.31 players: `client/player/file_player.cpp` ("Raw PCM file
-  output"), `--player` argument
+- snapclient players: `client/player/file_player.cpp` ("Raw PCM file
+  output"), `--player` argument; v0.35.0 release assets include
+  `snapclient_*_trixie_with-pipewire.deb` —
+  https://github.com/badaix/snapcast/releases/tag/v0.35.0
 - Snapcast JSON-RPC control API —
   https://github.com/snapcast/snapcast/blob/develop/doc/json_rpc_api/control.md
 - snapweb (single-server UI; no server switching) —
   https://github.com/snapcast/snapweb
-- snapcast 0.33 PipeWire source / 0.34 packages —
+- snapcast PipeWire source (0.33+) / release packages —
   https://github.com/snapcast/snapcast/releases
 
 ## 15. Implementation field notes (for agents)
@@ -648,8 +685,8 @@ apply_group() {
 - Picker parsing mirrors `device.sh`: run fuzzel, extract the leading number
   with `grep -oE '^[0-9]+'`, ignore an empty result (Esc).
 - `listen <host:port>` writes the env line, ensures receiver mode, restarts
-  `snapclient`, and saves the host in the state file; `listen auto` writes a
-  comment-only env file.
+  `snapclient`, and saves the mode in the state file (the host itself lives in
+  `~/.config/snapclient/env`); `listen auto` writes a comment-only env file.
 - Failures must not change the state file, so `status` keeps reporting a
   truthful mode.
 
@@ -682,16 +719,19 @@ apply_group() {
    snapclient discovery non-deterministic.
 10. **snapserver state**: when not daemonized it persists state in
     `$HOME/.config/snapserver/server.json`; expected, not tracked.
-11. **snapweb**: not in trixie apt (verified); install the upstream release
-    into `/usr/share/snapserver/snapweb` (snapserver's stock `doc_root`
-    already points there). Verify with `curl -sI http://127.0.0.1:1780/`;
-    failure is non-fatal.
+11. **snapweb**: not in trixie apt (verified); the `snapserver` package ships
+    only a placeholder `index.html`. Install the upstream release into
+    `/usr/share/snapserver/snapweb` **and set `[http] doc_root`** in the
+    payload config — the compiled default is empty because `-c` replaces
+    `/etc/snapserver.conf`, so without it :1780 serves the built-in
+    placeholder. Verify with `curl -sI http://127.0.0.1:1780/`; failure is
+    non-fatal.
 12. **Keybind regeneration**: `bash files/home/pi/.config/sway/generate-keys.sh`
     (needs `jq` + `python3`; `cheatsheet-svg.py` is stdlib-only and runnable
     from the workstation). `generated.conf` is generated — never hand-edit it.
 13. **Sway validation blind spot**: `sway -C` passes even with duplicate
     binding warnings; after reboot check `pgrep -ax swaynag`. Test binds with
-    `wtype -M logo -M shift -k m` (named keys only — literal letters add an
+    `wtype -M logo -k x` (named keys only — literal letters add an
     implicit shift). F13 cannot be injected from uinput; F11 is bound to the
     same cheatsheet action and works for tests.
 14. **Waybar**: reload with `pkill -USR1 -x waybar`; if the bar disappears,
@@ -711,17 +751,37 @@ apply_group() {
     export `XDG_RUNTIME_DIR`/`DBUS_SESSION_BUS_ADDRESS`/`WAYLAND_DISPLAY`
     defaults exactly like `device.sh` or `fuzzel`/`notify-send` will fail
     under SSH-based tests.
+19. **snapclient player**: use `--player=pipewire`; Debian 0.31 has no
+    pipewire player and exits 1 the moment a server connects.
+    `setup-pi.sh` installs the pinned upstream v0.35.0
+    `snapclient_*_trixie_with-pipewire.deb` for arm64/armhf/amd64
+    (checksum = GitHub release asset digest); `snapclient --version` reports
+    `v0.35.0 (rev ...)` and the journal shows `(PipeWirePlayer)`.
+20. **snapclient start rate limit**: switching modes restarts the client, and
+    a quick series of switches hits systemd's default 5-starts/10 s limit
+    (`Result: start-limit-hit`). The payload unit sets
+    `StartLimitIntervalSec=0`, and `audio-mode.sh` runs `reset-failed` before
+    restarts.
+21. **Env verification**: `systemctl --user show snapclient -p Environment`
+    is empty for EnvironmentFile values; check the running process instead:
+    `tr '\0' '\n' < /proc/$(systemctl --user show snapclient -p MainPID --value)/environ | grep SNAPCLIENT_OPTS`
+    (or read `/proc/<pid>/cmdline` to prove `$SNAPCLIENT_OPTS` word-split).
+22. **Fuzzel on the HyperPixel**: `dpi-aware=auto` scales the font to the
+    panel's ~260 DPI while sway reports scale 1, so any picker wider than the
+    config's 25 chars overflows the 720 px screen. The audio pickers pass
+    `--dpi-aware=no --font "JetBrains Mono:size=13" --width 56`.
 
 ### 15.5 Test recipes
 
 - Loopback audio proof (no second machine):
   `timeout 3 snapclient --host 127.0.0.1 --player=file:filename=/tmp/cap.raw,mode=w && test -s /tmp/cap.raw`
 - Mode cycle (smoke stage), restoring the starting mode at the end:
-  receiver -> assert `mpc outputs` shows only PipeWire and snapserver is
-  inactive; group -> assert only Multiroom, snapserver active,
+  off -> assert `mpc outputs` shows only PipeWire and snapserver/snapclient
+  are inactive; receiver -> PipeWire only, client active, server inactive;
+  group -> assert only Multiroom, snapserver active,
   `SNAPCLIENT_OPTS` contains `127.0.0.1`, capture file non-empty; broadcast ->
-  assert both outputs and snapclient inactive; receiver again.
-- Picker: `wtype -M logo -M shift -k m`, wait, `grim /tmp/picker.png`, then
+  assert both outputs and snapclient inactive; restore.
+- Picker: `wtype -M logo -k x`, wait, `grim /tmp/picker.png`, then
   `wtype -k Escape` and assert the mode file is unchanged. Use
   `audio-mode.sh set ...` for deterministic assertions.
 - Two-machine sync: Broadcast on the Pi, `snapclient --host hackpi.local` on

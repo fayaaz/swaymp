@@ -3,9 +3,19 @@ Description=Snapcast client
 Documentation=man:snapclient(1)
 Wants=network-online.target avahi-daemon.service
 After=network-online.target time-sync.target sound.target avahi-daemon.service pipewire.service
+# Restart with PipeWire so the client never ends up orphaned (upstream #1496).
+PartOf=pipewire.service
+# audio-mode.sh switches receiver/group by restarting this unit; a burst of
+# mode changes legitimately exceeds systemd's default 5-starts/10s rate limit.
+StartLimitIntervalSec=0
 
 [Service]
 EnvironmentFile=-/etc/default/snapclient
+# Later file wins: audio-mode.sh writes the receiver host / group loopback here.
+EnvironmentFile=-%h/.config/snapclient/env
+# Upstream snapclient with the pipewire player (setup-pi.sh installs the
+# pinned v0.35.0 with-pipewire .deb); Debian trixie's 0.31 has no pipewire
+# player and exits 1 the moment it connects to a server.
 ExecStart=/usr/bin/snapclient --player=pipewire --logsink=system $SNAPCLIENT_OPTS
 # very noisy on stdout
 StandardOutput=null

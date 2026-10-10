@@ -70,6 +70,7 @@ ICONS = {
     "random on/off": "random", "single on/off": "single",
     "volume -": "volminus", "volume +": "volplus", "mute": "mute",
     "wiremix peaks": "meter", "brightness": "sun", "audio output": "output",
+    "audio mode": "output",
     "notifications": "bell", "this cheatsheet": "help",
     "back / close cheatsheet": "close",     "launcher (fuzzel)": "launcher",
     "euphonica": "headphone", "browser": "globe", "bluetooth": "bluetooth",

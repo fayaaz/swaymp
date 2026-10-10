@@ -1,0 +1,16 @@
+[Unit]
+Description=Restore the saved Snapcast audio mode after boot
+Documentation=man:snapserver(1)
+# MPD persists audio-output enable states (state_file), so a Pi that shut down
+# in Broadcast/Group comes back with the Multiroom fifo output enabled. This
+# oneshot re-applies ~/.config/sway/.audio-mode (silently) once MPD can answer;
+# audio-mode.sh polls mpc outputs before touching snapserver/snapclient.
+After=mpd.service snapclient.service
+Wants=mpd.service
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/sway/audio-mode.sh restore
+
+[Install]
+WantedBy=default.target

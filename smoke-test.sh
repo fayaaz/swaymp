@@ -13,14 +13,14 @@
 # screenshots plus per-stage logs. Exit 0 only if every assertion passes.
 #
 # Stages: preflight input playback seek queue volume launcher terminal
-#         cheatsheet devices bluetooth network notifications miniplayer browser euphonica wiremix mediakeys cleanup
+#         cheatsheet devices bluetooth network notifications miniplayer browser euphonica wiremix mediakeys multiroom cleanup
 # The Pi-side runner is embedded below and copied to /tmp/smoke/smoke-run.sh.
 set -u
 
 PI="${PI:-pi@raspberrypi.local}"
 OUT="${OUT:-/tmp/opencode/smoke-$(date +%Y%m%d-%H%M%S)}"
 REMOTE=/tmp/smoke
-STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices bluetooth network notifications miniplayer browser euphonica wiremix mediakeys cleanup}"
+STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices bluetooth network notifications miniplayer browser euphonica wiremix mediakeys multiroom cleanup}"
 
 mkdir -p "$OUT"
 ssh_base() { ssh -o ConnectTimeout=8 -o BatchMode=yes "$PI" "$@"; }
@@ -57,7 +57,7 @@ QUEUE=$REMOTE/queue.txt
 mkdir -p "$SHOTDIR"
 
 # wtype key names (libxkbcommon keysym identifiers)
-KP=p KK=k KJ=j KI=i KO=o KM=m KD=d KG=g KV=v KB=b KN=n
+KP=p KK=k KJ=j KI=i KO=o KM=m KD=d KG=g KV=v KB=b KN=n KX=x
 KTAB=Tab KSPACE=space KH=h KL=l KESC=Escape K4=4 KRET=Return
 KF11=F11 MPLAY=XF86AudioPlay MNEXT=XF86AudioNext MPREV=XF86AudioPrev
 
@@ -121,6 +121,23 @@ nc_close() { swaync-client -cp >/dev/null 2>&1 || true; }
 vol() { wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '/Volume:/ {printf "%d", $2*100+0.5}'; }
 muted() { wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | grep -q MUTED && echo 1 || echo 0; }
 first_track() { mpc ls 2>/dev/null | head -n1; }
+# Multiroom helpers.
+mode_file() { head -n1 "$HOME/.config/sway/.audio-mode" 2>/dev/null; }
+snapserver_active() { systemctl --user is-active --quiet snapserver; }
+snapclient_active() { systemctl --user is-active --quiet snapclient; }
+snapserver_autostart() { systemctl --user is-enabled snapserver 2>/dev/null; }
+mpc_enabled() { mpc outputs 2>/dev/null | grep -qE "\($1\) is enabled"; }
+# systemctl show -p Environment omits EnvironmentFile values; read the process.
+client_env() {
+    local pid
+    pid=$(systemctl --user show snapclient -p MainPID --value 2>/dev/null)
+    [ -n "$pid" ] && [ "$pid" != 0 ] && tr '\0' '\n' < "/proc/$pid/environ" 2>/dev/null | grep '^SNAPCLIENT_OPTS='
+}
+capture_audio() {
+    rm -f /tmp/cap.raw
+    timeout 3 snapclient --host 127.0.0.1 --player=file:filename=/tmp/cap.raw,mode=w >/dev/null 2>&1
+    [ -s /tmp/cap.raw ]
+}
 # PipeWire sinks come from the payload switcher itself (device.sh list -> id<TAB>default<TAB>title)
 sink_rows() { [ -f "$HOME/.config/sway/device.sh" ] && bash "$HOME/.config/sway/device.sh" list 2>/dev/null; }
 sink_count() { sink_rows | grep -c .; }
@@ -163,7 +180,7 @@ stage_preflight() {
     else
         pass "no swaynag config-error banner"
     fi
-    for s in mpd mympd pipewire pipewire-pulse wireplumber syncthing snapclient volume-notify; do
+    for s in mpd mympd pipewire pipewire-pulse wireplumber syncthing volume-notify; do
         systemctl --user is-active --quiet "$s" && pass "service $s active" || fail "service $s not active"
     done
     command -v grim >/dev/null && pass "grim present" || fail "grim missing"
@@ -592,6 +609,127 @@ stage_mediakeys() {
     shot 15-mediakeys
 }
 
+stage_multiroom() {
+    local cfg=$HOME/.config/sway
+    local am=$cfg/audio-mode.sh
+    local wb=$HOME/.config/waybar/config
+    local start_mode before after n
+
+    [ -x "$am" ] && pass "audio-mode.sh present and executable" || fail "audio-mode.sh missing or not executable"
+    [ -f "$HOME/.config/snapserver/snapserver.conf" ] && pass "snapserver.conf present" || fail "snapserver.conf missing"
+    [ -f "$HOME/.config/snapclient/env" ] && pass "snapclient env file present" || fail "snapclient env file missing"
+    systemctl --user is-enabled --quiet audio-mode-restore.service \
+        && pass "audio-mode-restore.service enabled" || fail "audio-mode-restore.service not enabled"
+    [ "$(snapserver_autostart)" = disabled ] \
+        && pass "snapserver.service not enabled at boot" || fail "snapserver.service autostart=$(snapserver_autostart)"
+    grep -q 'name            "Multiroom"' "$HOME/.config/mpd/mpd.conf" \
+        && pass "mpd.conf has the Multiroom fifo output" || fail "mpd.conf missing Multiroom output"
+    grep -q 'bindsym --no-repeat \$mod+x exec ~/.config/sway/audio-mode.sh pick' "$cfg/generated.conf" \
+        && pass "generated.conf has the \$mod+x bind" || fail "generated.conf missing \$mod+x"
+    jq -e '."modules-right" | index("custom/audio")' "$wb" >/dev/null 2>&1 \
+        && pass "waybar has custom/audio" || fail "waybar missing custom/audio"
+    jq -e '."custom/audio"."signal" == 8' "$wb" >/dev/null 2>&1 \
+        && pass "custom/audio refreshes on signal 8" || fail "custom/audio has no signal 8"
+    command -v avahi-browse >/dev/null && pass "avahi-browse installed" || fail "avahi-browse missing (avahi-utils)"
+    n=$(bash "$am" list 2>/dev/null | wc -l)
+    [ "$n" -eq 4 ] && pass "audio-mode.sh list prints 4 modes" || fail "audio-mode.sh list printed $n rows"
+    bash "$am" status --waybar 2>/dev/null | grep -q . \
+        && pass "status --waybar prints an icon" || fail "status --waybar printed nothing"
+
+    start_mode=$(mode_file)
+    case "$start_mode" in off|receiver|broadcast|group) ;; *) start_mode=off ;; esac
+    if [ "$(mstate)" != playing ]; then
+        mpc clear >/dev/null 2>&1
+        mpc add "$(first_track)" >/dev/null 2>&1
+        mpc play >/dev/null 2>&1
+        sleep 1
+    fi
+
+    # off (default: local playback only)
+    bash "$am" set off >/dev/null 2>&1
+    sleep 1
+    [ "$(mode_file)" = off ] && pass "set off: state=off" || fail "set off: state=$(mode_file)"
+    mpc_enabled 'PipeWire Sound Server' && pass "off: PipeWire output enabled" || fail "off: PipeWire output not enabled"
+    mpc_enabled 'Multiroom' && fail "off: Multiroom output still enabled" || pass "off: Multiroom output disabled"
+    snapserver_active && fail "off: snapserver still running" || pass "off: snapserver stopped"
+    snapclient_active && fail "off: snapclient still running" || pass "off: snapclient stopped"
+    shot 15b-multiroom-off
+
+    # receiver
+    bash "$am" set receiver >/dev/null 2>&1
+    sleep 1
+    [ "$(mode_file)" = receiver ] && pass "set receiver: state=receiver" || fail "set receiver: state=$(mode_file)"
+    mpc_enabled 'PipeWire Sound Server' && pass "receiver: PipeWire output enabled" || fail "receiver: PipeWire output not enabled"
+    mpc_enabled 'Multiroom' && fail "receiver: Multiroom output still enabled" || pass "receiver: Multiroom output disabled"
+    snapserver_active && fail "receiver: snapserver still running" || pass "receiver: snapserver stopped"
+    snapclient_active && pass "receiver: snapclient running" || fail "receiver: snapclient not running"
+    shot 15b-multiroom-receiver
+
+    # broadcast
+    bash "$am" set broadcast >/dev/null 2>&1
+    sleep 1
+    [ "$(mode_file)" = broadcast ] && pass "set broadcast: state=broadcast" || fail "set broadcast: state=$(mode_file)"
+    snapserver_active && pass "broadcast: snapserver active" || fail "broadcast: snapserver not active"
+    snapclient_active && fail "broadcast: local snapclient still running" || pass "broadcast: local snapclient stopped"
+    mpc_enabled 'PipeWire Sound Server' && pass "broadcast: local PipeWire output enabled" || fail "broadcast: local PipeWire output not enabled"
+    mpc_enabled 'Multiroom' && pass "broadcast: Multiroom output enabled" || fail "broadcast: Multiroom output not enabled"
+    timeout 5 avahi-browse -rpt _snapcast._tcp 2>/dev/null | awk -F';' '$1 == "=" && $3 == "IPv4" { print $8":"$9 }' | grep -q ':[0-9]' \
+        && pass "broadcast: snapserver advertises _snapcast._tcp (avahi IPv4 row parsed)" || fail "broadcast: snapserver not advertising"
+    capture_audio && pass "broadcast: snapserver serves PCM ($(stat -c%s /tmp/cap.raw) bytes)" \
+        || fail "broadcast: no PCM captured from 127.0.0.1"
+    if [ -f /usr/share/snapserver/snapweb/manifest.webmanifest ]; then
+        curl -s --max-time 3 http://127.0.0.1:1780/ | grep -q 'assets/' \
+            && pass "broadcast: snapweb served at :1780" || fail "broadcast: snapweb not served"
+    else
+        echo "SKIP snapweb not installed (optional)"
+    fi
+    shot 15b-multiroom-broadcast
+
+    # group
+    bash "$am" set group >/dev/null 2>&1
+    sleep 1
+    [ "$(mode_file)" = group ] && pass "set group: state=group" || fail "set group: state=$(mode_file)"
+    snapserver_active && pass "group: snapserver active" || fail "group: snapserver not active"
+    snapclient_active && pass "group: local snapclient running" || fail "group: local snapclient not running"
+    mpc_enabled 'Multiroom' && pass "group: Multiroom output enabled" || fail "group: Multiroom output not enabled"
+    mpc_enabled 'PipeWire Sound Server' && fail "group: local PipeWire output still enabled" || pass "group: local PipeWire output disabled"
+    client_env | grep -q 'SNAPCLIENT_OPTS=--host 127.0.0.1 --port 1704' \
+        && pass "group: snapclient pointed at 127.0.0.1:1704" || fail "group: SNAPCLIENT_OPTS wrong ($(client_env))"
+    capture_audio && pass "group: snapserver serves PCM ($(stat -c%s /tmp/cap.raw) bytes)" \
+        || fail "group: no PCM captured from 127.0.0.1"
+    shot 15b-multiroom-group
+
+    # listen flow (receiver-side host override)
+    bash "$am" listen 127.0.0.1:1704 >/dev/null 2>&1
+    sleep 0.5
+    [ "$(mode_file)" = receiver ] && pass "listen: switched to receiver" || fail "listen: state=$(mode_file)"
+    snapserver_active && fail "listen: snapserver still running" || pass "listen: snapserver stopped"
+    grep -q 'SNAPCLIENT_OPTS=--host 127.0.0.1 --port 1704' "$HOME/.config/snapclient/env" \
+        && pass "listen 127.0.0.1:1704 wrote the env override" || fail "listen host missing from snapclient env"
+    bash "$am" listen auto >/dev/null 2>&1
+    grep -q '^SNAPCLIENT_OPTS=' "$HOME/.config/snapclient/env" \
+        && fail "listen auto left an override in place" || pass "listen auto cleared the override"
+    shot 15b-multiroom-listen
+
+    # picker: opens on Super+X, Esc changes nothing
+    before=$(mode_file)
+    pkill -x fuzzel >/dev/null 2>&1 || true
+    sleep 0.5
+    super "$KX"; sleep 1.5
+    pgrep -x fuzzel >/dev/null && pass "Super+X opened the audio picker" || fail "Super+X did not open the picker"
+    shot 15b-multiroom-picker
+    tap "$KESC"; sleep 1
+    pgrep -x fuzzel >/dev/null && fail "audio picker did not close on Esc" || pass "audio picker closed on Esc"
+    after=$(mode_file)
+    [ "$before" = "$after" ] && pass "Esc left the mode unchanged ($after)" || fail "mode changed on Esc: $before -> $after"
+
+    # restore the starting mode
+    bash "$am" set "$start_mode" >/dev/null 2>&1
+    sleep 1
+    [ "$(mode_file)" = "$start_mode" ] && pass "restored starting mode ($start_mode)" || fail "could not restore mode $start_mode (now $(mode_file))"
+    shot 15b-multiroom-restored
+}
+
 stage_cleanup() {
     kill_app foot
     kill_app cheatsheet
@@ -650,6 +788,7 @@ case "$STAGE" in
     euphonica) stage_euphonica ;;
     wiremix) stage_wiremix ;;
     mediakeys) stage_mediakeys ;;
+    multiroom) stage_multiroom ;;
     cleanup) stage_cleanup ;;
     *) echo "FAIL unknown stage: $STAGE"; exit 2 ;;
 esac

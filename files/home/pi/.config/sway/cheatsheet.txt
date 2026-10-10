@@ -17,6 +17,7 @@ $mod+Shift+4 euphonica
 $mod+g       browser
 $mod+b       bluetooth
 $mod+n       network (wifitui)
+$mod+x       audio mode
 $mod+tab     terminal
 F13          this cheatsheet
 F11          back / close cheatsheet

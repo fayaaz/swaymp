@@ -95,6 +95,7 @@ button:hover {
 #custom-euphonica,
 #custom-cheatsheet,
 #custom-keyboard,
+#custom-audio,
 #tray,
 #mode,
 #idle_inhibitor,
@@ -265,6 +266,7 @@ label:focus {
 #custom-keyboard,
 #custom-cheatsheet,
 #custom-euphonica,
+#custom-audio,
 #custom-power {
     font-family: "JetBrains Mono", "DejaVu Sans Mono", "FontAwesome", sans-serif;
     font-size: 20px;
@@ -278,6 +280,7 @@ label:focus {
 #custom-euphonica { background-color: rgba(189, 147, 249, 0.22); color: #f8f8f2; }
 #custom-keyboard { background-color: rgba(189, 147, 249, 0.22); color: #f8f8f2; }
 #custom-cheatsheet { background-color: rgba(189, 147, 249, 0.22); color: #f8f8f2; }
+#custom-audio { background-color: rgba(189, 147, 249, 0.22); color: #f8f8f2; }
 
 #tray {
     background-color: rgba(189, 147, 249, 0.18);
