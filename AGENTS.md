@@ -131,6 +131,7 @@ Stage 1 — record on the Pi (`demo/overlay_demo.sh`):
 - There is **no F13 keycap in the 3D model**, so cheatsheet beats must be shown on the Pi screen only — do not add a keycap event for them.
 
 Stage 2 — render on the workstation (`demo/make.sh`):
+- Prerequisite: `demo/swaymp-overlay.mp4` is **not committed** (gitignored via `demo/*.mp4`); copy it from the Pi (`scp pi@hackpi.local:/tmp/swaymp-overlay.mp4 demo/`) before rendering. The committed `demo/frames/` are the render texture, but `extract_frames.sh`/`mux.sh`/`make.sh` still need the clip locally (frames regeneration + audio mux).
 - `extract_frames.sh` → `demo/frames/` (12fps, 720x720 JPEGs; committed, they are the screen texture). This Chromium decodes `<video>` to black pixels for WebGL/canvas, so the page uses pre-decoded JPEGs instead of a `VideoTexture`.
 - `sanitize_video.sh` and `sanitize_frames.sh` blur the Bluetooth/network windows (`49.30-53.30`, `53.90-58.40`) in the source clip and frames; `index.html` also blurs those intervals as a render-time guard. Keep these windows in sync with `EVENTS`.
 - serves `demo/` on `127.0.0.1:7171`, runs `record.py` through `browser-harness` (attaches to Chromium CDP at `BU_CDP_URL`, default `http://127.0.0.1:9333`, auto-launching a browser if none is running) to capture the three.js canvas via the page's own `MediaRecorder` → `kb_final.webm`.
@@ -140,5 +141,5 @@ Coupling rules (the failure modes):
 - `index.html` `EVENTS` must match the `.marks` timings, and `record.py`'s `KB_DUR` must be **≥ the source clip duration** or the final video is truncated.
 - `index.html` sizes the frame preload from `vid.duration` (no hardcoded frame count) with a 400-frame fallback after 4s.
 - `extract_frames.sh` skips extraction when `frames/f_001.jpg` exists, but still runs `sanitize_frames.sh` unless `frames/.sanitized` exists — delete `demo/frames/`, `demo/frames/.sanitized`, and `demo/.swaymp-overlay.sanitized` whenever the source clip changes, or the render keeps the old screen.
-- `kb_final.webm` / `kb_final.mp4` are build outputs; do not commit videos. `demo/swaymp-overlay.mp4` is tracked as the source clip, so replacing it is a deliberate change.
+- `kb_final.webm` / `kb_final.mp4` are build outputs; do not commit videos. The source clip `demo/swaymp-overlay.mp4` is also gitignored (`demo/*.mp4`) — it is a local-only artifact supplied from the Pi, not a tracked file.
 - If `make.sh` is interrupted, the `http.server` on 7171 and the harness Chromium can be left running; the blob download streams in 4MB chunks, so a long clip legitimately takes several minutes.
