@@ -1,5 +1,5 @@
 #!/bin/bash
-# Multiroom audio mode (Snapcast) — the single entry point for $mod+Shift+m,
+# Multiroom audio mode (Snapcast) — the single entry point for $mod+x,
 # the waybar custom/audio button, boot restore, and tests.
 #
 #   pick                      open the fuzzel picker and apply the selection
@@ -19,7 +19,7 @@
 #   group      MPD -> fifo -> snapserver; local snapclient feeds PipeWire from
 #              127.0.0.1:1704, so this Pi and every room are sample-synced
 #
-# Ordering rules (see multiroomaudio.md):
+# Ordering rules:
 #   - snapserver must be up before MPD's Multiroom fifo output is enabled
 #   - the Multiroom output must be disabled before snapserver stops
 # so failures never leave the fifo output enabled with no reader.
@@ -44,8 +44,8 @@ notify() {
         --hint=string:x-canonical-private-synchronous:audio-mode "Audio mode" "$1"
 }
 
-# Ask waybar to re-run the custom/audio exec now ("signal": 8) instead of
-# waiting for the 5 s poll.
+# Ask waybar to re-run the custom/audio exec now ("signal": 8). The module
+# defines no "interval", so this signal is the only refresh path.
 refresh_waybar() { pkill -RTMIN+8 -x waybar 2>/dev/null || true; }
 
 read_mode() {
