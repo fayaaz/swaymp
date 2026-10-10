@@ -1,58 +1,44 @@
 # swaymp — Music Player for the Hackberry Pi
 
-A complete software stack that turns a Hackberry Pi (CM5 handheld) into a
-dedicated music player: MPD + myMPD + Euphonica for playback, sway + waybar on
-a HyperPixel4 square panel, PipeWire audio, and Snapcast multiroom.
+Turns a Hackberry Pi (CM5 handheld) into a dedicated music player: MPD +
+Euphonica for playback, sway + waybar on a HyperPixel4 panel, PipeWire audio,
+Snapcast multiroom.
 
-Built primarily for the Hackberry Pi CM5 handheld, but the stack is mostly
-portable — MPD, myMPD, sway/waybar, PipeWire, and Snapcast run on any Debian
-or Ubuntu machine. Only the HyperPixel4 display setup (`setup-hyperpixel.sh`),
-the Hackberry keyboard keybinds, and the 720×720 panel tuning are hardware-specific.
+Mostly portable beyond the Hackberry — only the display setup, keyboard
+keybinds, and 720×720 panel tuning are hardware-specific.
 
 **Live site:** https://fayaaz.github.io/swaymp
 
-<video src="demo/embed.mp4" width="480" controls poster="demo/embed-poster.jpg"></video>
+[![Promo render: the real Pi screen on the 3D Hackberry keyboard](demo/embed-preview.webp)](https://github.com/fayaaz/swaymp/blob/main/demo/embed.mp4)
+*The real Pi screen playing as the 3D keyboard's display — each shortcut
+lights the key that fires it.* · [full video (1:33)](https://github.com/fayaaz/swaymp/blob/main/demo/embed.mp4)
 
-*The promo render: the real Pi screen recording playing as the 3D Hackberry
-keyboard's display texture, with each shortcut lighting the key that fires it.*
+## What's inside
 
-## What you get
+- MPD + MPC keybinds (play/pause, next/previous, ±5s seek, volume + mute)
+- Euphonica + myMPD clients, fuzzel launcher, F13 cheatsheet
+- Snapcast Receiver / Broadcast / Group via `Super+X`, snapweb phone UI
+- sway + waybar + Dracula theme, bluetuith / wifitui TUIs, Syncthing folders
 
-- **Playback** — MPD (user service, `~/Music` library, `pipewire` output) with
-  MPC keybinds: play/pause, next/previous, ±5s seek, volume + mute
-- **Touch-friendly clients** — Euphonica (flatpak) on Now Playing, myMPD web UI
-  (`https://hackpi.local:8443`)
-- **Multiroom audio** — Snapcast Receiver / Broadcast / Group via `Super+X`,
-  snapweb phone UI on port 1780, mode restored at boot
-- **Handheld UI** — sway + waybar + fuzzel launcher on the 720×720 HyperPixel4
-  panel, Dracula theme, single-source keybinds (`keys.json` → generated sway
-  binds + SVG cheatsheet on F13), Bluetooth (bluetuith) and Wi-Fi (wifitui) TUIs
-- **Music delivery** — Syncthing (`~/Sync`, `~/Music`, `~/Mixes`)
+## How to
 
-## Setup
+`setup-pi.sh` installs and configures the whole sway stack, but it does
+**not** log you in — after a reboot you'll still land on the stock desktop.
+To boot straight into sway, enable LightDM autologin:
 
-`setup-pi.sh` is the deploy entrypoint (run on the Pi as the target user),
-with `files/home/pi/` as the template payload — but a fresh Raspbian image is
-**not** currently a supported one-shot target (see the gaps in `AGENTS.md`:
-login session, Syncthing pairing, myMPD state). Follow the operator manual
-until that path is tested end-to-end.
+```ini
+# /etc/lightdm/lightdm.conf
+[Seat:*]
+user-session=sway
+autologin-user=pi
+autologin-session=sway
+```
 
-## Repo layout
-
-- `setup-pi.sh` — deploy entrypoint (run on the Pi as the target user)
-- `setup-hyperpixel.sh` — HyperPixel4 display setup (run first)
-- `files/home/pi/` — authoritative fresh-setup template payload
-- `demo/` — promo-video pipeline (Pi screen capture → 3D keyboard render);
-  `demo/embed.mp4` is the small GitHub-embeddable cut
-- `index.html` + `.github/workflows/pages.yml` — this project's GitHub Pages
-  site (https://fayaaz.github.io/swaymp)
-
-See `AGENTS.md` for the full operator manual (deploy recipe, quirks,
-verification, demo pipeline).
+then reboot (use your username instead of `pi`). Without this, start sway
+from a TTY or pick the sway session in your greeter.
 
 ## Credits
 
-- Wallpaper / render backdrop: photo by Pat Hayden on
-  [Unsplash](https://unsplash.com/photos/a-black-and-white-photo-of-a-circular-object-biaGCdzlDAk)
-- Hackberry Pi CM5 body shells: ZitaoTech ([MIT](https://github.com/ZitaoTech/HackberryPiCM5))
-- Demo track: ENOENT — *Hopscotch* (from `Sinbiotic EP`)
+Wallpaper: Pat Hayden ([Unsplash](https://unsplash.com/photos/a-black-and-white-photo-of-a-circular-object-biaGCdzlDAk)) ·
+Body shells: ZitaoTech ([MIT](https://github.com/ZitaoTech/HackberryPiCM5)) ·
+Demo track: ENOENT — *Hopscotch*
