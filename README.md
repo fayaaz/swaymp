@@ -1,23 +1,22 @@
-# swaymp — Music Player for the Hackberry Pi
+# swaymp — Music Player for the [Hackberry Pi](https://github.com/ZitaoTech/HackberryPiCM5)
 
-Turns a Hackberry Pi (CM5 handheld) into a dedicated music player: MPD +
+[![Promo render: the real Pi screen on the 3D Hackberry keyboard](demo/embed-preview.webp)](https://github.com/fayaaz/swaymp/blob/main/demo/embed.mp4)
+
+[full video (1:33)](https://github.com/fayaaz/swaymp/blob/main/demo/embed.mp4)
+
+Turns a [Hackberry Pi](https://github.com/ZitaoTech/HackberryPiCM5) (CM5 handheld) into a dedicated music player: MPD +
 Euphonica for playback, sway + waybar on a HyperPixel4 panel, PipeWire audio,
 Snapcast multiroom.
 
 Mostly portable beyond the Hackberry — only the display setup, keyboard
 keybinds, and 720×720 panel tuning are hardware-specific.
 
-**Live site:** https://fayaaz.github.io/swaymp
-
-[![Promo render: the real Pi screen on the 3D Hackberry keyboard](demo/embed-preview.webp)](https://github.com/fayaaz/swaymp/blob/main/demo/embed.mp4)
-*The real Pi screen playing as the 3D keyboard's display — each shortcut
-lights the key that fires it.* · [full video (1:33)](https://github.com/fayaaz/swaymp/blob/main/demo/embed.mp4)
 
 ## What's inside
 
 - MPD + MPC keybinds (play/pause, next/previous, ±5s seek, volume + mute)
 - Euphonica + myMPD clients, fuzzel launcher, F13 cheatsheet
-- Snapcast Receiver / Broadcast / Group via `Super+X`, snapweb phone UI
+- Snapcast Receiver / Broadcast, snapweb phone UI
 - sway + waybar + Dracula theme, bluetuith / wifitui TUIs, Syncthing folders
 
 ## How to
@@ -41,4 +40,4 @@ from a TTY or pick the sway session in your greeter.
 
 Wallpaper: Pat Hayden ([Unsplash](https://unsplash.com/photos/a-black-and-white-photo-of-a-circular-object-biaGCdzlDAk)) ·
 Body shells: ZitaoTech ([MIT](https://github.com/ZitaoTech/HackberryPiCM5)) ·
-Demo track: ENOENT — *Hopscotch*
+Demo track: [ENOENT — *Hopscotch*](https://sinbioticsounds.bandcamp.com/album/4k-ep)
