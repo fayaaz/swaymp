@@ -3,10 +3,11 @@
 # the waybar custom/audio button, boot restore, and tests.
 #
 #   pick                      open the fuzzel picker and apply the selection
+#   cycle                     pick, or step the open picker to the next option
 #   set <mode>                apply off|receiver|broadcast|group directly
 #   listen <host:port>|auto   point the local snapclient at a remote server
 #   status [--waybar]         one line "<icon> <mode>" (or just the icon)
-#   restore                   re-apply the saved mode (boot oneshot, silent)
+#   restore                   bring the Pi up Off (boot oneshot, silent)
 #   list                      mode<TAB>active<TAB>description rows
 #
 # Modes (state in ~/.config/sway/.audio-mode, one word, default off):
@@ -19,6 +20,11 @@
 #   group      MPD -> fifo -> snapserver; local snapclient feeds PipeWire from
 #              127.0.0.1:1704, so this Pi and every room are sample-synced
 #
+# $mod+x is bound to "cycle": the first press opens the picker, and while a
+# picker is open every further press injects one Down into it (wtype), so the
+# key alone walks the list and Enter picks. The picker writes its fuzzel PID to
+# PICK_MARK; a live PID means a picker is on screen.
+#
 # Ordering rules:
 #   - snapserver must be up before MPD's Multiroom fifo output is enabled
 #   - the Multiroom output must be disabled before snapserver stops
@@ -29,6 +35,7 @@ export WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-1}
 
 STATE="$HOME/.config/sway/.audio-mode"
 ENVF="$HOME/.config/snapclient/env"
+PICK_MARK="$XDG_RUNTIME_DIR/swaymp-audio-picker"
 MPD_OUT="PipeWire Sound Server"
 
 # mDNS name receivers should use ("hackpi" -> "hackpi.local").
@@ -225,6 +232,58 @@ decode_name() {
     }'
 }
 
+# Run the fuzzel dmenu picker: option rows on stdin, the chosen row on stdout.
+# fuzzel is started as a direct background job so $! is fuzzel's own pid - that
+# is what cycle() checks and what its wtype keystrokes are aimed at. The marker
+# file holds "<pid>\n<rows>\n<step>": rows lets cycle() wrap the highlight back
+# to the first option after the last one, step tracks where it currently is.
+# The marker is removed when fuzzel exits (Enter picks, Esc cancels).
+run_fuzzel() {
+    local width="$1" prompt="$2" rows fpid opts out
+    opts=$(mktemp "${XDG_RUNTIME_DIR:-/tmp}/swaymp-audio-opts.XXXXXX")
+    out=$(mktemp "${XDG_RUNTIME_DIR:-/tmp}/swaymp-audio-out.XXXXXX")
+    cat > "$opts"
+    rows=$(wc -l < "$opts")
+    fuzzel --dmenu --width "$width" --dpi-aware=no --font "JetBrains Mono:size=13" \
+        --prompt "$prompt" < "$opts" > "$out" 2>/dev/null &
+    fpid=$!
+    printf '%s\n%s\n0\n' "$fpid" "$rows" > "$PICK_MARK"
+    wait "$fpid" || true
+    rm -f "$PICK_MARK"
+    [ -f "$out" ] && head -n1 "$out"
+    rm -f "$opts" "$out"
+}
+
+picker_open() {
+    local pid=""
+    [ -f "$PICK_MARK" ] && read -r pid < "$PICK_MARK"
+    case "$pid" in ''|*[!0-9]*) return 1 ;; esac
+    kill -0 "$pid" 2>/dev/null || return 1
+    return 0
+}
+
+# $mod+x: open the picker, or - if one is already open - step its highlight to
+# the next option (wrapping back to the first row after the last). The key
+# alone reaches every option; Enter picks, Esc cancels.
+do_cycle() {
+    local pid rows step i
+    if ! picker_open; then
+        pick
+        return $?
+    fi
+    { read -r pid; read -r rows; read -r step; } < "$PICK_MARK"
+    case "$rows" in ''|*[!0-9]*) rows=1 ;; esac
+    case "$step" in ''|*[!0-9]*) step=0 ;; esac
+    step=$((step + 1))
+    if [ "$step" -lt "$rows" ]; then
+        wtype -k Down
+    else
+        for i in $(seq 1 $((rows - 1))); do wtype -k Up; done
+        step=0
+    fi
+    printf '%s\n%s\n%s\n' "$pid" "$rows" "$step" > "$PICK_MARK"
+}
+
 # Second fuzzel list built from Avahi. avahi-browse -rpt emits terminated
 # records: =;iface;IPv4;name;_snapcast._tcp;domain;host;ip;port;
 # One row per interface/address: skip loopback and keep the first IPv4 row
@@ -255,7 +314,7 @@ pick_server() {
     sel=$({
         for i in "${!labels[@]}"; do printf '%d) %s\n' "$((i + 1))" "${labels[$i]}"; done
         printf '%d) Automatic (discovery)\n' "$n"
-    } | fuzzel --dmenu --width 56 --dpi-aware=no --font "JetBrains Mono:size=13" --prompt "Snapcast server: ")
+    } | run_fuzzel 56 "Snapcast server (X = next): ")
     sel=$(printf '%s\n' "$sel" | head -n1)
     choice=$(printf '%s\n' "$sel" | grep -oE '^[0-9]+' | head -n1)
     [ -n "$choice" ] || return 0
@@ -278,7 +337,7 @@ pick() {
         "3) Broadcast — send this Pi's music$([ "$mode" = broadcast ] && printf '    <- current')" \
         "4) Group     — sync with other rooms$([ "$mode" = group ] && printf '  <- current')" \
         "5) Listen to… — choose a discovered server" \
-        | fuzzel --dmenu --width 56 --dpi-aware=no --font "JetBrains Mono:size=13" --prompt "Audio mode: ")
+        | run_fuzzel 56 "Audio mode (X = next): ")
     sel=$(printf '%s\n' "$sel" | head -n1)
     n=$(printf '%s\n' "$sel" | grep -oE '^[0-9]+' | head -n1)
     [ -n "$n" ] || exit 0
@@ -310,29 +369,30 @@ do_list() {
     printf 'group\t%s\tGroup — this Pi and the other rooms play in sync\n' "$([ "$mode" = group ] && echo 1 || echo 0)"
 }
 
+# Boot oneshot: the network audio mode is never carried across a reboot. A boot
+# always comes up Off (local playback only) - a Pi that silently rejoined a
+# Snapcast group, or started advertising on the LAN, after a power cut is
+# surprising at best. The saved mode is overwritten so the picker's "<- current"
+# marker matches reality.
 do_restore() {
-    local mode i
-    mode=$(read_mode)
+    local i
     for i in $(seq 1 30); do
         mpc outputs >/dev/null 2>&1 && break
         sleep 0.5
     done
     QUIET=1
-    case "$mode" in
-        receiver)  apply_receiver ;;
-        broadcast) apply_broadcast ;;
-        group)     apply_group ;;
-        *)         mode=off; apply_off ;;
-    esac
-    printf 'audio-mode: restore attempted for mode %s\n' "$mode"
+    apply_off
+    save_mode off
+    printf 'audio-mode: boot restore forced Off\n'
 }
 
 case "${1:-pick}" in
     pick)    pick ;;
+    cycle)   do_cycle ;;
     set)     do_set "${2:?usage: audio-mode.sh set off|receiver|broadcast|group}" ;;
     listen)  listen_to "${2:?usage: audio-mode.sh listen <host:port>|auto}" "${3:-}" ;;
     status)  shift; do_status "${1:-}" ;;
     restore) do_restore ;;
     list)    do_list ;;
-    *) echo "usage: audio-mode.sh [pick|set <mode>|listen <host:port|auto>|status [--waybar]|restore|list]" >&2; exit 2 ;;
+    *) echo "usage: audio-mode.sh [pick|cycle|set <mode>|listen <host:port|auto>|status [--waybar]|restore|list]" >&2; exit 2 ;;
 esac
