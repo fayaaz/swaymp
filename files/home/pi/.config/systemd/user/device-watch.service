@@ -1,0 +1,18 @@
+[Unit]
+Description=Notify when audio outputs or disks are plugged in or removed
+Documentation=file://%h/.config/sway/device-watch.sh
+# A PipeWire restart makes every sink vanish and reappear; PartOf restarts the
+# watcher with PipeWire so it re-takes its baseline silently instead of
+# announcing the whole sink list as plug events.
+After=pipewire.service pipewire-pulse.service wireplumber.service swaync.service sound.target
+Wants=pipewire.service
+PartOf=pipewire.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash %h/.config/sway/device-watch.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

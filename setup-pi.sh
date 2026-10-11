@@ -259,6 +259,7 @@ chmod +x "$HOME/.config/sway/volume.sh"
 chmod +x "$HOME/.config/sway/volume-notify.sh"
 chmod +x "$HOME/.config/sway/brightness.py"
 chmod +x "$HOME/.config/sway/audio-mode.sh"
+chmod +x "$HOME/.config/sway/device-watch.sh"
 systemctl --user disable --now dunst.service >/dev/null 2>&1 || true
 rm -f "$HOME/.config/systemd/user/dunst.service"
 systemctl --user disable --now mpd-notify.service >/dev/null 2>&1 || true
@@ -266,11 +267,11 @@ rm -f "$HOME/.config/systemd/user/mpd-notify.service"
 rm -f "$HOME/.config/waybar/mpd-notify.sh"
 systemctl --user daemon-reload
 # snapserver.service is deliberately NOT enabled: it must only ever be started
-# on demand by audio-mode.sh (Broadcast/Group); audio-mode-restore.service may
-# start it at boot solely to restore a saved Broadcast/Group mode.
+# on demand by audio-mode.sh (Broadcast/Group). audio-mode-restore.service
+# never starts it - a boot always brings the audio mode up Off.
 systemctl --user enable mpd.service mympd.service syncthing.service snapclient.service \
     pipewire.service pipewire-pulse.service wireplumber.service \
-    swaync.service volume-notify.service audio-mode-restore.service >/dev/null
+    swaync.service volume-notify.service device-watch.service audio-mode-restore.service >/dev/null
 systemctl --user restart swaync.service
 systemctl --user start pipewire.service pipewire-pulse.service wireplumber.service \
     mpd.service mympd.service syncthing.service snapclient.service
@@ -278,8 +279,9 @@ systemctl --user start pipewire.service pipewire-pulse.service wireplumber.servi
 # changes (the Multiroom fifo output) without an explicit restart.
 systemctl --user restart mpd.service
 systemctl --user restart volume-notify.service
-# Apply the saved (or default off) audio mode now, so a fresh deploy does not
-# leave snapclient running in discovery until the next boot.
+systemctl --user restart device-watch.service
+# Force the audio mode Off now: a deploy must not leave snapclient running in
+# discovery (or snapserver advertising) until the next boot.
 systemctl --user start audio-mode-restore.service >/dev/null 2>&1 || true
 
 # MPD -> MPRIS bridge: swaync's miniplayer (mpris widget) reads MPD off the
