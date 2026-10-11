@@ -13,14 +13,14 @@
 # screenshots plus per-stage logs. Exit 0 only if every assertion passes.
 #
 # Stages: preflight input playback seek queue volume launcher terminal
-#         cheatsheet devices bluetooth network notifications miniplayer browser euphonica wiremix mediakeys multiroom cleanup
+#         cheatsheet devices plug bluetooth network notifications miniplayer browser euphonica wiremix mediakeys multiroom cleanup
 # The Pi-side runner is embedded below and copied to /tmp/smoke/smoke-run.sh.
 set -u
 
 PI="${PI:-pi@raspberrypi.local}"
 OUT="${OUT:-/tmp/opencode/smoke-$(date +%Y%m%d-%H%M%S)}"
 REMOTE=/tmp/smoke
-STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices bluetooth network notifications miniplayer browser euphonica wiremix mediakeys multiroom cleanup}"
+STAGES="${STAGES:-preflight input playback seek queue volume launcher terminal cheatsheet devices plug bluetooth network notifications miniplayer browser euphonica wiremix mediakeys multiroom cleanup}"
 
 mkdir -p "$OUT"
 ssh_base() { ssh -o ConnectTimeout=8 -o BatchMode=yes "$PI" "$@"; }
@@ -141,6 +141,11 @@ capture_audio() {
 # PipeWire sinks come from the payload switcher itself (device.sh list -> id<TAB>default<TAB>title)
 sink_rows() { [ -f "$HOME/.config/sway/device.sh" ] && bash "$HOME/.config/sway/device.sh" list 2>/dev/null; }
 sink_count() { sink_rows | grep -c .; }
+# device-watch.sh logs its announcements (this image has no user journal entries).
+wait_log() { local f=$1 pat=$2 n=${3:-20} i; for i in $(seq 1 "$n"); do [ -f "$f" ] && grep -qF -- "$pat" "$f" && return 0; sleep 1; done; return 1; }
+# Same, but only matches lines appended after the given line count: a stale line
+# from an earlier run must never satisfy a plug assertion.
+wait_log_after() { local f=$1 pat=$2 base=$3 n=${4:-20} i; for i in $(seq 1 "$n"); do [ "$(tail -n +$((base + 1)) "$f" 2>/dev/null | grep -cF -- "$pat")" -gt 0 ] && return 0; sleep 1; done; return 1; }
 default_sink() { sink_rows | awk -F'\t' '$2 == 1 { print $1; exit }'; }
 sink_title() { sink_rows | awk -F'\t' -v id="$1" '$1 == id { print $3; exit }'; }
 # MPD reaches swaync's miniplayer through the mpdris2 MPRIS bridge on the session bus
@@ -180,7 +185,7 @@ stage_preflight() {
     else
         pass "no swaynag config-error banner"
     fi
-    for s in mpd mympd pipewire pipewire-pulse wireplumber syncthing volume-notify; do
+    for s in mpd mympd pipewire pipewire-pulse wireplumber syncthing volume-notify device-watch; do
         systemctl --user is-active --quiet "$s" && pass "service $s active" || fail "service $s not active"
     done
     command -v grim >/dev/null && pass "grim present" || fail "grim missing"
@@ -383,6 +388,122 @@ stage_devices() {
     count=$(nc_count)
     [ "${count:-0}" -ge 1 ] && pass "Super+D posted a notification" || fail "Super+D posted no notification"
     shot 09-devices
+    swaync-client -C >/dev/null 2>&1 || true
+}
+
+stage_plug() {
+    local dw=$HOME/.config/sway/device-watch.sh
+    local log=$RT/swaymp-device-watch.log
+    local img=$REMOTE/smoke-disk.img mapper=smoke_disk loop="" count
+    local fake=$REMOTE/fake-sinks wlog=$REMOTE/plugwatch.log wpid
+
+    [ -x "$dw" ] && pass "device-watch.sh present and executable" || fail "device-watch.sh missing or not executable"
+    systemctl --user is-enabled --quiet device-watch.service \
+        && pass "device-watch.service enabled" || fail "device-watch.service not enabled"
+    systemctl --user is-active --quiet device-watch.service \
+        && pass "device-watch.service active" || fail "device-watch.service not active"
+    [ -f "$log" ] && pass "device-watch log present ($log)" || echo "NOTE no device-watch log yet ($log)"
+
+    # --- disk plug: a real kernel block device (loop-backed dm) appears/disappears
+    if ! sudo -n true 2>/dev/null; then
+        echo "SKIP disk plug test (no passwordless sudo)"
+    elif ! sudo -n losetup --version >/dev/null 2>&1 || ! sudo -n dmsetup --version >/dev/null 2>&1; then
+        echo "SKIP disk plug test (losetup/dmsetup unavailable)"
+    else
+        # a crashed earlier run can leave the mapper/loop behind (dmsetup would
+        # then fail with "Device or resource busy")
+        sudo -n dmsetup remove "$mapper" >/dev/null 2>&1 || true
+        sudo -n rm -f "$img"
+        dbase=$(wc -l < "$log" 2>/dev/null || echo 0)
+        sudo -n truncate -s 8M "$img" 2>/dev/null
+        loop=$(sudo -n losetup -f --show "$img" 2>/dev/null)
+        if [ -z "$loop" ] || ! sudo -n dmsetup create "$mapper" --table "0 16384 linear $loop 0" >/dev/null 2>&1; then
+            fail "could not create the simulated disk (losetup/dmsetup)"
+        else
+            nc_close
+            swaync-client -C >/dev/null 2>&1 || true
+            if wait_log_after "$log" "disk plugged in: $mapper" "$dbase" 25; then
+                pass "watcher announced the plugged-in disk"
+                sleep 1
+                count=$(nc_count)
+                [ "${count:-0}" -ge 1 ] && pass "disk plug posted a notification" || fail "disk plug posted no notification"
+            else
+                fail "watcher did not announce the plugged-in disk"
+            fi
+            shot 09b-plug-disk
+            base=$(wc -l < "$log" 2>/dev/null || echo 0)
+            sudo -n dmsetup remove "$mapper" >/dev/null 2>&1
+            [ -n "$loop" ] && sudo -n losetup -d "$loop" >/dev/null 2>&1
+            if wait_log_after "$log" "disk removed: $mapper" "$base" 25; then
+                pass "watcher announced the removed disk"
+            else
+                fail "watcher did not announce the removed disk"
+            fi
+            if tail -n +$((dbase + 1)) "$log" 2>/dev/null | grep -qiE 'nvme|zram|loop[0-9]'; then
+                fail "watcher announced a system/virtual device ($(tail -n +$((dbase + 1)) "$log" | grep -iE 'nvme|zram|loop[0-9]' | head -n1))"
+            else
+                pass "system disk and virtual devices ignored"
+            fi
+            swaync-client -C >/dev/null 2>&1 || true
+        fi
+        sudo -n rm -f "$img" 2>/dev/null
+    fi
+
+    # --- audio plug: PipeWire cannot conjure a sink on demand on this build
+    # (spa-device-factory has no null-sink; filter-chain, rtp-sink and
+    # protocol-simple all fail to load), so the diff/notify path is driven
+    # through the watcher's snapshot + event hooks: a fake sink list and a
+    # producer that emits one "audio" token every 3 s. The baseline row must
+    # stay silent; only the added/removed row may fire.
+    printf '1\t0\tSmoke Baseline Sink\n' > "$fake"
+    rm -f "$wlog"
+    DEVICE_WATCH_SINKS_CMD="cat $fake" DEVICE_WATCH_DISKS_CMD="true" \
+        DEVICE_WATCH_EVENTS_CMD='while true; do sleep 3; printf "audio\n"; done' \
+        DEVICE_WATCH_SETTLE=0.5 DEVICE_WATCH_PRIME_DELAY=1 DEVICE_WATCH_LOG="$wlog" \
+        bash "$dw" >"$REMOTE/plugwatch.out" 2>&1 &
+    wpid=$!
+    sleep 4
+    if grep -q 'Smoke Baseline Sink' "$wlog" 2>/dev/null; then
+        fail "watcher announced its own primed baseline"
+    else
+        pass "watcher primed its sink baseline silently"
+    fi
+    printf '1\t0\tSmoke Baseline Sink\n2\t0\tSmoke Fake Sink\n' > "$fake"
+    if wait_log "$wlog" "audio output connected: Smoke Fake Sink" 15; then
+        pass "watcher announced a connected audio output"
+        sleep 1
+        count=$(nc_count)
+        [ "${count:-0}" -ge 1 ] && pass "audio plug posted a notification" || fail "audio plug posted no notification"
+    else
+        fail "watcher did not announce a connected audio output"
+    fi
+    shot 09c-plug-audio
+    printf '1\t0\tSmoke Baseline Sink\n' > "$fake"
+    if wait_log "$wlog" "audio output disconnected: Smoke Fake Sink" 15; then
+        pass "watcher announced a disconnected audio output"
+    else
+        fail "watcher did not announce a disconnected audio output"
+    fi
+    # swap: one event that drops one sink and brings another must announce both,
+    # removal first, so the "Connected" popup is not hidden behind the removal
+    # (swaync replaces notifications sharing a synchronous id).
+    printf '1\t0\tSmoke Other Sink\n' > "$fake"
+    if wait_log "$wlog" "audio output connected: Smoke Other Sink" 15; then
+        last=$(grep -E 'audio output (connected|disconnected)' "$wlog" | tail -n1)
+        case "$last" in
+            *connected*) pass "sink swap announced the connection last" ;;
+            *) fail "sink swap left the removal last ($last)" ;;
+        esac
+    else
+        fail "watcher did not announce the swapped-in sink"
+    fi
+    # PipeWire's fallback null sink must never be announced
+    printf '1\t0\tSmoke Other Sink\n3\t0\tDummy Output\n' > "$fake"
+    sleep 4
+    grep -q 'Dummy Output' "$wlog" 2>/dev/null \
+        && fail "watcher announced PipeWire's fallback sink" || pass "PipeWire fallback sink ignored"
+    kill "$wpid" 2>/dev/null || true
+    wait "$wpid" 2>/dev/null || true
     swaync-client -C >/dev/null 2>&1 || true
 }
 
@@ -624,8 +745,10 @@ stage_multiroom() {
         && pass "snapserver.service not enabled at boot" || fail "snapserver.service autostart=$(snapserver_autostart)"
     grep -q 'name            "Multiroom"' "$HOME/.config/mpd/mpd.conf" \
         && pass "mpd.conf has the Multiroom fifo output" || fail "mpd.conf missing Multiroom output"
-    grep -q 'bindsym --no-repeat \$mod+x exec ~/.config/sway/audio-mode.sh pick' "$cfg/generated.conf" \
-        && pass "generated.conf has the \$mod+x bind" || fail "generated.conf missing \$mod+x"
+    grep -q 'bindsym --no-repeat \$mod+x exec ~/.config/sway/audio-mode.sh cycle' "$cfg/generated.conf" \
+        && pass "generated.conf has the \$mod+x cycle bind" || fail "generated.conf missing the \$mod+x cycle bind"
+    grep -q 'cycle)' "$am" \
+        && pass "audio-mode.sh has the cycle subcommand" || fail "audio-mode.sh missing cycle"
     jq -e '."modules-right" | index("custom/audio")' "$wb" >/dev/null 2>&1 \
         && pass "waybar has custom/audio" || fail "waybar missing custom/audio"
     jq -e '."custom/audio"."signal" == 8' "$wb" >/dev/null 2>&1 \
@@ -725,6 +848,50 @@ stage_multiroom() {
     after=$(mode_file)
     [ "$before" = "$after" ] && pass "Esc left the mode unchanged ($after)" || fail "mode changed on Esc: $before -> $after"
 
+    # picker cycling: Super+X opens the picker, every further press walks the
+    # highlight one row down (audio-mode.sh cycle -> wtype Down into the open
+    # fuzzel), Enter picks. 1)Off -> 4)Group needs three presses.
+    bash "$am" set off >/dev/null 2>&1
+    sleep 0.5
+    pkill -x fuzzel >/dev/null 2>&1 || true
+    sleep 0.5
+    super "$KX"; sleep 1.5
+    pgrep -x fuzzel >/dev/null && pass "cycle: Super+X opened the picker" || fail "cycle: Super+X did not open the picker"
+    [ -f "$RT/swaymp-audio-picker" ] && pass "cycle: picker marker records fuzzel" || fail "cycle: no picker marker file"
+    super "$KX"; sleep 0.5
+    super "$KX"; sleep 0.5
+    super "$KX"; sleep 0.5
+    shot 15b-multiroom-cycle
+    tap "$KRET"; sleep 2
+    [ "$(mode_file)" = group ] \
+        && pass "cycle: 3 presses + Enter picked Group" \
+        || fail "cycle: 3 presses + Enter picked $(mode_file) (expected group)"
+    [ ! -f "$RT/swaymp-audio-picker" ] && pass "cycle: marker cleared when the picker closed" || fail "cycle: picker marker left behind"
+
+    # wrap: 5 rows, so 5 presses come back around to 1)Off
+    super "$KX"; sleep 1.5
+    super "$KX"; sleep 0.4
+    super "$KX"; sleep 0.4
+    super "$KX"; sleep 0.4
+    super "$KX"; sleep 0.4
+    super "$KX"; sleep 0.4
+    tap "$KRET"; sleep 2
+    [ "$(mode_file)" = off ] \
+        && pass "cycle: wrapping past the last option landed on Off" \
+        || fail "cycle: wrap landed on $(mode_file) (expected off)"
+
+    # boot restore must force Off whatever the saved mode was
+    bash "$am" set group >/dev/null 2>&1
+    sleep 1
+    systemctl --user start audio-mode-restore.service >/dev/null 2>&1
+    sleep 1
+    [ "$(mode_file)" = off ] && pass "restore forced Off (saved group)" || fail "restore left mode $(mode_file) (expected off)"
+    snapserver_active && fail "restore left snapserver running" || pass "restore kept snapserver stopped"
+    snapclient_active && fail "restore left snapclient running" || pass "restore kept snapclient stopped"
+    mpc_enabled 'Multiroom' && fail "restore left the Multiroom output enabled" || pass "restore cleared the persisted Multiroom output"
+    mpc_enabled 'PipeWire Sound Server' && pass "restore kept local playback enabled" || fail "restore disabled local playback"
+    shot 15b-multiroom-restore-off
+
     # restore the starting mode
     bash "$am" set "$start_mode" >/dev/null 2>&1
     sleep 1
@@ -782,6 +949,7 @@ case "$STAGE" in
     terminal) stage_terminal ;;
     cheatsheet) stage_cheatsheet ;;
     devices) stage_devices ;;
+    plug) stage_plug ;;
     bluetooth) stage_bluetooth ;;
     network) stage_network ;;
     notifications) stage_notifications ;;
